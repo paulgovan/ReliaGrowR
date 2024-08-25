@@ -1,0 +1,16 @@
+Package: WeibullR.rga
+Title: Reliability Growth Analysis
+Version: 0.0.1
+Authors@R: person("Paul", "Govan", email = "paul.govan2@gmail.com", 
+  role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0002-1821-8492"))
+Description: Reliability Growth Analysis using the Crow-AMSAA model.
+Imports: 
+  stats,
+  graphics
+License: CC BY 4.0
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Suggests: 
+    spelling
+Language: en-US

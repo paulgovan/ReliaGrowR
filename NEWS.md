@@ -1,3 +1,3 @@
-# WeibullR.rga (development version)
+# WeibullR.rga 0.0.1
 
 * Initial CRAN submission.
