@@ -3,7 +3,6 @@
 #' @param times A vector of cumulative times at which failures occurred.
 #' @param failures A vector of the number of failures at each corresponding time in times.
 #' @param result A list of results for a Reliability Growth Analysis.
-#' @param conf_level the desired confidence level, which defaults to 95%.
 #' @return The function does not return a value.
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
@@ -13,32 +12,46 @@
 #' @importFrom graphics legend lines
 #' @export
 
-plot_rga <- function(times, failures, result, conf_level = 0.95) {
+plot_rga <- function(times, failures, result) {
 
-  # Extract the cumulative failures and the model
-  cum_failures <- result$cum_failures
-  model <- result$model
+  # Check if the inputs are valid
+  if (length(times) != length(failures)) {
+    stop("Error: The length of 'times' and 'failures' must be equal.")
+  }
 
-  # Generate predicted values using the model
-  predicted <- exp(predict(model))
+  if (!is.numeric(times) || !is.numeric(failures)) {
+    stop("Error: Both 'times' and 'failures' must be numeric vectors.")
+  }
 
-  # Calculate the confidence bounds for the predicted values
-  lower_predicted <- exp(result$lower_lambda) * times^result$lower_beta
-  upper_predicted <- exp(result$upper_lambda) * times^result$upper_beta
+  if (any(times <= 0)) {
+    stop("Error: All values in 'times' must be greater than 0.")
+  }
+
+  if (!is.list(result) || !all(c("fitted_values", "lower_bounds", "upper_bounds") %in% names(result))) {
+    stop("Error: 'result' must be a list containing 'fitted_values', 'lower_bounds', and 'upper_bounds'.")
+  }
+
+  # Convert to cumulative failure times
+  cum_failures <- cumsum(failures)
 
   # Set up the plot
   plot(times, cum_failures, pch = 16, col = "blue",
        xlab = "Time", ylab = "Cumulative Failures",
-       main = paste("Crow-AMSAA Model with", conf_level * 100, "% Confidence Bounds"))
+       main = "Reliability Growth Analysis")
 
-  # Add the predicted line
-  lines(times, predicted, col = "red", lty = 1)
+  # Add the fitted line(s)
+  lines(times, result$fitted_values, col = "red", lty = 1)
 
   # Add the confidence bounds
-  lines(times, lower_predicted, col = "red", lty = 2)
-  lines(times, upper_predicted, col = "red", lty = 2)
+  lines(times, result$lower_bounds, col = "red", lty = 2)
+  lines(times, result$upper_bounds, col = "red", lty = 2)
+
+  # Add vertical lines at the change points
+  if (!is.null(result$breakpoints)) {
+    abline(v = exp(result$breakpoints), col = "green", lty = 3)
+  }
 
   # Add a legend
-  legend("bottomright", legend = c("Observed", "Predicted", "Confidence Bounds"),
-         col = c("blue", "red", "red"), pch = c(16, NA, NA), lty = c(NA, 1, 2))
+  legend("bottomright", legend = c("Observed", "Fitted Line", "Confidence Bounds", "Change Points"),
+         col = c("blue", "red", "red", "green"), pch = c(16, NA, NA, NA), lty = c(NA, 1, 2, 3))
 }

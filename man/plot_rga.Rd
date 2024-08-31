@@ -4,7 +4,7 @@
 \alias{plot_rga}
 \title{Plotting Function for Reliability Growth Analysis.}
 \usage{
-plot_rga(times, failures, result, conf_level = 0.95)
+plot_rga(times, failures, result)
 }
 \arguments{
 \item{times}{A vector of cumulative times at which failures occurred.}
@@ -12,8 +12,6 @@ plot_rga(times, failures, result, conf_level = 0.95)
 \item{failures}{A vector of the number of failures at each corresponding time in times.}
 
 \item{result}{A list of results for a Reliability Growth Analysis.}
-
-\item{conf_level}{the desired confidence level, which defaults to 95\%.}
 }
 \value{
 The function does not return a value.

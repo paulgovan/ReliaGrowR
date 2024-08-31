@@ -2,14 +2,16 @@
 % Please edit documentation in R/rga.R
 \name{rga}
 \alias{rga}
-\title{Reliability Growth Analysis using the Crow-AMSAA model.}
+\title{Reliability Growth Analysis.}
 \usage{
-rga(times, failures, conf_level = 0.95)
+rga(times, failures, model_type = "Crow-AMSAA", conf_level = 0.95)
 }
 \arguments{
 \item{times}{A vector of cumulative times at which failures occurred.}
 
 \item{failures}{A vector of the number of failures at each corresponding time in times.}
+
+\item{model_type}{The model type. Either \code{Crow-AMSAA} (default) or \verb{Piecewise Weibull NHPP} with change point detection.}
 
 \item{conf_level}{the desired confidence level, which defaults to 95\%.}
 }
@@ -17,7 +19,7 @@ rga(times, failures, conf_level = 0.95)
 The function returns a list of the results for the model.
 }
 \description{
-Reliability Growth Analysis using the Crow-AMSAA model.
+Reliability Growth Analysis.
 }
 \examples{
 times <- c(100, 200, 300, 400, 500)
