@@ -14,7 +14,7 @@
 #' @importFrom segmented segmented
 #' @export
 
-rga <- function(times, failures, model_type = "Crow-AMSAA", conf_level = 0.95) {
+rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, conf_level = 0.95) {
 
   # Check if the inputs are valid
   if (length(times) != length(failures)) {
@@ -25,8 +25,8 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", conf_level = 0.95) {
     stop("All values in 'times' must be greater than 0.")
   }
 
-  if (any(times <= 0)) {
-    stop("Error: All values in 'times' must be greater than 0.")
+  if (any(failures <= 0)) {
+    stop("Error: All values in 'failures' must be greater than 0.")
   }
 
   if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
@@ -37,6 +37,16 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", conf_level = 0.95) {
   valid_models <- c("Crow-AMSAA", "Piecewise Weibull NHPP")
   if (!(model_type %in% valid_models)) {
     stop(paste("Error: model_type must be one of", paste(valid_models, collapse = ", "), "."))
+  }
+
+  # Check if breakpoints are valid if provided
+  if (!is.null(breakpoints)) {
+    if (!is.numeric(breakpoints) || any(breakpoints <= 0)) {
+      stop("Error: breakpoints must be a numeric vector with positive values.")
+    }
+    if (model_type != "Piecewise Weibull NHPP") {
+      stop("Error: breakpoints can only be used with the 'Piecewise Weibull NHPP' model.")
+    }
   }
 
   # Convert to cumulative failure times
@@ -50,11 +60,19 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", conf_level = 0.95) {
   fit <- stats::lm(log_cum_failures ~ log_times)
 
   if (model_type == "Piecewise Weibull NHPP") {
-    # Apply the segmented package to detect change points
-    updated_fit <- segmented::segmented(fit, seg.Z = ~log_times)
+    if (is.null(breakpoints)) {
+      # Apply the segmented package to detect change points
+      updated_fit <- segmented::segmented(fit, seg.Z = ~log_times)
 
-    # Extract the breakpoints (change points)
-    breakpoints <- updated_fit$psi[, "Est."]
+      # Extract the breakpoints (change points)
+      breakpoints <- updated_fit$psi[, "Est."]
+    } else {
+      # Apply the user-supplied breakpoints
+      segmented_fit <- segmented::segmented(fit, seg.Z = ~log_times, psi = log(breakpoints))
+
+      # Update the model fit with the user-supplied breakpoints
+      updated_fit <- segmented_fit
+    }
   } else {
     updated_fit <- fit
     breakpoints <- NULL

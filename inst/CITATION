@@ -1,11 +1,11 @@
-citHeader("To cite WeibullR.rga in publications use:")
+citHeader("To cite RGA in publications use:")
 
 bibentry(
   bibtype   = "Manual",
-  title    = "WeibullR.rga: Reliability Growth Analysis",
+  title    = "RGA: Reliability Growth Analysis",
   author   = "Paul Govan",
   year     = "2024",
   note     = "R package version 0.1",
-  url = "https://cran.r-project.org/package=WeibullR.rga",
-  doi = "10.32614/CRAN.package.WeibullR.rga"
+  url = "https://cran.r-project.org/package=RGA",
+  doi = "10.32614/CRAN.package.RGA"
 )

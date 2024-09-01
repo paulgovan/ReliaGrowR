@@ -48,3 +48,33 @@ test_that("rga function handles mismatched lengths of times and failures", {
 #
 #   expect_error(rga(times, failures), "Error: All values in 'times' must be greater than 0.")
 # })
+
+test_that("rga function works correctly with valid user-supplied breakpoints", {
+  times <- c(100, 200, 300, 400, 500)
+  failures <- c(1, 2, 1, 3, 2)
+  breakpoints <- 350
+  result <- rga(times, failures, model_type = "Piecewise Weibull NHPP", breakpoints = breakpoints)
+
+  expect_true(is.list(result))
+  expect_true(all(c("model", "breakpoints", "fitted_values", "lower_bounds", "upper_bounds") %in% names(result)))
+  expect_equal(length(result$breakpoints), length(breakpoints))  # Number of breakpoints should match
+})
+
+test_that("rga function handles invalid breakpoints", {
+  times <- c(100, 200, 300, 400, 500)
+  failures <- c(1, 2, 1, 3, 2)
+
+  expect_error(rga(times, failures, model_type = "Piecewise Weibull NHPP", breakpoints = c(-150, 350)), "Error: breakpoints must be a numeric vector with positive values.")
+  expect_error(rga(times, failures, model_type = "Crow-AMSAA", breakpoints = c(150, 350)), "Error: breakpoints can only be used with the 'Piecewise Weibull NHPP' model.")
+})
+
+test_that("rga function works correctly without user-supplied breakpoints", {
+  times <- c(100, 200, 300, 400, 500)
+  failures <- c(1, 2, 1, 3, 2)
+  result <- rga(times, failures, model_type = "Piecewise Weibull NHPP")
+
+  expect_true(is.list(result))
+  expect_true(all(c("model", "breakpoints", "fitted_values", "lower_bounds", "upper_bounds") %in% names(result)))
+  expect_false(is.null(result$breakpoints))  # Change points should be detected
+})
+

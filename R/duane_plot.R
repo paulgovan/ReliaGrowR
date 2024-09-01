@@ -8,7 +8,7 @@
 #' failures <- c(1, 2, 1, 3, 2)
 #' fit <- duane_plot(times, failures)
 #' summary(fit)
-#' @importFrom stats coef lm predict qt
+#' @importFrom stats lm
 #' @importFrom graphics legend abline
 #' @export
 
@@ -21,6 +21,10 @@ duane_plot <- function(times, failures) {
 
   if (any(times <= 0)) {
     stop("All values in 'times' must be greater than 0.")
+  }
+
+  if (any(failures <= 0)) {
+    stop("Error: All values in 'failures' must be greater than 0.")
   }
 
   # Convert to cumulative failure times and cumulative operating time
@@ -38,7 +42,7 @@ duane_plot <- function(times, failures) {
   # Fit a linear model to the log-transformed data for the Duane plot
   log_cum_time <- log(cum_time)
   log_cum_mtbf <- log(cum_mtbf)
-  fit <- lm(log_cum_mtbf ~ log_cum_time)
+  fit <- stats::lm(log_cum_mtbf ~ log_cum_time)
 
   # Add the fitted line
   abline(fit, col = "red", lty = 2)

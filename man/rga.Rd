@@ -4,7 +4,13 @@
 \alias{rga}
 \title{Reliability Growth Analysis.}
 \usage{
-rga(times, failures, model_type = "Crow-AMSAA", conf_level = 0.95)
+rga(
+  times,
+  failures,
+  model_type = "Crow-AMSAA",
+  breakpoints = NULL,
+  conf_level = 0.95
+)
 }
 \arguments{
 \item{times}{A vector of cumulative times at which failures occurred.}
