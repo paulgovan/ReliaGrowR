@@ -16,7 +16,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 You can install the development version of RGA like so:
 
 ``` r
-devtools::install_github('paulgovan/RGA')
+devtools::install_github('paulgovan/WeibullR.rga')
 ```
 
 ## Example
