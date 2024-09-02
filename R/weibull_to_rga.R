@@ -25,8 +25,8 @@ weibull_to_rga <- function(failures, suspensions = NULL) {
   }
 
   # Combine failure and suspension times
-  all_times <- c(failures, suspensions)
-  all_types <- c(rep("Failure", length(failures)), rep("Suspension", length(suspensions)))
+  all_times <- c(failure_times, suspension_times)
+  all_types <- c(rep("Failure", length(failure_times)), rep("Suspension", length(suspension_times)))
 
   # Create a data frame
   data <- data.frame(Time = all_times, Type = all_types)
@@ -34,12 +34,14 @@ weibull_to_rga <- function(failures, suspensions = NULL) {
   # Sort the data by time
   data <- data[order(data$Time), ]
 
-  # Filter out suspensions and create a cumulative failures column
-  data_filtered <- subset(data, Type == "Failure")
-  data_filtered$Failures <- seq_len(nrow(data_filtered))
+  # Calculate cumulative time considering both failures and suspensions
+  data$CumulativeTime <- cumsum(data$Time)
 
-  # Calculate cumulative time
-  data_filtered$CumulativeTime <- cumsum(data_filtered$Time)
+  # Create a cumulative failure count, but only increment for failures
+  data$Failures <- cumsum(data$Type == "Failure")
+
+  # Filter out suspensions, keeping only failures in the final result
+  data_filtered <- subset(data, Type == "Failure")
 
   # Select relevant columns for output
   result <- data_filtered[, c("CumulativeTime", "Failures")]
