@@ -63,12 +63,9 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">300</span>, <span class="fl">400</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">suspensions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">250</span>, <span class="fl">350</span>, <span class="fl">450</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">weibull_to_rga</span><span class="op">(</span><span class="va">failures</span>, <span class="va">suspensions</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in weibull_to_rga(failures, suspensions):</span> object 'failure_times' not found</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   CumulativeTime Failures</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1            100        1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2            300        2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3            600        3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4           1000        4</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'result' not found</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
