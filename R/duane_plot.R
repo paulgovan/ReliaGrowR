@@ -2,7 +2,12 @@
 #'
 #' @param times A vector of cumulative times at which failures occurred.
 #' @param failures A vector of the number of failures at each corresponding time in times.
-#' @return The function does not return a value.
+#' @param point_col Color for the data points (default: "blue").
+#' @param line_col Color for the fitted line (default: "red").
+#' @param xlab Label for the x-axis (default: "Cumulative Time").
+#' @param ylab Label for the y-axis (default: "Cumulative MTBF").
+#' @param main Title for the plot (default: "Duane Plot with Cumulative MTBF").
+#' @return The function returns the fitted linear model.
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
@@ -12,7 +17,10 @@
 #' @importFrom graphics legend abline
 #' @export
 
-duane_plot <- function(times, failures) {
+duane_plot <- function(times, failures,
+                       point_col = "blue", line_col = "red",
+                       xlab = "Cumulative Time", ylab = "Cumulative MTBF",
+                       main = "Duane Plot with Cumulative MTBF") {
 
   # Check if the inputs are valid
   if (length(times) != length(failures)) {
@@ -35,9 +43,9 @@ duane_plot <- function(times, failures) {
   cum_mtbf <- cum_time / cum_failures
 
   # Set up the plot with log-log scale
-  plot(cum_time, cum_mtbf, log = "xy", pch = 16, col = "blue",
-       xlab = "Cumulative Time", ylab = "Cumulative MTBF",
-       main = "Duane Plot with Cumulative MTBF")
+  plot(cum_time, cum_mtbf, log = "xy", pch = 16, col = point_col,
+       xlab = xlab, ylab = ylab,
+       main = main)
 
   # Fit a linear model to the log-transformed data for the Duane plot
   log_cum_time <- log(cum_time)
@@ -45,11 +53,12 @@ duane_plot <- function(times, failures) {
   fit <- stats::lm(log_cum_mtbf ~ log_cum_time)
 
   # Add the fitted line
-  abline(fit, col = "red", lty = 2)
+  fitted_values <- exp(predict(fit))
+  lines(cum_time, fitted_values, col = "red", lty = 2)
 
   # Add a legend
   legend("bottomright", legend = c("Observed", "Fitted Line"),
-         col = c("blue", "red"), pch = c(16, NA), lty = c(NA, 2))
+         col = c(point_col, line_col), pch = c(16, NA), lty = c(NA, 2))
 
   # Return the fit for further analysis if needed
   return(fit)

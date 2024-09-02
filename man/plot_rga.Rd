@@ -2,22 +2,41 @@
 % Please edit documentation in R/plot_rga.R
 \name{plot_rga}
 \alias{plot_rga}
-\title{Plotting Function for Reliability Growth Analysis.}
+\title{Plotting Function for Reliability Growth Analysis}
 \usage{
-plot_rga(times, failures, result)
+plot_rga(
+  times,
+  failures,
+  result,
+  point_col = "blue",
+  line_col = "red",
+  xlab = "Cumulative Time",
+  ylab = "Cumulative Failures",
+  main = "Reliability Growth Analysis"
+)
 }
 \arguments{
 \item{times}{A vector of cumulative times at which failures occurred.}
 
 \item{failures}{A vector of the number of failures at each corresponding time in times.}
 
-\item{result}{A list of results for a Reliability Growth Analysis.}
+\item{result}{A list of results from the RGA model.}
+
+\item{point_col}{Color for the data points (default: "blue").}
+
+\item{line_col}{Color for the fitted line (default: "red").}
+
+\item{xlab}{Label for the x-axis (default: "Cumulative Time").}
+
+\item{ylab}{Label for the y-axis (default: "Cumulative Failures").}
+
+\item{main}{Title for the plot (default: "Reliability Growth Analysis").}
 }
 \value{
 The function does not return a value.
 }
 \description{
-Plotting Function for Reliability Growth Analysis.
+Plotting Function for Reliability Growth Analysis
 }
 \examples{
 times <- c(100, 200, 300, 400, 500)

@@ -4,15 +4,33 @@
 \alias{duane_plot}
 \title{Duane Plot.}
 \usage{
-duane_plot(times, failures)
+duane_plot(
+  times,
+  failures,
+  point_col = "blue",
+  line_col = "red",
+  xlab = "Cumulative Time",
+  ylab = "Cumulative MTBF",
+  main = "Duane Plot with Cumulative MTBF"
+)
 }
 \arguments{
 \item{times}{A vector of cumulative times at which failures occurred.}
 
 \item{failures}{A vector of the number of failures at each corresponding time in times.}
+
+\item{point_col}{Color for the data points (default: "blue").}
+
+\item{line_col}{Color for the fitted line (default: "red").}
+
+\item{xlab}{Label for the x-axis (default: "Cumulative Time").}
+
+\item{ylab}{Label for the y-axis (default: "Cumulative MTBF").}
+
+\item{main}{Title for the plot (default: "Duane Plot with Cumulative MTBF").}
 }
 \value{
-The function does not return a value.
+The function returns the fitted linear model.
 }
 \description{
 Duane Plot.
