@@ -14,6 +14,7 @@
 #' failures <- c(1, 2, 1, 3, 2)
 #' result <- rga(times, failures)
 #' plot_rga(times, failures, result)
+#' @importFrom graphics lines abline legend
 #' @export
 
 plot_rga <- function(times, failures, result,
@@ -39,18 +40,18 @@ plot_rga <- function(times, failures, result,
        main = main)
 
   # Add the fitted line(s)
-  lines(times, result$fitted_values, col = line_col, lty = 1)
+  graphics::lines(times, result$fitted_values, col = line_col, lty = 1)
 
   # Add the confidence bounds
-  lines(times, result$lower_bounds, col = line_col, lty = 2)
-  lines(times, result$upper_bounds, col = line_col, lty = 2)
+  graphics::lines(times, result$lower_bounds, col = line_col, lty = 2)
+  graphics::lines(times, result$upper_bounds, col = line_col, lty = 2)
 
   # Add vertical lines at the change points
   if (!is.null(result$breakpoints)) {
-    abline(v = exp(result$breakpoints), col = "green", lty = 3)
+    graphics::abline(v = exp(result$breakpoints), col = "green", lty = 3)
   }
 
   # Add a legend
-  legend("bottomright", legend = c("Observed", "Fitted Line", "Confidence Bounds", "Change Points"),
+  graphics::legend("bottomright", legend = c("Observed", "Fitted Line", "Confidence Bounds", "Change Points"),
          col = c(point_col, line_col, line_col, "green"), pch = c(16, NA, NA, NA), lty = c(NA, 1, 2, 3))
 }

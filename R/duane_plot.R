@@ -14,7 +14,7 @@
 #' fit <- duane_plot(times, failures)
 #' summary(fit)
 #' @importFrom stats lm
-#' @importFrom graphics legend abline
+#' @importFrom graphics legend lines
 #' @export
 
 duane_plot <- function(times, failures,
@@ -54,10 +54,10 @@ duane_plot <- function(times, failures,
 
   # Add the fitted line
   fitted_values <- exp(predict(fit))
-  lines(cum_time, fitted_values, col = "red", lty = 2)
+  graphics::lines(cum_time, fitted_values, col = "red", lty = 2)
 
   # Add a legend
-  legend("bottomright", legend = c("Observed", "Fitted Line"),
+  graphics::legend("bottomright", legend = c("Observed", "Fitted Line"),
          col = c(point_col, line_col), pch = c(16, NA), lty = c(NA, 2))
 
   # Return the fit for further analysis if needed

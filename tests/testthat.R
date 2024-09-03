@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(WeibullR.rga)
+library(RGA)
 
-test_check("WeibullR.rga")
+test_check("RGA")

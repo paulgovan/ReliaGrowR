@@ -3,6 +3,7 @@
 #' @param times A vector of cumulative times at which failures occurred.
 #' @param failures A vector of the number of failures at each corresponding time in times.
 #' @param model_type The model type. Either `Crow-AMSAA` (default) or `Piecewise Weibull NHPP` with change point detection.
+#' @param breakpoints An optional vector of breakpoints for the `Piecewise Weibull NHPP` model.
 #' @param conf_level the desired confidence level, which defaults to 95%.
 #' @return The function returns a list of the results for the model.
 #' @examples

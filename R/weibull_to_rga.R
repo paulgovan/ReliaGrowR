@@ -25,8 +25,8 @@ weibull_to_rga <- function(failures, suspensions = NULL) {
   }
 
   # Combine failure and suspension times
-  all_times <- c(failure_times, suspension_times)
-  all_types <- c(rep("Failure", length(failure_times)), rep("Suspension", length(suspension_times)))
+  all_times <- c(failures, suspensions)
+  all_types <- c(rep("Failure", length(failures)), rep("Suspension", length(suspensions)))
 
   # Create a data frame
   data <- data.frame(Time = all_times, Type = all_types)

@@ -19,6 +19,8 @@ rga(
 
 \item{model_type}{The model type. Either \code{Crow-AMSAA} (default) or \verb{Piecewise Weibull NHPP} with change point detection.}
 
+\item{breakpoints}{An optional vector of breakpoints for the \verb{Piecewise Weibull NHPP} model.}
+
 \item{conf_level}{the desired confidence level, which defaults to 95\%.}
 }
 \value{
