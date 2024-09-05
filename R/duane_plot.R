@@ -54,11 +54,11 @@ duane_plot <- function(times, failures,
 
   # Add the fitted line
   fitted_values <- exp(predict(fit))
-  graphics::lines(cum_time, fitted_values, col = line_col, lty = 2)
+  graphics::lines(cum_time, fitted_values, col = line_col, lty = 1)
 
   # Add a legend
   graphics::legend("bottomright", legend = c("Observed", "Fitted Line"),
-         col = c(point_col, line_col), pch = c(16, NA), lty = c(NA, 2))
+         col = c(point_col, line_col), pch = c(16, NA), lty = c(NA, 1))
 
   # Return the fit for further analysis if needed
   return(fit)

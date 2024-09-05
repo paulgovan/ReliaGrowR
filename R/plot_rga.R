@@ -48,10 +48,10 @@ plot_rga <- function(times, failures, result,
 
   # Add vertical lines at the change points
   if (!is.null(result$breakpoints)) {
-    graphics::abline(v = exp(result$breakpoints), col = "green", lty = 3)
+    graphics::abline(v = exp(result$breakpoints), col = "black", lty = 3)
   }
 
   # Add a legend
   graphics::legend("bottomright", legend = c("Observed", "Fitted Line", "Confidence Bounds", "Change Points"),
-         col = c(point_col, line_col, line_col, "green"), pch = c(16, NA, NA, NA), lty = c(NA, 1, 2, 3))
+         col = c(point_col, line_col, line_col, "black"), pch = c(16, NA, NA, NA), lty = c(NA, 1, 2, 3))
 }
