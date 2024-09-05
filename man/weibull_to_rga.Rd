@@ -12,13 +12,13 @@ weibull_to_rga(failures, suspensions = NULL)
 \item{suspensions}{A vector of suspension (censoring) times.}
 }
 \value{
-A data frame with cumulative times and failures suitable for reliability growth analysis.
+A data frame with times and failure counts suitable for reliability growth analysis.
 }
 \description{
 Convert Weibull Data to Reliability Growth Data
 }
 \examples{
-failures <- c(100, 200, 300, 400)
+failures <- c(100, 200, 200, 400)
 suspensions <- c(250, 350, 450)
 result <- weibull_to_rga(failures, suspensions)
 print(result)

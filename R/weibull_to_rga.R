@@ -2,12 +2,13 @@
 #'
 #' @param failures A vector of failure times.
 #' @param suspensions A vector of suspension (censoring) times.
-#' @return A data frame with cumulative times and failures suitable for reliability growth analysis.
+#' @return A data frame with times and failure counts suitable for reliability growth analysis.
 #' @examples
-#' failures <- c(100, 200, 300, 400)
+#' failures <- c(100, 200, 200, 400)
 #' suspensions <- c(250, 350, 450)
 #' result <- weibull_to_rga(failures, suspensions)
 #' print(result)
+#' @importFrom stats aggregate
 #' @export
 
 weibull_to_rga <- function(failures, suspensions = NULL) {
@@ -34,17 +35,26 @@ weibull_to_rga <- function(failures, suspensions = NULL) {
   # Sort the data by time
   data <- data[order(data$Time), ]
 
-  # Calculate cumulative time considering both failures and suspensions
+  # Separate cumulative time and failure counts
   data$CumulativeTime <- cumsum(data$Time)
 
-  # Create a cumulative failure count, but only increment for failures
-  data$Failures <- cumsum(data$Type == "Failure")
+  # Create the failure counts for each unique time
+  failure_counts <- stats::aggregate(Type ~ Time, data = data, FUN = function(x) sum(x == "Failure"))
 
-  # Filter out suspensions, keeping only failures in the final result
-  data_filtered <- subset(data, Type == "Failure")
+  # Merge the cumulative time with the failure counts
+  result <- merge(failure_counts, data[, c("Time", "CumulativeTime")], by = "Time")
+
+  # Remove duplicates due to merging
+  result <- result[!duplicated(result$Time), ]
+
+  # Rename the failure count column
+  colnames(result)[colnames(result) == "Type"] <- "Failures"
+
+  # Filter out rows where Failures are 0 (which are suspensions)
+  result <- result[result$Failures > 0, ]
 
   # Select relevant columns for output
-  result <- data_filtered[, c("CumulativeTime", "Failures")]
+  result <- result[, c("CumulativeTime", "Failures")]
 
   return(result)
 }

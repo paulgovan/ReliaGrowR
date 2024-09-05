@@ -13,8 +13,11 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests: 
+    knitr,
+    rmarkdown,
     spelling,
     testthat (>= 3.0.0)
 Language: en-US
 URL: https://paulgovan.github.io/WeibullR.rga/
 Config/testthat/edition: 3
+VignetteBuilder: knitr

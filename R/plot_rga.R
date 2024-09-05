@@ -3,8 +3,8 @@
 #' @param times A vector of cumulative times at which failures occurred.
 #' @param failures A vector of the number of failures at each corresponding time in times.
 #' @param result A list of results from the RGA model.
-#' @param point_col Color for the data points (default: "blue").
-#' @param line_col Color for the fitted line (default: "red").
+#' @param point_col Color for the data points (default: "black").
+#' @param line_col Color for the fitted line (default: "black").
 #' @param xlab Label for the x-axis (default: "Cumulative Time").
 #' @param ylab Label for the y-axis (default: "Cumulative Failures").
 #' @param main Title for the plot (default: "Reliability Growth Analysis").
@@ -18,7 +18,7 @@
 #' @export
 
 plot_rga <- function(times, failures, result,
-                     point_col = "blue", line_col = "red",
+                     point_col = "black", line_col = "black",
                      xlab = "Cumulative Time", ylab = "Cumulative Failures",
                      main = "Reliability Growth Analysis") {
 

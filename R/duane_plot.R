@@ -2,8 +2,8 @@
 #'
 #' @param times A vector of cumulative times at which failures occurred.
 #' @param failures A vector of the number of failures at each corresponding time in times.
-#' @param point_col Color for the data points (default: "blue").
-#' @param line_col Color for the fitted line (default: "red").
+#' @param point_col Color for the data points (default: "black").
+#' @param line_col Color for the fitted line (default: "black").
 #' @param xlab Label for the x-axis (default: "Cumulative Time").
 #' @param ylab Label for the y-axis (default: "Cumulative MTBF").
 #' @param main Title for the plot (default: "Duane Plot with Cumulative MTBF").
@@ -18,7 +18,7 @@
 #' @export
 
 duane_plot <- function(times, failures,
-                       point_col = "blue", line_col = "red",
+                       point_col = "black", line_col = "black",
                        xlab = "Cumulative Time", ylab = "Cumulative MTBF",
                        main = "Duane Plot with Cumulative MTBF") {
 
@@ -54,7 +54,7 @@ duane_plot <- function(times, failures,
 
   # Add the fitted line
   fitted_values <- exp(predict(fit))
-  graphics::lines(cum_time, fitted_values, col = "red", lty = 2)
+  graphics::lines(cum_time, fitted_values, col = line_col, lty = 2)
 
   # Add a legend
   graphics::legend("bottomright", legend = c("Observed", "Fitted Line"),

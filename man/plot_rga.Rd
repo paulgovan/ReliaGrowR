@@ -8,8 +8,8 @@ plot_rga(
   times,
   failures,
   result,
-  point_col = "blue",
-  line_col = "red",
+  point_col = "black",
+  line_col = "black",
   xlab = "Cumulative Time",
   ylab = "Cumulative Failures",
   main = "Reliability Growth Analysis"
@@ -22,9 +22,9 @@ plot_rga(
 
 \item{result}{A list of results from the RGA model.}
 
-\item{point_col}{Color for the data points (default: "blue").}
+\item{point_col}{Color for the data points (default: "black").}
 
-\item{line_col}{Color for the fitted line (default: "red").}
+\item{line_col}{Color for the fitted line (default: "black").}
 
 \item{xlab}{Label for the x-axis (default: "Cumulative Time").}
 

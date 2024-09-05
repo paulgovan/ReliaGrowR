@@ -1,10 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
-^CODE_OF_CONDUCT\.md$
-^cran-comments\.md$
-^_pkgdown\.yml$
-^docs$
-^pkgdown$
 ^README\.Rmd$
 ^\.github$

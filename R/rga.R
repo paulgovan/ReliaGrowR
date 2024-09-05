@@ -4,8 +4,8 @@
 #' @param failures A vector of the number of failures at each corresponding time in times.
 #' @param model_type The model type. Either `Crow-AMSAA` (default) or `Piecewise Weibull NHPP` with change point detection.
 #' @param breakpoints An optional vector of breakpoints for the `Piecewise Weibull NHPP` model.
-#' @param conf_level the desired confidence level, which defaults to 95%.
-#' @return The function returns a list of the results for the model.
+#' @param conf_level The desired confidence level, which defaults to 95%.
+#' @return The function returns a list of the results for the model, including the Weibull parameters if applicable.
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
@@ -74,9 +74,30 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
       # Update the model fit with the user-supplied breakpoints
       updated_fit <- segmented_fit
     }
+
+    # Calculate the Weibull parameters for each segment
+    slopes <- updated_fit$coefficients[2] / log_times
+    intercepts <- updated_fit$coefficients[1]
+    shape_parameters <- 1 / slopes
+    scale_parameters <- exp(intercepts)
+
+    # Calculate Beta (slope) and Lambda (intercept) for each segment
+    betas <- updated_fit$coefficients[2]
+    lambdas <- exp(updated_fit$coefficients[1])
+
   } else {
     updated_fit <- fit
     breakpoints <- NULL
+
+    # Calculate Weibull parameters for the Crow-AMSAA model
+    slope <- updated_fit$coefficients[2]
+    intercept <- updated_fit$coefficients[1]
+    shape_parameters <- 1 / slope
+    scale_parameters <- exp(intercept)
+
+    # Calculate Beta and Lambda for the Crow-AMSAA model
+    betas <- slope
+    lambdas <- exp(intercept)
   }
 
   # Generate the fitted values and confidence intervals
@@ -86,12 +107,16 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
   lower_bounds <- exp(conf_intervals[, "lwr"])
   upper_bounds <- exp(conf_intervals[, "upr"])
 
-  # Return the segmented model, breakpoints, coefficients, and confidence bounds
+  # Return the segmented model, breakpoints, coefficients, confidence bounds, Weibull parameters, Beta, and Lambda
   return(list(
     model = updated_fit,
     breakpoints = breakpoints,
     fitted_values = exp(fitted_values),
     lower_bounds = lower_bounds,
-    upper_bounds = upper_bounds
+    upper_bounds = upper_bounds,
+    shape_parameters = shape_parameters,
+    scale_parameters = scale_parameters,
+    betas = betas,
+    lambdas = lambdas
   ))
 }

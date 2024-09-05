@@ -7,8 +7,8 @@
 duane_plot(
   times,
   failures,
-  point_col = "blue",
-  line_col = "red",
+  point_col = "black",
+  line_col = "black",
   xlab = "Cumulative Time",
   ylab = "Cumulative MTBF",
   main = "Duane Plot with Cumulative MTBF"
@@ -19,9 +19,9 @@ duane_plot(
 
 \item{failures}{A vector of the number of failures at each corresponding time in times.}
 
-\item{point_col}{Color for the data points (default: "blue").}
+\item{point_col}{Color for the data points (default: "black").}
 
-\item{line_col}{Color for the fitted line (default: "red").}
+\item{line_col}{Color for the fitted line (default: "black").}
 
 \item{xlab}{Label for the x-axis (default: "Cumulative Time").}
 

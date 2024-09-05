@@ -21,10 +21,10 @@ rga(
 
 \item{breakpoints}{An optional vector of breakpoints for the \verb{Piecewise Weibull NHPP} model.}
 
-\item{conf_level}{the desired confidence level, which defaults to 95\%.}
+\item{conf_level}{The desired confidence level, which defaults to 95\%.}
 }
 \value{
-The function returns a list of the results for the model.
+The function returns a list of the results for the model, including the Weibull parameters if applicable.
 }
 \description{
 Reliability Growth Analysis.
