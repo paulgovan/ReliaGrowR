@@ -14,7 +14,7 @@
 You can install the development version of RGA like so:
 
 ``` r
-devtools::install_github('paulgovan/WeibullR.rga')
+devtools::install_github('paulgovan/RGA')
 ```
 
 ## Example
