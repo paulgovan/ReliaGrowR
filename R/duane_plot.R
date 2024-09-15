@@ -1,4 +1,4 @@
-#' Duane Plot.
+#' Plotting Function for Duane Analysis.
 #'
 #' @param times A vector of cumulative times at which failures occurred.
 #' @param failures A vector of the number of failures at each corresponding time in times.
@@ -7,7 +7,7 @@
 #' @param xlab Label for the x-axis (default: "Cumulative Time").
 #' @param ylab Label for the y-axis (default: "Cumulative MTBF").
 #' @param main Title for the plot (default: "Duane Plot with Cumulative MTBF").
-#' @return The function returns the fitted linear model.
+#' @return The function returns a list of the fitted linear model, Cumulative Time, Cumulative MTBF.
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
@@ -32,7 +32,7 @@ duane_plot <- function(times, failures,
   }
 
   if (any(failures <= 0)) {
-    stop("Error: All values in 'failures' must be greater than 0.")
+    stop("All values in 'failures' must be greater than 0.")
   }
 
   # Convert to cumulative failure times and cumulative operating time
@@ -60,6 +60,13 @@ duane_plot <- function(times, failures,
   graphics::legend("bottomright", legend = c("Observed", "Fitted Line"),
          col = c(point_col, line_col), pch = c(16, NA), lty = c(NA, 1))
 
-  # Return the fit for further analysis if needed
-  return(fit)
+  result <- list(
+    model = fit,
+    Cumulative_Time = cum_time,
+    Cumulative_MTBF = cum_mtbf
+  )
+
+  class(result) <- "duane"  # Assign the custom S3 class
+
+  return(result)
 }

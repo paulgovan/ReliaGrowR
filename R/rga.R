@@ -27,26 +27,26 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
   }
 
   if (any(failures <= 0)) {
-    stop("Error: All values in 'failures' must be greater than 0.")
+    stop("All values in 'failures' must be greater than 0.")
   }
 
   if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    stop("Error: conf_level must be a numeric value between 0 and 1 (exclusive).")
+    stop("Conf_level must be a numeric value between 0 and 1 (exclusive).")
   }
 
   # Check if the model_type is valid
   valid_models <- c("Crow-AMSAA", "Piecewise Weibull NHPP")
   if (!(model_type %in% valid_models)) {
-    stop(paste("Error: model_type must be one of", paste(valid_models, collapse = ", "), "."))
+    stop(paste("Model_type must be one of", paste(valid_models, collapse = ", "), "."))
   }
 
   # Check if breakpoints are valid if provided
   if (!is.null(breakpoints)) {
     if (!is.numeric(breakpoints) || any(breakpoints <= 0)) {
-      stop("Error: breakpoints must be a numeric vector with positive values.")
+      stop("Breakpoints must be a numeric vector with positive values.")
     }
     if (model_type != "Piecewise Weibull NHPP") {
-      stop("Error: breakpoints can only be used with the 'Piecewise Weibull NHPP' model.")
+      stop("Breakpoints can only be used with the 'Piecewise Weibull NHPP' model.")
     }
   }
 
@@ -108,15 +108,37 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
   upper_bounds <- exp(conf_intervals[, "upr"])
 
   # Return the segmented model, breakpoints, coefficients, confidence bounds, Weibull parameters, Beta, and Lambda
-  return(list(
-    model = updated_fit,
-    breakpoints = breakpoints,
-    fitted_values = exp(fitted_values),
-    lower_bounds = lower_bounds,
-    upper_bounds = upper_bounds,
-    shape_parameters = shape_parameters,
-    scale_parameters = scale_parameters,
-    betas = betas,
-    lambdas = lambdas
-  ))
+  result <- (
+    list(
+      model = updated_fit,
+      breakpoints = breakpoints,
+      fitted_values = exp(fitted_values),
+      lower_bounds = lower_bounds,
+      upper_bounds = upper_bounds,
+      shape_parameters = shape_parameters,
+      scale_parameters = scale_parameters,
+      betas = betas,
+      lambdas = lambdas
+    )
+  )
+
+  class(result) <- "rga"  # Assign the custom S3 class
+
+  return(result)
+}
+
+# Custom print method for rga objects
+print.rga <- function(x, ...) {
+  cat("Reliability Growth Analysis (RGA) Results:\n")
+  cat("----------------------------------------------------\n")
+  cat("Model Type:        ", ifelse(is.null(x$breakpoints), "Crow-AMSAA", "Piecewise Weibull NHPP"), "\n")
+  if (!is.null(x$breakpoints)) {
+    cat("Breakpoints:       ", paste(round(x$breakpoints, 2), collapse = ", "), "\n")
+  }
+  cat("Shape Parameters:  ", paste(round(x$shape_parameters, 2), collapse = ", "), "\n")
+  cat("Scale Parameters:  ", paste(round(x$scale_parameters, 2), collapse = ", "), "\n")
+  cat("Betas (slopes):    ", paste(round(x$betas, 2), collapse = ", "), "\n")
+  cat("Lambdas:           ", paste(round(x$lambdas, 2), collapse = ", "), "\n")
+  cat("----------------------------------------------------\n")
+  invisible(x)  # Ensure the object is returned invisibly
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/duane_plot.R
 \name{duane_plot}
 \alias{duane_plot}
-\title{Duane Plot.}
+\title{Plotting Function for Duane Analysis.}
 \usage{
 duane_plot(
   times,
@@ -30,10 +30,10 @@ duane_plot(
 \item{main}{Title for the plot (default: "Duane Plot with Cumulative MTBF").}
 }
 \value{
-The function returns the fitted linear model.
+The function returns a list of the fitted linear model, Cumulative Time, Cumulative MTBF.
 }
 \description{
-Duane Plot.
+Plotting Function for Duane Analysis.
 }
 \examples{
 times <- c(100, 200, 300, 400, 500)

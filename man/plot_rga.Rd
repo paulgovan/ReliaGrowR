@@ -5,9 +5,7 @@
 \title{Plotting Function for Reliability Growth Analysis}
 \usage{
 plot_rga(
-  times,
-  failures,
-  result,
+  rga_obj,
   point_col = "black",
   line_col = "black",
   xlab = "Cumulative Time",
@@ -16,11 +14,7 @@ plot_rga(
 )
 }
 \arguments{
-\item{times}{A vector of cumulative times at which failures occurred.}
-
-\item{failures}{A vector of the number of failures at each corresponding time in times.}
-
-\item{result}{A list of results from the RGA model.}
+\item{rga_obj}{An object of class \code{rga}, which contains the results from the RGA model.}
 
 \item{point_col}{Color for the data points (default: "black").}
 
@@ -42,5 +36,5 @@ Plotting Function for Reliability Growth Analysis
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 result <- rga(times, failures)
-plot_rga(times, failures, result)
+plot_rga(result)
 }
