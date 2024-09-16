@@ -23,11 +23,11 @@ Reliability Growth Analysis (rga) is a method to assess the reliability of syste
 
 **The Crow-AMSAA** or **Non-Homogeneous Poisson Process (NHPP)** model is a statistical model used to track reliability improvements over time. This model is particularly useful for analyzing failure data in systems where the failure rate changes due to improvements or corrective actions during the development or operational phase.
 
-### Non-Homogeneous Poisson Process (NHPP):
+### The Non-Homogeneous Poisson Process (NHPP):
 
 In a NHPP, the failure rate changes over time, increasing or decreasing depending on actions taken to improve reliability. Failures follow a Poisson process, but the rate at which they occur changes with time, hence "non-homogeneous."
 
-### Power Law Model:
+### The Power Law Model:
 
 The failure intensity (rate of failures per time unit) is modeled as a power function of time:
 
@@ -154,4 +154,4 @@ fit <- duane_plot(times, failures)
 
 ## Summary 
 
-rga provides a quantitative framework for understanding how a system's reliability changes over time and guides decisions for further improvements based on observed failure patterns.
+RGA provides a quantitative framework for understanding how a system's reliability changes over time and guides decisions for further improvements based on observed failure patterns.

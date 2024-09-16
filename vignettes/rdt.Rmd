@@ -1,11 +1,11 @@
 ---
-title: "Reliability Demonstration Test"
+title: "Reliability Demonstration Testing"
 output:
   html_vignette:
     fig_width: 7
     fig_height: 5
 vignette: >
-  %\VignetteIndexEntry{Reliability Demonstration Test}
+  %\VignetteIndexEntry{Reliability Demonstration Testing}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,7 +17,106 @@ knitr::opts_chunk$set(
 )
 ```
 
-The design of reliability demonstration tests (RDT) is a structured process aimed at verifying that a product meets specified reliability requirements. It involves determining how many units to test, how long to test them, and under what conditions.
+**Reliability Demonstration Testing (RDT)** is the process of verifying that a product meets specified reliability requirements. RDT involves determining how many units to test, how long to test them, and under what conditions.
+
+## The Exponential Distribution
+
+The Exponential distribution assumes a constant failure rate over time. The reliability function for an Exponential distribution is given by:
+
+\[
+R(t) = \exp(-\lambda t)
+\]
+
+Where:
+
+* \( \lambda \) is the failure rate.
+* \( t \) is the test time.
+
+### Solving for Test Time:
+When the sample size \( n \) is provided, the required test time \( t \) can be calculated as:
+
+\[
+t = \frac{z^2}{2 \cdot n \cdot \lambda \cdot \log(R(t))}
+\]
+
+Where:
+
+* \( z \) is the z-value for the confidence level.
+* \( R(t) \) is the target reliability.
+* \( \log(R(t)) \) is the natural logarithm of the target reliability.
+
+### Solving for Sample Size:
+When the test time \( t \) is provided, the required sample size \( n \) is calculated as:
+
+\[
+n = \frac{z^2}{2 \cdot t \cdot \lambda \cdot \log(R(t))}
+\]
+
+## Weibull Distribution
+
+The Weibull distribution is more flexible than the Exponential distribution, with a shape parameter \( \beta \) that controls the failure rate behavior. The reliability function for the Weibull distribution is:
+
+\[
+R(t) = \exp\left( - \left( \frac{t}{\eta} \right)^\beta \right)
+\]
+
+Where:
+
+* \( \eta \) is the scale parameter.
+* \( \beta \) is the shape parameter.
+* \( t \) is the test time.
+
+### Solving for Test Time:
+Given the sample size \( n \), the required test time \( t \) is calculated as:
+
+\[
+t = \eta \left( \frac{\log(R(t))}{\frac{z^2}{2 \cdot n}} \right)^{\frac{1}{\beta}}
+\]
+
+Where:
+
+* \( \log(R(t)) \) is the natural logarithm of the target reliability.
+* \( z \) is the z-value for the confidence level.
+
+### Solving for Sample Size:
+When the test time \( t \) is given, the required sample size \( n \) is calculated as:
+
+\[
+n = \frac{z^2}{2 \cdot \left( \frac{t}{\eta} \right)^\beta}
+\]
+
+## Lognormal Distribution
+
+The Lognormal distribution assumes that the natural logarithms of the failure times are normally distributed. The reliability function for the Lognormal distribution is:
+
+\[
+R(t) = 1 - \Phi\left( \frac{\log(t) - \mu}{\sigma} \right)
+\]
+
+Where:
+
+* \( \mu \) is the mean of the logarithms of the times to failure (scale parameter).
+* \( \sigma \) is the standard deviation of the logarithms of the times to failure (shape parameter).
+* \( \Phi(\cdot) \) is the cumulative distribution function of the standard normal distribution.
+
+### Solving for Test Time:
+Given the sample size \( n \), the test time \( t \) is calculated using the quantile function of the Lognormal distribution:
+
+\[
+t = \exp\left( \mu + \sigma \cdot \Phi^{-1}(1 - \log(R(t))) \right)
+\]
+
+Where:
+
+* \( \mu \) is the mean of the logarithms (scale parameter).
+* \( \sigma \) is the standard deviation of the logarithms (shape parameter).
+
+### Solving for Sample Size:
+When the test time \( t \) is given, the sample size \( n \) is calculated as:
+
+\[
+n = \frac{z^2}{2 \cdot \left( \frac{\log(t)}{\mu} \right) \cdot \sigma}
+\]
 
 ## Examples
 
@@ -26,12 +125,12 @@ Suppose a new product has a reliability requirement of 95% with a confidence lev
 ```{r}
 library(rga)
 result <- rdt(sample_size = 100, target = 0.95, conf_level = 0.90, failure_rate = 0.01, dist_type = "exponential")
-print(result)
+print(result$Test_Time)
 ```
 
 Now suppose a product with the same reliability requirement has 50 samples available to test. Assume a Weibull distribution with Beta of 1.5 and scale of 200. How long should the product be tested?
 
 ```{r}
-rdt(sample_size = 50, target = 0.95, conf_level = 0.90, dist_type = "Weibull", shape = 1.5, scale = 200, plot = TRUE)
-print(result)
+result <- rdt(sample_size = 50, target = 0.95, conf_level = 0.90, dist_type = "Weibull", shape = 1.5, scale = 200, plot = TRUE)
+print(result$Test_Time)
 ```
