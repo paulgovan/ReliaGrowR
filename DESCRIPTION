@@ -1,4 +1,4 @@
-Package: RGA
+Package: rga
 Title: Reliability Growth Analysis
 Version: 0.0.1
 Authors@R: person("Paul", "Govan", email = "paul.govan2@gmail.com", 

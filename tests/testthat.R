@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(RGA)
+library(rga)
 
-test_check("RGA")
+test_check("rga")

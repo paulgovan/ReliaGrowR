@@ -1,19 +1,19 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# RGA
+# rga
 
 <!-- badges: start -->
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![CRAN
-status](https://www.r-pkg.org/badges/version/RGA)](https://CRAN.R-project.org/package=RGA)
+status](https://www.r-pkg.org/badges/version/rga)](https://CRAN.R-project.org/package=rga)
 [![CRAN
-checks](https://badges.cranchecks.info/summary/RGA.svg)](https://cran.r-project.org/web/checks/check_results_RGA.html)
-[![](http://cranlogs.r-pkg.org/badges/grand-total/RGA)](https://cran.r-project.org/package=RGA)
-[![](http://cranlogs.r-pkg.org/badges/last-month/RGA)](https://cran.r-project.org/package=RGA)
-[![](https://img.shields.io/badge/doi-10.32614/CRAN.package.RGA-green.svg)](https://doi.org/10.32614/CRAN.package.RGA)
+checks](https://badges.cranchecks.info/summary/rga.svg)](https://cran.r-project.org/web/checks/check_results_rga.html)
+[![](http://cranlogs.r-pkg.org/badges/grand-total/rga)](https://cran.r-project.org/package=rga)
+[![](http://cranlogs.r-pkg.org/badges/last-month/rga)](https://cran.r-project.org/package=rga)
+[![](https://img.shields.io/badge/doi-10.32614/CRAN.package.rga-green.svg)](https://doi.org/10.32614/CRAN.package.rga)
 <!-- badges: end -->
 
 ## Reliability Growth Analysis via:
@@ -24,16 +24,16 @@ checks](https://badges.cranchecks.info/summary/RGA.svg)](https://cran.r-project.
 
 ## Installation
 
-To install the release version of RGA, use:
+To install the release version of rga, use:
 
 ``` r
-install_packages('RGA')
+install_packages('rga')
 ```
 
-You can install the development version of RGA like so:
+You can install the development version of rga like so:
 
 ``` r
-devtools::install_github('paulgovan/RGA')
+devtools::install_github('paulgovan/rga')
 ```
 
 ## Example
@@ -43,7 +43,7 @@ Here is a basic example of Reliability Growth Analysis:
 First, load the package:
 
 ``` r
-library(RGA)
+library(rga)
 ```
 
 Next, set up some cumulative time and failure data:
@@ -53,17 +53,17 @@ times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 ```
 
-Then run the RGA and plot the results:
+Then run the rga and plot the results:
 
 ``` r
 result <- rga(times, failures)
-plot_rga(times, failures, result)
+plot_rga(result)
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 ## Code of Conduct
 
-Please note that the RGA project is released with a [Contributor Code of
+Please note that the rga project is released with a [Contributor Code of
 Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html).
 By contributing to this project, you agree to abide by its terms.

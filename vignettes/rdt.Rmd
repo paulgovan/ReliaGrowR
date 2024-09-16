@@ -1,0 +1,37 @@
+---
+title: "Reliability Demonstration Test"
+output:
+  html_vignette:
+    fig_width: 7
+    fig_height: 5
+vignette: >
+  %\VignetteIndexEntry{Reliability Demonstration Test}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The design of reliability demonstration tests (RDT) is a structured process aimed at verifying that a product meets specified reliability requirements. It involves determining how many units to test, how long to test them, and under what conditions.
+
+## Examples
+
+Suppose a new product has a reliability requirement of 95% with a confidence level of 90%. How long should the product be tested if there are 100 samples available to test? Assume an exponential distribution with a failure rate of 0.01. 
+
+```{r}
+library(rga)
+result <- rdt(sample_size = 100, target = 0.95, conf_level = 0.90, failure_rate = 0.01, dist_type = "exponential")
+print(result)
+```
+
+Now suppose a product with the same reliability requirement has 50 samples available to test. Assume a Weibull distribution with Beta of 1.5 and scale of 200. How long should the product be tested?
+
+```{r}
+rdt(sample_size = 50, target = 0.95, conf_level = 0.90, dist_type = "Weibull", shape = 1.5, scale = 200, plot = TRUE)
+print(result)
+```
