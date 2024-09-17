@@ -1,5 +1,3 @@
-library(testthat)
-
 # Mock data for testing
 valid_times <- c(100, 200, 300, 400, 500)
 valid_failures <- c(1, 2, 1, 3, 2)

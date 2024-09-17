@@ -14,32 +14,33 @@ knitr::opts_chunk$set(
 ```
 
 <!-- badges: start -->
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![CRAN status](https://www.r-pkg.org/badges/version/rga)](https://CRAN.R-project.org/package=rga)
-[![CRAN checks](https://badges.cranchecks.info/summary/rga.svg)](https://cran.r-project.org/web/checks/check_results_rga.html)
-[![](http://cranlogs.r-pkg.org/badges/grand-total/rga)](https://cran.r-project.org/package=rga)
-[![](http://cranlogs.r-pkg.org/badges/last-month/rga)](https://cran.r-project.org/package=rga)
-[![](https://img.shields.io/badge/doi-10.32614/CRAN.package.rga-green.svg)](https://doi.org/10.32614/CRAN.package.rga)
+<!-- [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) -->
+<!-- [![CRAN status](https://www.r-pkg.org/badges/version/ReliaGrowR)](https://CRAN.R-project.org/package=ReliaGrowR) -->
+<!-- [![CRAN checks](https://badges.cranchecks.info/summary/ReliaGrowR.svg)](https://cran.r-project.org/web/checks/check_results_ReliaGrowR.html) -->
+<!-- [![](http://cranlogs.r-pkg.org/badges/grand-total/ReliaGrowR)](https://cran.r-project.org/package=ReliaGrowR) -->
+<!-- [![](http://cranlogs.r-pkg.org/badges/last-month/ReliaGrowR)](https://cran.r-project.org/package=ReliaGrowR) -->
+<!-- [![](https://img.shields.io/badge/doi-10.32614/CRAN.package.ReliaGrowR-green.svg)](https://doi.org/10.32614/CRAN.package.ReliaGrowR) -->
 <!-- badges: end -->
 
 ## Reliability Growth Analysis via:
 
-* Crow-AMSAA
+* Duane Model
+* Crow-AMSAA NHPP
 * Piecewise Weibull NHPP
 * Piecewise Weibull NHPP with change point detection
 
 ## Installation
 
-To install the release version of rga, use:
+To install the release version of ReliaGrowR, use:
 
 ``` r
-install_packages('rga')
+install_packages('ReliaGrowR')
 ```
 
 You can install the development version of rga like so:
 
 ``` r
-devtools::install_github('paulgovan/rga')
+devtools::install_github('paulgovan/ReliaGrowR')
 ```
 
 ## Example
@@ -48,7 +49,7 @@ Here is a basic example of Reliability Growth Analysis:
 
 First, load the package:
 ```{r}
-library(rga)
+library(ReliaGrowR)
 ```
 
 Next, set up some cumulative time and failure data:
@@ -65,4 +66,4 @@ plot_rga(result)
 
 ## Code of Conduct
 
-Please note that the rga project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
+Please note that the ReliaGrowR project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.

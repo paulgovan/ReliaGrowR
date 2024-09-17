@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(rga)
+library(ReliaGrowR)
 
-test_check("rga")
+test_check("ReliaGrowR")

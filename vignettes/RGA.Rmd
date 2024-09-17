@@ -68,7 +68,7 @@ The Shape Parameter (\( \beta \)) indicates whether the system is improving or d
 
 First, load the package:
 ```{r}
-library(rga)
+library(ReliaGrowR)
 ```
 
 Next, set up some cumulative time and failure data:
@@ -135,9 +135,9 @@ result <- rga(times, failures, model_type = "Piecewise Weibull NHPP")
 plot_rga(result)
 ```
 
-## The Duane Plot
+## The Duane Model
 
-The **Duane Plot** is another graphical method to track and visualize the reliability improvement of a product or system over time. The Duane Plot is a log-log plot that shows the cumulative failure rate or Mean Time Between Failures (MTBF) versus time, helping to assess whether reliability is improving, stabilizing, or worsening over time.
+The **Duane Model** is another graphical method to track and visualize the reliability improvement of a product or system over time. The Duane Plot is a log-log plot that shows the cumulative failure rate or Mean Time Between Failures (MTBF) versus time, helping to assess whether reliability is improving, stabilizing, or worsening over time.
 
 ### Example
 
