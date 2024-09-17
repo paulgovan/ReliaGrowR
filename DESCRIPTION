@@ -1,6 +1,6 @@
 Package: ReliaGrowR
 Title: Reliability Growth Analysis
-Version: 0.0.1
+Version: 0.1.0
 Authors@R: person("Paul", "Govan", email = "paul.govan2@gmail.com", 
   role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0002-1821-8492"))
 Description: Reliability Growth Analysis via the Duane, Crow-AMSAA NHPP, Piecewise Weibull NHPP, and Piecewise Weibull NHPP Change Point Detection models.
