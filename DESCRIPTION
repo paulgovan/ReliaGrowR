@@ -3,7 +3,7 @@ Title: Reliability Growth Analysis
 Version: 0.0.1
 Authors@R: person("Paul", "Govan", email = "paul.govan2@gmail.com", 
   role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0002-1821-8492"))
-Description: Reliability Growth Analysis via the Crow-AMSAA and Piecewise Weibull NHPP models.
+Description: Reliability Growth Analysis via the Crow-AMSAA NHPP and Piecewise Weibull NHPP models.
 Imports: 
   stats,
   graphics,
@@ -18,6 +18,7 @@ Suggests:
     spelling,
     testthat (>= 3.0.0)
 Language: en-US
-URL: https://paulgovan.github.io/WeibullR.rga/
+URL: https://paulgovan.github.io/WeibullR.rga/, https://github.com/paulgovan/RGA
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+BugReports: https://github.com/paulgovan/RGA/issues
