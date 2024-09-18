@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-Reliability Growth Analysis (rga) is a method to assess the reliability of systems or products during the development and testing phases. rga tracks the rate at which reliability improves over time, typically as design changes, fixes, or process improvements are implemented. The primary objective is to measure the system or product's failure behavior and predict how it will perform once the product is fully mature or operational.
+Reliability Growth Analysis (RGA) is a method to assess the reliability of systems or products during the development and testing phases. RGA tracks the rate at which reliability improves over time, typically as design changes, fixes, or process improvements are implemented. The primary objective is to measure the system or product's failure behavior and predict how it will perform once the product is fully mature or operational.
 
 ## The Crow-AMSAA Model
 

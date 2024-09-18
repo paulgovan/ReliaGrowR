@@ -14,7 +14,7 @@
 - Duane Model
 - Crow-AMSAA NHPP
 - Piecewise Weibull NHPP
-- Piecewise Weibull NHPP with change point detection
+- Piecewise Weibull NHPP with Change Point Detection
 
 ## Installation
 
@@ -24,7 +24,7 @@ To install the release version of ReliaGrowR, use:
 install_packages('ReliaGrowR')
 ```
 
-You can install the development version of rga like so:
+You can install the development version of ReliaGrowR like so:
 
 ``` r
 devtools::install_github('paulgovan/ReliaGrowR')
