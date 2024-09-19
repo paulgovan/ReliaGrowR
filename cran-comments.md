@@ -7,9 +7,11 @@
   New submission
 
 Possibly misspelled words in DESCRIPTION:
-  AMSAA (6:62)
-  NHPP (6:68, 6:92, 6:120)
-  Piecewise (6:74, 6:102)
-  Weibull (6:84, 6:112)
+  Guo (6:276)
+  Muggeo (6:419)
+  NHPP (6:180, 6:268, 6:350)
+  Piecewise (6:250, 6:332)
+  RGA (6:79)
+  Weibull (6:260, 6:342)
   
 * These words are spelled correctly.
