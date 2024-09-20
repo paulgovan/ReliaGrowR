@@ -5,7 +5,7 @@
 #' @param model_type The model type. Either `Crow-AMSAA` (default) or `Piecewise Weibull NHPP` with change point detection.
 #' @param breakpoints An optional vector of breakpoints for the `Piecewise Weibull NHPP` model.
 #' @param conf_level The desired confidence level, which defaults to 95%.
-#' @return The function returns a list of the results for the model, including the Weibull parameters if applicable.
+#' @return The function returns an object of class `rga` that contains the results for the model.
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
