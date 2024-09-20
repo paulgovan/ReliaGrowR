@@ -1,9 +1,0 @@
-pandoc: 3.1.11
-pkgdown: 2.1.0
-pkgdown_sha: ~
-articles:
-  rga: rga.html
-last_built: 2024-09-20T13:51Z
-urls:
-  reference: https://paulgovan.github.io/ReliaGrowR/reference
-  article: https://paulgovan.github.io/ReliaGrowR/articles
