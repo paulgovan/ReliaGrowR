@@ -63,8 +63,8 @@ duane_plot <- function(times, failures,
   result <- list(
     model = fit,
     Cumulative_Time = cum_time,
-    Cumulative_Failures = cum_failures,
-    Cumulative_MTBF = cum_mtbf
+    Cumulative_MTBF = cum_mtbf,
+    fitted_Values = fitted_values
   )
 
   class(result) <- "duane"  # Assign the custom S3 class
