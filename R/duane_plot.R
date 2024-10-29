@@ -63,6 +63,7 @@ duane_plot <- function(times, failures,
   result <- list(
     model = fit,
     Cumulative_Time = cum_time,
+    Cumulative_Failures = cum_failures,
     Cumulative_MTBF = cum_mtbf
   )
 
