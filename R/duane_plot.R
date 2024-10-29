@@ -44,8 +44,7 @@ duane_plot <- function(times, failures,
 
   # Set up the plot with log-log scale
   plot(cum_time, cum_mtbf, log = "xy", pch = 16, col = point_col,
-       xlab = xlab, ylab = ylab,
-       main = main)
+       xlab = xlab, ylab = ylab, main = main)
 
   # Fit a linear model to the log-transformed data for the Duane plot
   log_cum_time <- log(cum_time)
