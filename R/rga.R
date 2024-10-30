@@ -100,6 +100,10 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
     lambdas <- exp(intercept)
   }
 
+  # Extract goodness of fit metrics
+  aic <- stats::AIC(updated_fit)
+  bic <- stats::BIC(updated_fit)
+
   # Generate the fitted values and confidence intervals
   fitted_values <- stats::predict(updated_fit)
   conf_intervals <- stats::predict(updated_fit, interval = "confidence", level = conf_level)
@@ -111,6 +115,8 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
   result <- (
     list(
       model = updated_fit,
+      AIC = aic,
+      BIC = bic,
       breakpoints = breakpoints,
       fitted_values = exp(fitted_values),
       lower_bounds = lower_bounds,
