@@ -36,6 +36,7 @@ The function returns a list of the fitted linear model, Cumulative Time, Cumulat
 Plotting Function for Duane Analysis.
 }
 \examples{
+library(ReliaGrowR)
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 fit <- duane_plot(times, failures)

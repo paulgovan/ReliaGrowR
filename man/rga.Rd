@@ -24,7 +24,7 @@ rga(
 \item{conf_level}{The desired confidence level, which defaults to 95\%.}
 }
 \value{
-The function returns a list of the results for the model, including the Weibull parameters if applicable.
+The function returns an object of class \code{rga} that contains the results for the model.
 }
 \description{
 Reliability Growth Analysis.

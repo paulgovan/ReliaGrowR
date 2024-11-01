@@ -15,7 +15,7 @@ checks](https://badges.cranchecks.info/summary/ReliaGrowR.svg)](https://cran.r-p
 
 ## Reliability Growth Analysis via:
 
-- Duane Model
+- Duane Analysis
 - Crow-AMSAA NHPP
 - Piecewise Weibull NHPP
 - Piecewise Weibull NHPP with Change Point Detection

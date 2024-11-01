@@ -7,7 +7,7 @@ test_that("rga works correctly with valid inputs for Crow-AMSAA", {
   result <- rga(valid_times, valid_failures, model_type = "Crow-AMSAA", conf_level = 0.95)
 
   expect_true(is.list(result))
-  expect_named(result, c("model", "breakpoints", "fitted_values", "lower_bounds", "upper_bounds", "shape_parameters", "scale_parameters", "betas", "lambdas"))
+  expect_named(result, c("model", "AIC", "BIC", "breakpoints", "fitted_values", "lower_bounds", "upper_bounds", "shape_parameters", "scale_parameters", "betas", "lambdas"))
   expect_null(result$breakpoints)  # Crow-AMSAA model doesn't have breakpoints
 })
 
@@ -16,7 +16,7 @@ test_that("rga works correctly with valid inputs for Piecewise Weibull NHPP", {
   result <- rga(valid_times, valid_failures, model_type = "Piecewise Weibull NHPP", conf_level = 0.95)
 
   expect_true(is.list(result))
-  expect_named(result, c("model", "breakpoints", "fitted_values", "lower_bounds", "upper_bounds", "shape_parameters", "scale_parameters", "betas", "lambdas"))
+  expect_named(result, c("model", "AIC", "BIC", "breakpoints", "fitted_values", "lower_bounds", "upper_bounds", "shape_parameters", "scale_parameters", "betas", "lambdas"))
   expect_false(is.null(result$breakpoints))  # Piecewise Weibull NHPP should detect breakpoints
 })
 
@@ -49,7 +49,7 @@ test_that("rga works correctly with valid user-supplied breakpoints", {
   result <- rga(valid_times, valid_failures, model_type = "Piecewise Weibull NHPP", breakpoints = breakpoints)
 
   expect_true(is.list(result))
-  expect_named(result, c("model", "breakpoints", "fitted_values", "lower_bounds", "upper_bounds", "shape_parameters", "scale_parameters", "betas", "lambdas"))
+  expect_named(result, c("model", "AIC", "BIC", "breakpoints", "fitted_values", "lower_bounds", "upper_bounds", "shape_parameters", "scale_parameters", "betas", "lambdas"))
   expect_equal(length(result$breakpoints), length(breakpoints))  # Number of breakpoints should match
 })
 
@@ -75,6 +75,6 @@ test_that("rga works with minimal input", {
   result <- rga(minimal_times, minimal_failures, model_type = "Crow-AMSAA")
 
   expect_true(is.list(result))
-  expect_named(result, c("model", "breakpoints", "fitted_values", "lower_bounds", "upper_bounds", "shape_parameters", "scale_parameters", "betas", "lambdas"))
+  expect_named(result, c("model", "AIC", "BIC", "breakpoints", "fitted_values", "lower_bounds", "upper_bounds", "shape_parameters", "scale_parameters", "betas", "lambdas"))
   expect_null(result$breakpoints)  # Crow-AMSAA doesn't have breakpoints
 })

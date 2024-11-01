@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 
 ## Reliability Growth Analysis via:
 
-* Duane Model
+* Duane Analysis
 * Crow-AMSAA NHPP 
 * Piecewise Weibull NHPP
 * Piecewise Weibull NHPP with Change Point Detection
