@@ -7,6 +7,7 @@
 duane_plot(
   times,
   failures,
+  plot = TRUE,
   point_col = "black",
   line_col = "black",
   xlab = "Cumulative Time",
@@ -18,6 +19,8 @@ duane_plot(
 \item{times}{A vector of cumulative times at which failures occurred.}
 
 \item{failures}{A vector of the number of failures at each corresponding time in times.}
+
+\item{plot}{Show Duane Plot (TRUE) or hide plot (FALSE).}
 
 \item{point_col}{Color for the data points (default: "black").}
 

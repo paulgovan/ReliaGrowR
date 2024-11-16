@@ -12,7 +12,7 @@
 #' result <- rga(times, failures)
 #' print(result)
 #' @importFrom stats lm predict
-#' @importFrom segmented segmented
+#' @importFrom segmented segmented slope intercept
 #' @export
 
 rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, conf_level = 0.95) {
@@ -60,78 +60,71 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
   # Fit a linear model to the log-transformed data
   fit <- stats::lm(log_cum_failures ~ log_times)
 
-  if (model_type == "Piecewise Weibull NHPP") {
-    if (is.null(breakpoints)) {
-      # Apply the segmented package to detect change points
-      updated_fit <- segmented::segmented(fit, seg.Z = ~log_times)
+    if (model_type == "Piecewise Weibull NHPP") {
+      if (is.null(breakpoints)) {
+        # Apply the segmented package to detect change points
+        updated_fit <- segmented::segmented(fit, seg.Z = ~log_times)
+        # Extract the breakpoints (change points)
+        breakpoints <- updated_fit$psi[, "Est."]
+      } else {
+        # Apply the user-supplied breakpoints
+        segmented_fit <- segmented::segmented(fit, seg.Z = ~log_times, fixed.psi = log(breakpoints))
+        # Update the model fit with the user-supplied breakpoints
+        updated_fit <- segmented_fit
+      }
 
-      # Extract the breakpoints (change points)
-      breakpoints <- updated_fit$psi[, "Est."]
+      # Extract the slope for each segment and convert to beta (Weibull shape parameter)
+      slopes <- segmented::slope(updated_fit)
+      intercepts <- segmented::intercept(updated_fit)
+
+      # Calculate Beta (slope) and Lambda (intercept) for each segment
+      betas <- slopes
+      lambdas <- intercepts
+
     } else {
-      # Apply the user-supplied breakpoints
-      segmented_fit <- segmented::segmented(fit, seg.Z = ~log_times, fixed.psi = log(breakpoints))
+      updated_fit <- fit
+      breakpoints <- NULL
 
-      # Update the model fit with the user-supplied breakpoints
-      updated_fit <- segmented_fit
+      # Calculate Weibull parameters for the Crow-AMSAA model
+      summary <- summary(updated_fit)
+      slope <- summary$coefficients[2,]
+      intercept <- summary$coefficients[2,]
+
+      # Calculate Beta and Lambda for the Crow-AMSAA model
+      betas <- slope
+      lambdas <- intercept
     }
 
-    # Calculate the Weibull parameters for each segment
-    slopes <- updated_fit$coefficients[2] / log_times
-    intercepts <- updated_fit$coefficients[1]
-    shape_parameters <- 1 / slopes
-    scale_parameters <- exp(intercepts)
+    # Extract goodness of fit metrics
+    aic <- stats::AIC(updated_fit)
+    bic <- stats::BIC(updated_fit)
 
-    # Calculate Beta (slope) and Lambda (intercept) for each segment
-    betas <- updated_fit$coefficients[2]
-    lambdas <- exp(updated_fit$coefficients[1])
+    # Generate the fitted values and confidence intervals
+    fitted_values <- stats::predict(updated_fit)
+    conf_intervals <- stats::predict(updated_fit, interval = "confidence", level = conf_level)
 
-  } else {
-    updated_fit <- fit
-    breakpoints <- NULL
+    lower_bounds <- exp(conf_intervals[, "lwr"])
+    upper_bounds <- exp(conf_intervals[, "upr"])
 
-    # Calculate Weibull parameters for the Crow-AMSAA model
-    slope <- updated_fit$coefficients[2]
-    intercept <- updated_fit$coefficients[1]
-    shape_parameters <- 1 / slope
-    scale_parameters <- exp(intercept)
-
-    # Calculate Beta and Lambda for the Crow-AMSAA model
-    betas <- slope
-    lambdas <- exp(intercept)
-  }
-
-  # Extract goodness of fit metrics
-  aic <- stats::AIC(updated_fit)
-  bic <- stats::BIC(updated_fit)
-
-  # Generate the fitted values and confidence intervals
-  fitted_values <- stats::predict(updated_fit)
-  conf_intervals <- stats::predict(updated_fit, interval = "confidence", level = conf_level)
-
-  lower_bounds <- exp(conf_intervals[, "lwr"])
-  upper_bounds <- exp(conf_intervals[, "upr"])
-
-  # Return the segmented model, breakpoints, coefficients, confidence bounds, Weibull parameters, Beta, and Lambda
-  result <- (
-    list(
-      model = updated_fit,
-      AIC = aic,
-      BIC = bic,
-      breakpoints = breakpoints,
-      fitted_values = exp(fitted_values),
-      lower_bounds = lower_bounds,
-      upper_bounds = upper_bounds,
-      shape_parameters = shape_parameters,
-      scale_parameters = scale_parameters,
-      betas = betas,
-      lambdas = lambdas
+    # Return the segmented model, breakpoints, coefficients, confidence bounds, Weibull parameters, Beta, and Lambda
+    result <- (
+      list(
+        model = updated_fit,
+        AIC = aic,
+        BIC = bic,
+        breakpoints = breakpoints,
+        fitted_values = exp(fitted_values),
+        lower_bounds = lower_bounds,
+        upper_bounds = upper_bounds,
+        betas = betas,
+        lambdas = lambdas
+      )
     )
-  )
 
-  class(result) <- "rga"  # Assign the custom S3 class
+    class(result) <- "rga"  # Assign the custom S3 class
 
-  return(result)
-}
+    return(result)
+  }
 
 # Custom print method for rga objects
 print.rga <- function(x, ...) {

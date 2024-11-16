@@ -2,6 +2,7 @@
 #'
 #' @param times A vector of cumulative times at which failures occurred.
 #' @param failures A vector of the number of failures at each corresponding time in times.
+#' @param plot Show Duane Plot (TRUE) or hide plot (FALSE).
 #' @param point_col Color for the data points (default: "black").
 #' @param line_col Color for the fitted line (default: "black").
 #' @param xlab Label for the x-axis (default: "Cumulative Time").
@@ -18,7 +19,7 @@
 #' @importFrom graphics legend lines
 #' @export
 
-duane_plot <- function(times, failures,
+duane_plot <- function(times, failures, plot = TRUE,
                        point_col = "black", line_col = "black",
                        xlab = "Cumulative Time", ylab = "Cumulative MTBF",
                        main = "Duane Plot with Cumulative MTBF") {
@@ -43,9 +44,11 @@ duane_plot <- function(times, failures,
   # Calculate cumulative MTBF (Mean Time Between Failures)
   cum_mtbf <- cum_time / cum_failures
 
-  # Set up the plot with log-log scale
-  plot(cum_time, cum_mtbf, log = "xy", pch = 16, col = point_col,
-       xlab = xlab, ylab = ylab, main = main)
+  # Set up the plot with log-log scale if plot is TRUE
+  if (plot) {
+    plot(cum_time, cum_mtbf, log = "xy", pch = 16, col = point_col,
+         xlab = xlab, ylab = ylab, main = main)
+  }
 
   # Fit a linear model to the log-transformed data for the Duane plot
   log_cum_time <- log(cum_time)
@@ -56,13 +59,17 @@ duane_plot <- function(times, failures,
   aic <- stats::AIC(fit)
   bic <- stats::BIC(fit)
 
-  # Add the fitted line
+  # Add the fitted line if plot is TRUE
   fitted_values <- exp(predict(fit))
-  graphics::lines(cum_time, fitted_values, col = line_col, lty = 1)
+  if (plot) {
+    graphics::lines(cum_time, fitted_values, col = line_col, lty = 1)
+  }
 
-  # Add a legend
-  graphics::legend("bottomright", legend = c("Observed", "Fitted Line"),
-         col = c(point_col, line_col), pch = c(16, NA), lty = c(NA, 1))
+  # Add a legend if plot is TRUE
+  if (plot) {
+    graphics::legend("bottomright", legend = c("Observed", "Fitted Line"),
+           col = c(point_col, line_col), pch = c(16, NA), lty = c(NA, 1))
+  }
 
   result <- list(
     model = fit,
