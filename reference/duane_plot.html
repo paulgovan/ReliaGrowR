@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ReliaGrowR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Plotting Function for Duane Analysis.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/v0.1.1/R/duane_plot.R" class="external-link"><code>R/duane_plot.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/main/R/duane_plot.R" class="external-link"><code>R/duane_plot.R</code></a></small>
       <div class="d-none name"><code>duane_plot.Rd</code></div>
     </div>
 
@@ -46,6 +46,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">duane_plot</span><span class="op">(</span></span>
 <span>  <span class="va">times</span>,</span>
 <span>  <span class="va">failures</span>,</span>
+<span>  plot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  point_col <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  line_col <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>,</span>
@@ -64,6 +65,10 @@
 
 <dt id="arg-failures">failures<a class="anchor" aria-label="anchor" href="#arg-failures"></a></dt>
 <dd><p>A vector of the number of failures at each corresponding time in times.</p></dd>
+
+
+<dt id="arg-plot">plot<a class="anchor" aria-label="anchor" href="#arg-plot"></a></dt>
+<dd><p>Show Duane Plot (TRUE) or hide plot (FALSE).</p></dd>
 
 
 <dt id="arg-point-col">point_col<a class="anchor" aria-label="anchor" href="#arg-point-col"></a></dt>
