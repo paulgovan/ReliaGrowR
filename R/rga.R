@@ -50,11 +50,12 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
     }
   }
 
-  # Convert to cumulative failure times
+  # Convert to cumulative failure times and cumulative operating time
   cum_failures <- cumsum(failures)
+  cum_time <- cumsum(times)
 
   # Log-transform the data
-  log_times <- log(times)
+  log_times <- log(cum_time)
   log_cum_failures <- log(cum_failures)
 
   # Fit a linear model to the log-transformed data
