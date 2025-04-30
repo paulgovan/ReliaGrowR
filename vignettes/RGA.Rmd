@@ -17,11 +17,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-Reliability Growth Analysis (RGA) is a method to assess the reliability of systems or products during the development and testing phases. RGA tracks the rate at which reliability improves over time, typically as design changes, fixes, or process improvements are implemented. The primary objective is to measure the system or product's failure behavior and predict how it will perform once the product is fully mature or operational.
+Reliability Growth Analysis (RGA) is the process of assessing the reliability of systems or products during the development and testing phases. RGA tracks the rate at which reliability improves over time, typically as design changes, fixes, or process improvements are implemented. The primary objective is to measure the system or product's failure behavior and predict how it will perform once the product is fully mature or operational.
 
 ## The Crow-AMSAA Model
 
-**The Crow-AMSAA** or **Non-Homogeneous Poisson Process (NHPP)** model is a statistical model used to track reliability improvements over time. This model is particularly useful for analyzing failure data in systems where the failure rate changes due to improvements or corrective actions during the development or operational phase.
+**The Crow-AMSAA** or **Non-Homogeneous Poisson Process (NHPP)** model is a statistical method of tracking reliability improvements over time. This model is particularly useful for analyzing failure data in systems where the failure rate changes due to improvements or corrective actions during the development or operational phases.
 
 ### The Non-Homogeneous Poisson Process (NHPP):
 
@@ -119,7 +119,7 @@ plot_rga(result)
 
 ## The Piecewise Weibull NHPP with Change Point Detection
 
-The **Piecewise Weibull NHPP with Change Point Detection** is an advanced model to identify changes in failure behavior and model system reliability. This method builds on the Piecewise Weibull NHPP model by introducing the concept of change points, which represent the time when the underlying failure behavior changes. Detection of change points involves statistical techniques that analyze failure data to automatically identify when the behavior changes, allowing for a more precise segmentation of the model into different Weibull distributions.
+The **Piecewise Weibull NHPP with Change Point Detection** is an advanced model for identifying changes in failure behavior and model system reliability. This method builds on the Piecewise Weibull NHPP model by introducing the concept of change points, which represent the time when the underlying failure behavior changes. Detection of change points involves statistical techniques that analyze failure data to automatically identify when the behavior changes, allowing for a more precise segmentation of the model into different Weibull distributions.
 
 ### Example
 
@@ -137,7 +137,7 @@ plot_rga(result)
 
 ## The Duane Model
 
-The **Duane Model** is another graphical method to track and visualize the reliability improvement of a product or system over time. The Duane Plot is a log-log plot that shows the cumulative failure rate or Mean Time Between Failures (MTBF) versus time, helping to assess whether reliability is improving, stabilizing, or worsening over time.
+The **Duane Model** is another graphical method for tracking and visualizing the reliability improvement of a product or system over time. The Duane Plot is a log-log plot that shows the cumulative failure rate or Mean Time Between Failures (MTBF) versus time, helping to assess whether reliability is improving, stabilizing, or worsening over time.
 
 ### Example
 
@@ -154,4 +154,4 @@ fit <- duane_plot(times, failures)
 
 ## Summary 
 
-RGA provides a quantitative framework for understanding how a system's reliability changes over time and guides decisions for further improvements based on observed failure patterns.
+RGA is a quantitative framework for understanding how a system's reliability changes over time and guides decisions for further improvements based on observed failure patterns.
