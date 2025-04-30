@@ -31,6 +31,8 @@ Welcome to **ReliaGrowR**! This package provides modeling and plotting functions
 * Piecewise Weibull NHPP
 * Piecewise Weibull NHPP with Change Point Detection
 
+To learn more about RGA and this package, please view the [vignette](https://paulgovan.github.io/ReliaGrowR/articles/RGA.html).
+
 ## Installation
 
 To install the release version of ReliaGrowR, use:

@@ -23,6 +23,9 @@ functions for Reliability Growth Analysis (RGA), including:
 - Piecewise Weibull NHPP
 - Piecewise Weibull NHPP with Change Point Detection
 
+To learn more about RGA and this package, please view the
+[vignette](https://paulgovan.github.io/ReliaGrowR/articles/RGA.html).
+
 ## Installation
 
 To install the release version of ReliaGrowR, use:
