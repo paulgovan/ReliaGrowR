@@ -65,29 +65,36 @@
 
     
     
-<p>Reliability Growth Analysis (RGA) is the process of assessing the
-reliability of systems or products during the development and testing
-phases. RGA tracks the rate at which reliability improves over time,
-typically as design changes, fixes, or process improvements are
-implemented. The primary objective is to measure the system or product’s
-failure behavior and predict how it will perform once the product is
-fully mature or operational.</p>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p><strong>Reliability Growth Analysis (RGA)</strong> is a vital
+methodology for evaluating how the reliability of systems or products
+improves over time, particularly during development and testing phases.
+By monitoring failures and implementing corrective actions, engineers
+can track the rate of reliability improvement and forecast future
+performance.</p>
+<p>RGA is especially useful in scenarios where iterative enhancements
+are made—such as design updates or process optimizations—with the
+ultimate goal of achieving a mature, dependable product.</p>
+</div>
 <div class="section level2">
 <h2 id="the-crow-amsaa-model">The Crow-AMSAA Model<a class="anchor" aria-label="anchor" href="#the-crow-amsaa-model"></a>
 </h2>
-<p><strong>The Crow-AMSAA</strong> or <strong>Non-Homogeneous Poisson
-Process (NHPP)</strong> model is a statistical method of tracking
-reliability improvements over time. This model is particularly useful
-for analyzing failure data in systems where the failure rate changes due
-to improvements or corrective actions during the development or
-operational phases.</p>
+<p><strong>The Crow-AMSAA</strong> introduced by Larry Crow in 1975, is
+a widely adopted model in reliability engineering. The model takes
+failure behavior as a Non-Homogeneous Poisson Process (NHPP) governed by
+a power law, making it particularly effective for systems undergoing
+reliability growth due to continuous improvements.</p>
 <div class="section level3">
-<h3 id="the-non-homogeneous-poisson-process-nhpp">The Non-Homogeneous Poisson Process (NHPP):<a class="anchor" aria-label="anchor" href="#the-non-homogeneous-poisson-process-nhpp"></a>
+<h3 id="non-homogeneous-poisson-process">Non-Homogeneous Poisson Process:<a class="anchor" aria-label="anchor" href="#non-homogeneous-poisson-process"></a>
 </h3>
-<p>In a NHPP, the failure rate changes over time, increasing or
-decreasing depending on actions taken to improve reliability. Failures
-follow a Poisson process, but the rate at which they occur changes with
-time, hence “non-homogeneous.”</p>
+<p>In an NHPP, the rate of failures is not constant over time—it changes
+as improvements are made. While the individual failure events still
+follow a Poisson distribution, the intensity (or rate) of failures is
+time-dependent. This characteristic allows the Crow-AMSAA model to
+capture both reliability growth (decreasing failure rate) and
+degradation (increasing failure rate).</p>
 </div>
 <div class="section level3">
 <h3 id="the-power-law-model">The Power Law Model:<a class="anchor" aria-label="anchor" href="#the-power-law-model"></a>
@@ -168,12 +175,12 @@ is related to the initial failure rate.</p></li>
 <div class="section level2">
 <h2 id="the-piecewise-weibull-nhpp-model">The Piecewise Weibull NHPP Model<a class="anchor" aria-label="anchor" href="#the-piecewise-weibull-nhpp-model"></a>
 </h2>
-<p>The <strong>Piecewise Weibull NHPP</strong> model is an extension of
-the standard NHPP model that includes different segments or phases of
-time that follow separate Weibull failure distributions. This model is
-particularly useful when a system experiences changes in failure
-behavior over different development phases, such as the initial, interim
-and final phases of a development process.</p>
+<p>The <strong>Piecewise Weibull NHPP</strong> model, developed by Guo
+et al. (2010), extends the traditional NHPP by allowing different time
+segments to follow their own Weibull failure distributions. This method
+is especially useful when failure behavior shifts across phases of
+development — such as early, middle, and late stages — where the
+underlying reliability dynamics may differ.</p>
 <div class="section level3">
 <h3 id="the-weibull-distribution">The Weibull Distribution<a class="anchor" aria-label="anchor" href="#the-weibull-distribution"></a>
 </h3>
@@ -221,15 +228,12 @@ breakpoint:</p>
 <div class="section level2">
 <h2 id="the-piecewise-weibull-nhpp-with-change-point-detection">The Piecewise Weibull NHPP with Change Point Detection<a class="anchor" aria-label="anchor" href="#the-piecewise-weibull-nhpp-with-change-point-detection"></a>
 </h2>
-<p>The <strong>Piecewise Weibull NHPP with Change Point
-Detection</strong> is an advanced model for identifying changes in
-failure behavior and model system reliability. This method builds on the
-Piecewise Weibull NHPP model by introducing the concept of change
-points, which represent the time when the underlying failure behavior
-changes. Detection of change points involves statistical techniques that
-analyze failure data to automatically identify when the behavior
-changes, allowing for a more precise segmentation of the model into
-different Weibull distributions.</p>
+<p>This enhanced version of the Piecewise Weibull NHPP model
+incorporates <strong>change point detection</strong>, which identifies
+time points where the underlying failure process shifts. Rather than
+manually specifying breakpoints, this model automatically segments the
+data based on significant changes in reliability behavior using
+statistical techniques.</p>
 <div class="section level3">
 <h3 id="example-2">Example<a class="anchor" aria-label="anchor" href="#example-2"></a>
 </h3>
@@ -247,12 +251,11 @@ different Weibull distributions.</p>
 <div class="section level2">
 <h2 id="the-duane-model">The Duane Model<a class="anchor" aria-label="anchor" href="#the-duane-model"></a>
 </h2>
-<p>The <strong>Duane Model</strong> is another graphical method for
-tracking and visualizing the reliability improvement of a product or
-system over time. The Duane Plot is a log-log plot that shows the
-cumulative failure rate or Mean Time Between Failures (MTBF) versus
-time, helping to assess whether reliability is improving, stabilizing,
-or worsening over time.</p>
+<p>The <strong>Duane Model</strong>, introduced by J.T. Duane in 1964,
+is a graphical technique for evaluating reliability growth. The model is
+based on the assumption that reliability improves over time and
+visualizes this via a log-log plot of cumulative failure rate (or mean
+time between failures, MTBF) versus time.</p>
 <div class="section level3">
 <h3 id="example-3">Example<a class="anchor" aria-label="anchor" href="#example-3"></a>
 </h3>
@@ -269,9 +272,13 @@ or worsening over time.</p>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
-<p>RGA is a quantitative framework for understanding how a system’s
-reliability changes over time and guides decisions for further
-improvements based on observed failure patterns.</p>
+<p>Reliability Growth Analysis (RGA) provides a powerful statistical
+framework for tracking and predicting how a system’s reliability evolves
+throughout development. Models like Crow-AMSAA, Piecewise Weibull NHPP,
+and the Duane Model allow engineers and analysts to quantify
+improvements (or regressions) in reliability, understand system behavior
+across development phases, detect significant shifts in failure
+patterns, and guide design changes and process improvements.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
