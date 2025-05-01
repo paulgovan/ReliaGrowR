@@ -3,7 +3,7 @@
 #' Reliability Growth Analysis.
 #'
 #' This function performs reliability growth analysis using the Crow-AMSAA model by
-#' Crowe (1975) <https://apps.dtic.mil/sti/citations/ADA020296> or piecewise Weibull
+#' Crow (1975) <https://apps.dtic.mil/sti/citations/ADA020296> or piecewise Weibull
 #' NHPP model by Guo et al. (2010) <doi:10.1109/RAMS.2010.5448029>.
 #'
 #' @param times A vector of cumulative times at which failures occurred.
