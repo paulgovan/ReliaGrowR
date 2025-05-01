@@ -13,7 +13,7 @@ checks](https://badges.cranchecks.info/summary/ReliaGrowR.svg)](https://cran.r-p
 [![](https://img.shields.io/badge/doi-10.32614/CRAN.package.ReliaGrowR-green.svg)](https://doi.org/10.32614/CRAN.package.ReliaGrowR)
 <!-- badges: end -->
 
-## ReliaGrowR
+## Introduction
 
 Welcome to **ReliaGrowR**! This package provides modeling and plotting
 functions for Reliability Growth Analysis (RGA), including:
