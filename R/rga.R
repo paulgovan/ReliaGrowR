@@ -1,4 +1,10 @@
+
+
 #' Reliability Growth Analysis.
+#'
+#' This function performs reliability growth analysis using the Crow-AMSAA model by
+#' Crowe (1975) <https://apps.dtic.mil/sti/citations/ADA020296> or piecewise Weibull
+#' NHPP model by Guo et al. (2010) <doi:10.1109/RAMS.2010.5448029>.
 #'
 #' @param times A vector of cumulative times at which failures occurred.
 #' @param failures A vector of the number of failures at each corresponding time in times.
@@ -14,7 +20,6 @@
 #' @importFrom stats lm predict
 #' @importFrom segmented segmented slope intercept
 #' @export
-
 rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, conf_level = 0.95) {
 
   # Check if the inputs are valid
@@ -127,18 +132,51 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
     return(result)
   }
 
-# Custom print method for rga objects
+#' Print method for rga objects.
+#'
+#' This function prints a summary of the RGA analysis result.
+#' @param x An object of class `rga`.
+#' @param ... Additional arguments (not used).
+#' @export
 print.rga <- function(x, ...) {
-  cat("Reliability Growth Analysis (RGA) Results:\n")
-  cat("----------------------------------------------------\n")
-  cat("Model Type:        ", ifelse(is.null(x$breakpoints), "Crow-AMSAA", "Piecewise Weibull NHPP"), "\n")
+  cat("Reliability Growth Analysis (RGA)\n")
+  cat("---------------------------------\n")
+
+  # Determine model type
+  model_type <- if (is.null(x$breakpoints)) "Crow-AMSAA" else "Piecewise Weibull NHPP"
+  cat("Model Type:", model_type, "\n\n")
+
+  # Print breakpoints if available
   if (!is.null(x$breakpoints)) {
-    cat("Breakpoints:       ", paste(round(x$breakpoints, 2), collapse = ", "), "\n")
+    cat("Breakpoints (log scale):\n")
+    print(round(x$breakpoints, 4))
+    cat("\n")
   }
-  cat("Shape Parameters:  ", paste(round(x$shape_parameters, 2), collapse = ", "), "\n")
-  cat("Scale Parameters:  ", paste(round(x$scale_parameters, 2), collapse = ", "), "\n")
-  cat("Betas (slopes):    ", paste(round(x$betas, 2), collapse = ", "), "\n")
-  cat("Lambdas:           ", paste(round(x$lambdas, 2), collapse = ", "), "\n")
-  cat("----------------------------------------------------\n")
-  invisible(x)  # Ensure the object is returned invisibly
+
+  # Print Weibull parameters
+  cat("Weibull Parameters (per segment):\n")
+  if (is.matrix(x$betas)) {
+    betas <- round(x$betas[, "Est."], 4)
+    names(betas) <- rownames(x$betas)
+    print(betas)
+  } else {
+    cat("Beta:", round(x$betas[1], 4), "\n")
+  }
+
+  if (is.matrix(x$lambdas)) {
+    lambdas <- round(x$lambdas[, "Est."], 4)
+    names(lambdas) <- rownames(x$lambdas)
+    print(lambdas)
+  } else {
+    cat("Lambda:", round(x$lambdas[1], 4), "\n")
+  }
+
+  # Goodness of fit
+  cat("\nGoodness of Fit:\n")
+  cat(sprintf("  AIC: %.2f\n", x$AIC))
+  cat(sprintf("  BIC: %.2f\n", x$BIC))
+
+  invisible(x)
 }
+
+

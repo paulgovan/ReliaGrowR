@@ -2,12 +2,13 @@
 % Please edit documentation in R/duane_plot.R
 \name{duane_plot}
 \alias{duane_plot}
-\title{Plotting Function for Duane Analysis.}
+\title{Duane Analysis.}
 \usage{
 duane_plot(
   times,
   failures,
   plot = TRUE,
+  log = TRUE,
   point_col = "black",
   line_col = "black",
   xlab = "Cumulative Time",
@@ -20,7 +21,9 @@ duane_plot(
 
 \item{failures}{A vector of the number of failures at each corresponding time in times.}
 
-\item{plot}{Show Duane Plot (TRUE) or hide plot (FALSE).}
+\item{plot}{Show Duane plot (TRUE) or hide plot (FALSE).}
+
+\item{log}{Logical indicating whether to use logarithmic scale for the plot (default: TRUE).}
 
 \item{point_col}{Color for the data points (default: "black").}
 
@@ -33,15 +36,14 @@ duane_plot(
 \item{main}{Title for the plot (default: "Duane Plot with Cumulative MTBF").}
 }
 \value{
-The function returns a list of the fitted linear model, Cumulative Time, Cumulative MTBF.
+A list containing the fitted model, AIC, and BIC.
 }
 \description{
-Plotting Function for Duane Analysis.
+This function performs a Duane analysis (1962) \url{doi:10.1109/TA.1964.4319640} on the provided failure data.
 }
 \examples{
-library(ReliaGrowR)
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 fit <- duane_plot(times, failures)
-summary(fit)
+print(fit)
 }

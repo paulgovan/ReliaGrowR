@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_rga.R
 \name{plot_rga}
 \alias{plot_rga}
-\title{Plotting Function for Reliability Growth Analysis}
+\title{Plot Reliability Growth Analysis Results}
 \usage{
 plot_rga(
   rga_obj,
@@ -10,7 +10,10 @@ plot_rga(
   line_col = "black",
   xlab = "Cumulative Time",
   ylab = "Cumulative Failures",
-  main = "Reliability Growth Analysis"
+  main = "Reliability Growth Analysis",
+  conf_bounds = TRUE,
+  legend = TRUE,
+  log = FALSE
 )
 }
 \arguments{
@@ -25,12 +28,18 @@ plot_rga(
 \item{ylab}{Label for the y-axis (default: "Cumulative Failures").}
 
 \item{main}{Title for the plot (default: "Reliability Growth Analysis").}
+
+\item{conf_bounds}{Logical indicating whether to include confidence bounds (default: TRUE).}
+
+\item{legend}{Logical indicating whether to show the legend (default: TRUE).}
+
+\item{log}{Logical indicating whether to use a log-log scale (default: FALSE).}
 }
 \value{
 The function does not return a value.
 }
 \description{
-Plotting Function for Reliability Growth Analysis
+This function generates a plot for the results of a Reliability Growth Analysis (RGA).
 }
 \examples{
 times <- c(100, 200, 300, 400, 500)

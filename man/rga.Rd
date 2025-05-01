@@ -27,7 +27,9 @@ rga(
 The function returns an object of class \code{rga} that contains the results for the model.
 }
 \description{
-Reliability Growth Analysis.
+This function performs reliability growth analysis using the Crow-AMSAA model by
+Crowe (1975) \url{https://apps.dtic.mil/sti/citations/ADA020296} or piecewise Weibull
+NHPP model by Guo et al. (2010) \url{doi:10.1109/RAMS.2010.5448029}.
 }
 \examples{
 times <- c(100, 200, 300, 400, 500)

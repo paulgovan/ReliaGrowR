@@ -2,7 +2,7 @@
 % Please edit documentation in R/weibull_to_rga.R
 \name{weibull_to_rga}
 \alias{weibull_to_rga}
-\title{Convert Weibull Data to Reliability Growth Data}
+\title{Weibull to RGA}
 \usage{
 weibull_to_rga(failures, suspensions = NULL)
 }
@@ -15,7 +15,8 @@ weibull_to_rga(failures, suspensions = NULL)
 A data frame with times and failure counts suitable for reliability growth analysis.
 }
 \description{
-Convert Weibull Data to Reliability Growth Data
+This function converts Weibull data (failure and suspension times) into a format
+suitable for reliability growth analysis (RGA).
 }
 \examples{
 failures <- c(100, 200, 200, 400)

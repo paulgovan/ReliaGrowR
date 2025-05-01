@@ -1,4 +1,7 @@
-#' Convert Weibull Data to Reliability Growth Data
+#' Weibull to RGA
+#'
+#' This function converts Weibull data (failure and suspension times) into a format
+#' suitable for reliability growth analysis (RGA).
 #'
 #' @param failures A vector of failure times.
 #' @param suspensions A vector of suspension (censoring) times.
