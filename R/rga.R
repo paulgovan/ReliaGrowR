@@ -87,7 +87,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
 
       # Calculate Beta (slope) and Lambda (intercept) for each segment
       betas <- slopes
-      lambdas <- intercepts
+      lambdas <- exp(intercepts$log_times)
 
     } else {
       updated_fit <- fit
@@ -100,7 +100,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
 
       # Calculate Beta and Lambda for the Crow-AMSAA model
       betas <- slope
-      lambdas <- intercept
+      lambdas <- exp(intercept)
     }
 
     # Extract goodness of fit metrics
@@ -161,14 +161,15 @@ print.rga <- function(x, ...) {
     betas <- round(x$betas$log_times[, "Est."], 4)
     cat(sprintf("  Betas: %s\n", paste(betas, collapse = ", ")))
   } else {
-    cat(sprintf("  Beta: %.4f\n", x$betas))
+    cat(sprintf("  Beta: %.4f\n", x$betas[1]))
   }
 
   if (model_type == "Piecewise Weibull NHPP") {
-    lambdas <- round(x$lambdas$log_times[, "Est."], 4)
+    lambdas <- round(x$lambdas[, "Est."], 4)
     cat(sprintf("  Lambdas: %s\n", paste(lambdas, collapse = ", ")))
   } else {
-    cat(sprintf("  Lambda: %.4f\n", x$lambdas))
+    lambdas
+    cat(sprintf("  Lambda: %.4f\n", x$lambdas[1]))
   }
 
   # Goodness of fit
