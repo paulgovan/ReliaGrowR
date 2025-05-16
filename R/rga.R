@@ -94,7 +94,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
       # Calculate Weibull parameters for the Crow-AMSAA model
       summary <- summary(updated_fit)
       slope <- summary$coefficients[2,]
-      intercept <- summary$coefficients[2,]
+      intercept <- summary$coefficients[1,]
 
       # Calculate Beta and Lambda for the Crow-AMSAA model
       betas <- slope

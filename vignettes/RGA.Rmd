@@ -112,7 +112,7 @@ First, set up some cumulative time/failure data and specify the breakpoint:
 ```{r}
 times <- c(25, 55, 97, 146, 201, 268, 341, 423, 513, 609, 710, 820, 940, 1072, 1217)
 failures <- c(1, 1, 2, 4, 4, 1, 1, 2, 1, 4, 1, 1, 3, 3, 4)
-breakpoints <- 300
+breakpoints <- 500
 ```
 
 Then run the rga and plot the results:
