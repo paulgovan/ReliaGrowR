@@ -74,7 +74,9 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
         breakpoints <- updated_fit$psi[, "Est."]
       } else {
         # Apply the user-supplied breakpoints
-        segmented_fit <- segmented::segmented(fit, seg.Z = ~log_times, fixed.psi = log(breakpoints))
+        logbps <- log(breakpoints)
+        segmented_fit <- segmented::segmented(fit, seg.Z = ~log_times,
+                                              fixed.psi = logbps, npsi = length(logbps))
         # Update the model fit with the user-supplied breakpoints
         updated_fit <- segmented_fit
       }
