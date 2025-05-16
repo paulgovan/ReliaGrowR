@@ -148,27 +148,25 @@ print.rga <- function(x, ...) {
 
   # Print breakpoints if available
   if (!is.null(x$breakpoints)) {
-    cat("Breakpoints (log scale):\n")
-    print(round(x$breakpoints, 4))
+    cat("Breakpoints (original scale):\n")
+    cat(round(exp(x$breakpoints), 4), "\n")
     cat("\n")
   }
 
   # Print Weibull parameters
   cat("Weibull Parameters (per segment):\n")
-  if (is.matrix(x$betas)) {
-    betas <- round(x$betas[, "Est."], 4)
-    names(betas) <- rownames(x$betas)
-    print(betas)
+  if (model_type == "Piecewise Weibull NHPP") {
+    betas <- round(x$betas$log_times[, "Est."], 4)
+    cat(sprintf("  Betas: %s\n", paste(betas, collapse = ", ")))
   } else {
-    cat("Beta:", round(x$betas[1], 4), "\n")
+    cat(sprintf("  Beta: %.4f\n", x$betas))
   }
 
-  if (is.matrix(x$lambdas)) {
-    lambdas <- round(x$lambdas[, "Est."], 4)
-    names(lambdas) <- rownames(x$lambdas)
-    print(lambdas)
+  if (model_type == "Piecewise Weibull NHPP") {
+    lambdas <- round(x$lambdas$log_times[, "Est."], 4)
+    cat(sprintf("  Lambdas: %s\n", paste(lambdas, collapse = ", ")))
   } else {
-    cat("Lambda:", round(x$lambdas[1], 4), "\n")
+    cat(sprintf("  Lambda: %.4f\n", x$lambdas))
   }
 
   # Goodness of fit
