@@ -3,7 +3,7 @@ pkgdown: 2.1.2
 pkgdown_sha: ~
 articles:
   RGA: RGA.html
-last_built: 2025-05-16T14:05Z
+last_built: 2025-05-16T15:18Z
 urls:
   reference: https://paulgovan.github.io/ReliaGrowR/reference
   article: https://paulgovan.github.io/ReliaGrowR/articles
