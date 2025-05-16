@@ -168,7 +168,6 @@ print.rga <- function(x, ...) {
     lambdas <- round(x$lambdas[, "Est."], 4)
     cat(sprintf("  Lambdas: %s\n", paste(lambdas, collapse = ", ")))
   } else {
-    lambdas
     cat(sprintf("  Lambda: %.4f\n", x$lambdas[1]))
   }
 

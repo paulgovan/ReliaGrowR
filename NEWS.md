@@ -1,3 +1,12 @@
+# ReliaGrowR 0.1.4
+
+## New features
+* New custom print methods for RGA and Duane models.
+* More plot options for RGA and Duane models.
+
+## Minor Updates and Bug Fixes
+* Other minor improvements, documentation updates, and bug fixes.
+
 # ReliaGrowR 0.1.3
 
 ## Minor Updates and Bug Fixes
