@@ -9,7 +9,7 @@
 #' @param times A vector of cumulative times at which failures occurred.
 #' @param failures A vector of the number of failures at each corresponding time in times.
 #' @param model_type The model type. Either `Crow-AMSAA` (default) or `Piecewise Weibull NHPP` with change point detection.
-#' @param breakpoints An optional vector of breakpoints for the `Piecewise Weibull NHPP` model.
+#' @param breaks An optional vector of breakpoints for the `Piecewise Weibull NHPP` model.
 #' @param conf_level The desired confidence level, which defaults to 95%.
 #' @return The function returns an object of class `rga` that contains the results for the model.
 #' @examples
@@ -18,9 +18,9 @@
 #' result <- rga(times, failures)
 #' print(result)
 #' @importFrom stats lm predict
-#' @importFrom segmented segmented slope intercept
+#' @importFrom segmented segmented slope intercept seg.control
 #' @export
-rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, conf_level = 0.95) {
+rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_level = 0.95) {
 
   # Check if the inputs are valid
   if (length(times) != length(failures)) {
@@ -45,9 +45,9 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
     stop(paste("Model_type must be one of", paste(valid_models, collapse = ", "), "."))
   }
 
-  # Check if breakpoints are valid if provided
-  if (!is.null(breakpoints)) {
-    if (!is.numeric(breakpoints) || any(breakpoints <= 0)) {
+  # Check if breaks are valid if provided
+  if (!is.null(breaks)) {
+    if (!is.numeric(breaks) || any(breaks <= 0)) {
       stop("Breakpoints must be a numeric vector with positive values.")
     }
     if (model_type != "Piecewise Weibull NHPP") {
@@ -67,18 +67,15 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breakpoints = NULL, 
   fit <- stats::lm(log_cum_failures ~ log_times)
 
     if (model_type == "Piecewise Weibull NHPP") {
-      if (is.null(breakpoints)) {
+      if (is.null(breaks)) {
         # Apply the segmented package to detect change points
         updated_fit <- segmented::segmented(fit, seg.Z = ~log_times)
         # Extract the breakpoints (change points)
         breakpoints <- updated_fit$psi[, "Est."]
       } else {
         # Apply the user-supplied breakpoints
-        logbps <- log(breakpoints)
-        segmented_fit <- segmented::segmented(fit, seg.Z = ~log_times,
-                                              fixed.psi = logbps, npsi = length(logbps))
-        # Update the model fit with the user-supplied breakpoints
-        updated_fit <- segmented_fit
+        breakpoints <- log(breaks)
+        updated_fit <- segmented::segmented(fit, seg.Z = ~log_times, psi = breakpoints)
       }
 
       # Extract the slope for each segment and convert to beta (Weibull shape parameter)
