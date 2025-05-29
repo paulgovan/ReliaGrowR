@@ -13,7 +13,8 @@ plot_rga(
   main = "Reliability Growth Analysis",
   conf_bounds = TRUE,
   legend = TRUE,
-  log = FALSE
+  log = FALSE,
+  legend_pos = "bottomright"
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ plot_rga(
 \item{legend}{Logical indicating whether to show the legend (default: TRUE).}
 
 \item{log}{Logical indicating whether to use a log-log scale (default: FALSE).}
+
+\item{legend_pos}{Position of the legend (default: "bottomright").}
 }
 \value{
 The function does not return a value.

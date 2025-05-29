@@ -8,7 +8,7 @@ rga(
   times,
   failures,
   model_type = "Crow-AMSAA",
-  breakpoints = NULL,
+  breaks = NULL,
   conf_level = 0.95
 )
 }
@@ -19,7 +19,7 @@ rga(
 
 \item{model_type}{The model type. Either \code{Crow-AMSAA} (default) or \verb{Piecewise Weibull NHPP} with change point detection.}
 
-\item{breakpoints}{An optional vector of breakpoints for the \verb{Piecewise Weibull NHPP} model.}
+\item{breaks}{An optional vector of breakpoints for the \verb{Piecewise Weibull NHPP} model.}
 
 \item{conf_level}{The desired confidence level, which defaults to 95\%.}
 }
