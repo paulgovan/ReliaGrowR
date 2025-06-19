@@ -173,18 +173,18 @@ is related to the initial failure rate.</p></li>
 </div>
 </div>
 <div class="section level2">
-<h2 id="the-piecewise-weibull-nhpp-model">The Piecewise Weibull NHPP Model<a class="anchor" aria-label="anchor" href="#the-piecewise-weibull-nhpp-model"></a>
+<h2 id="the-piecewise-nhpp-model">The Piecewise NHPP Model<a class="anchor" aria-label="anchor" href="#the-piecewise-nhpp-model"></a>
 </h2>
-<p>The <strong>Piecewise Weibull NHPP</strong> model, developed by Guo
-et al. (2010), extends the traditional NHPP by allowing different time
-segments to follow their own Weibull failure distributions. This method
-is especially useful when failure behavior shifts across phases of
-development — such as early, middle, and late stages — where the
-underlying reliability dynamics may differ.</p>
+<p>The <strong>Piecewise NHPP</strong>, developed by Guo et al. (2010),
+extends the traditional NHPP by allowing different time segments to
+follow their own failure distributions. This method is especially useful
+when failure behavior shifts across phases of development — such as
+early, middle, and late stages — where the underlying reliability
+dynamics may differ.</p>
 <div class="section level3">
-<h3 id="the-weibull-distribution">The Weibull Distribution<a class="anchor" aria-label="anchor" href="#the-weibull-distribution"></a>
+<h3 id="the-failure-distribution">The Failure Distribution<a class="anchor" aria-label="anchor" href="#the-failure-distribution"></a>
 </h3>
-<p>The Weibull intensity function for each time segment
+<p>The intensity function for each time segment
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
 is modeled as:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><msub><mi>β</mi><mi>i</mi></msub><msub><mi>η</mi><mi>i</mi></msub></mfrac><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mi>t</mi><mo>−</mo><msub><mi>t</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><msub><mi>η</mi><mi>i</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mrow><msub><mi>β</mi><mi>i</mi></msub><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">
@@ -220,20 +220,20 @@ breakpoint:</p>
 <span><span class="va">breaks</span> <span class="op">&lt;-</span> <span class="fl">500</span></span></code></pre></div>
 <p>Then run the rga and plot the results:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span>, model_type <span class="op">=</span> <span class="st">"Piecewise Weibull NHPP"</span>, breaks <span class="op">=</span> <span class="va">breaks</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span>, model_type <span class="op">=</span> <span class="st">"Piecewise NHPP"</span>, breaks <span class="op">=</span> <span class="va">breaks</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_rga.html">plot_rga</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
 <p><img src="RGA_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="the-piecewise-weibull-nhpp-with-change-point-detection">The Piecewise Weibull NHPP with Change Point Detection<a class="anchor" aria-label="anchor" href="#the-piecewise-weibull-nhpp-with-change-point-detection"></a>
+<h2 id="the-piecewise-nhpp-with-change-point-detection">The Piecewise NHPP with Change Point Detection<a class="anchor" aria-label="anchor" href="#the-piecewise-nhpp-with-change-point-detection"></a>
 </h2>
-<p>This enhanced version of the Piecewise Weibull NHPP model
-incorporates <strong>change point detection</strong>, which identifies
-time points where the underlying failure process shifts. Rather than
-manually specifying breakpoints, this model automatically segments the
-data based on significant changes in reliability behavior using
-statistical techniques.</p>
+<p>This enhanced version of the Piecewise NHPP incorporates
+<strong>change point detection</strong>, which identifies time points
+where the underlying failure process shifts. Rather than manually
+specifying breakpoints, this model automatically segments the data based
+on significant changes in reliability behavior using statistical
+techniques.</p>
 <div class="section level3">
 <h3 id="example-2">Example<a class="anchor" aria-label="anchor" href="#example-2"></a>
 </h3>
@@ -243,7 +243,7 @@ statistical techniques.</p>
 <span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <p>Then run the rga and plot the results:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span>, model_type <span class="op">=</span> <span class="st">"Piecewise Weibull NHPP"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span>, model_type <span class="op">=</span> <span class="st">"Piecewise NHPP"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_rga.html">plot_rga</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
 <p><img src="RGA_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 </div>
@@ -274,11 +274,11 @@ time between failures, MTBF) versus time.</p>
 </h2>
 <p>Reliability Growth Analysis (RGA) provides a powerful statistical
 framework for tracking and predicting how a system’s reliability evolves
-throughout development. Models like Crow-AMSAA, Piecewise Weibull NHPP,
-and the Duane Model allow engineers and analysts to quantify
-improvements (or regressions) in reliability, understand system behavior
-across development phases, detect significant shifts in failure
-patterns, and guide design changes and process improvements.</p>
+throughout development. Models like Crow-AMSAA, Piecewise NHPP, and the
+Duane Model allow engineers and analysts to quantify improvements (or
+regressions) in reliability, understand system behavior across
+development phases, detect significant shifts in failure patterns, and
+guide design changes and process improvements.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
