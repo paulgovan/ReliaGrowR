@@ -3,13 +3,13 @@
 #' Reliability Growth Analysis.
 #'
 #' This function performs reliability growth analysis using the Crow-AMSAA model by
-#' Crow (1975) <https://apps.dtic.mil/sti/citations/ADA020296> or piecewise Weibull
+#' Crow (1975) <https://apps.dtic.mil/sti/citations/ADA020296> or piecewise
 #' NHPP model by Guo et al. (2010) <doi:10.1109/RAMS.2010.5448029>.
 #'
 #' @param times A vector of cumulative times at which failures occurred.
 #' @param failures A vector of the number of failures at each corresponding time in times.
-#' @param model_type The model type. Either `Crow-AMSAA` (default) or `Piecewise Weibull NHPP` with change point detection.
-#' @param breaks An optional vector of breakpoints for the `Piecewise Weibull NHPP` model.
+#' @param model_type The model type. Either `Crow-AMSAA` (default) or `Piecewise NHPP` with change point detection.
+#' @param breaks An optional vector of breakpoints for the `Piecewise NHPP` model.
 #' @param conf_level The desired confidence level, which defaults to 95%.
 #' @return The function returns an object of class `rga` that contains the results for the model.
 #' @examples
@@ -40,7 +40,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
   }
 
   # Check if the model_type is valid
-  valid_models <- c("Crow-AMSAA", "Piecewise Weibull NHPP")
+  valid_models <- c("Crow-AMSAA", "Piecewise NHPP")
   if (!(model_type %in% valid_models)) {
     stop(paste("Model_type must be one of", paste(valid_models, collapse = ", "), "."))
   }
@@ -50,8 +50,8 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
     if (!is.numeric(breaks) || any(breaks <= 0)) {
       stop("Breakpoints must be a numeric vector with positive values.")
     }
-    if (model_type != "Piecewise Weibull NHPP") {
-      stop("Breakpoints can only be used with the 'Piecewise Weibull NHPP' model.")
+    if (model_type != "Piecewise NHPP") {
+      stop("Breakpoints can only be used with the 'Piecewise NHPP' model.")
     }
   }
 
@@ -66,7 +66,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
   # Fit a linear model to the log-transformed data
   fit <- stats::lm(log_cum_failures ~ log_times)
 
-    if (model_type == "Piecewise Weibull NHPP") {
+    if (model_type == "Piecewise NHPP") {
       if (is.null(breaks)) {
         # Apply the segmented package to detect change points
         updated_fit <- segmented::segmented(fit, seg.Z = ~log_times)
@@ -78,7 +78,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
         updated_fit <- segmented::segmented(fit, seg.Z = ~log_times, psi = breakpoints)
       }
 
-      # Extract the slope for each segment and convert to beta (Weibull shape parameter)
+      # Extract the slope for each segment and convert to beta (shape parameter)
       slopes <- segmented::slope(updated_fit)
       intercepts <- segmented::intercept(updated_fit)
 
@@ -90,7 +90,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
       updated_fit <- fit
       breakpoints <- NULL
 
-      # Calculate Weibull parameters for the Crow-AMSAA model
+      # Calculate parameters for the Crow-AMSAA model
       summary <- summary(updated_fit)
       slope <- summary$coefficients[2,]
       intercept <- summary$coefficients[1,]
@@ -111,7 +111,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
     lower_bounds <- exp(conf_intervals[, "lwr"])
     upper_bounds <- exp(conf_intervals[, "upr"])
 
-    # Return the segmented model, breakpoints, coefficients, confidence bounds, Weibull parameters, Beta, and Lambda
+    # Return the segmented model, breakpoints, coefficients, confidence bounds, parameters, Beta, and Lambda
     result <- (
       list(
         model = updated_fit,
@@ -142,7 +142,7 @@ print.rga <- function(x, ...) {
   cat("---------------------------------\n")
 
   # Determine model type
-  model_type <- if (is.null(x$breakpoints)) "Crow-AMSAA" else "Piecewise Weibull NHPP"
+  model_type <- if (is.null(x$breakpoints)) "Crow-AMSAA" else "Piecewise NHPP"
   cat("Model Type:", model_type, "\n\n")
 
   # Print breakpoints if available
@@ -152,16 +152,16 @@ print.rga <- function(x, ...) {
     cat("\n")
   }
 
-  # Print Weibull parameters
-  cat("Weibull Parameters (per segment):\n")
-  if (model_type == "Piecewise Weibull NHPP") {
+  # Print parameters
+  cat("Parameters (per segment):\n")
+  if (model_type == "Piecewise NHPP") {
     betas <- round(x$betas$log_times[, "Est."], 4)
     cat(sprintf("  Betas: %s\n", paste(betas, collapse = ", ")))
   } else {
     cat(sprintf("  Beta: %.4f\n", x$betas[1]))
   }
 
-  if (model_type == "Piecewise Weibull NHPP") {
+  if (model_type == "Piecewise NHPP") {
     lambdas <- round(x$lambdas[, "Est."], 4)
     cat(sprintf("  Lambdas: %s\n", paste(lambdas, collapse = ", ")))
   } else {

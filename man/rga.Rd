@@ -17,9 +17,9 @@ rga(
 
 \item{failures}{A vector of the number of failures at each corresponding time in times.}
 
-\item{model_type}{The model type. Either \code{Crow-AMSAA} (default) or \verb{Piecewise Weibull NHPP} with change point detection.}
+\item{model_type}{The model type. Either \code{Crow-AMSAA} (default) or \verb{Piecewise NHPP} with change point detection.}
 
-\item{breaks}{An optional vector of breakpoints for the \verb{Piecewise Weibull NHPP} model.}
+\item{breaks}{An optional vector of breakpoints for the \verb{Piecewise NHPP} model.}
 
 \item{conf_level}{The desired confidence level, which defaults to 95\%.}
 }
@@ -28,7 +28,7 @@ The function returns an object of class \code{rga} that contains the results for
 }
 \description{
 This function performs reliability growth analysis using the Crow-AMSAA model by
-Crow (1975) \url{https://apps.dtic.mil/sti/citations/ADA020296} or piecewise Weibull
+Crow (1975) \url{https://apps.dtic.mil/sti/citations/ADA020296} or piecewise
 NHPP model by Guo et al. (2010) \url{doi:10.1109/RAMS.2010.5448029}.
 }
 \examples{

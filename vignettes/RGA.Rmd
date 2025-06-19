@@ -87,13 +87,13 @@ result <- rga(times, failures)
 plot_rga(result)
 ```
 
-## The Piecewise Weibull NHPP Model
+## The Piecewise NHPP Model
 
-The **Piecewise Weibull NHPP** model, developed by Guo et al. (2010), extends the traditional NHPP by allowing different time segments to follow their own Weibull failure distributions. This method is especially useful when failure behavior shifts across phases of development — such as early, middle, and late stages — where the underlying reliability dynamics may differ.
+The **Piecewise NHPP**, developed by Guo et al. (2010), extends the traditional NHPP by allowing different time segments to follow their own failure distributions. This method is especially useful when failure behavior shifts across phases of development — such as early, middle, and late stages — where the underlying reliability dynamics may differ.
 
-### The Weibull Distribution
+### The Failure Distribution
 
-The Weibull intensity function for each time segment \(i\) is modeled as:
+The intensity function for each time segment \(i\) is modeled as:
 
 \[
 \lambda_i(t) = \frac{\beta_i}{\eta_i} \left( \frac{t - t_{i-1}}{\eta_i} \right)^{\beta_i - 1}
@@ -117,13 +117,13 @@ breaks <- 500
 
 Then run the rga and plot the results:
 ```{r}
-result <- rga(times, failures, model_type = "Piecewise Weibull NHPP", breaks = breaks)
+result <- rga(times, failures, model_type = "Piecewise NHPP", breaks = breaks)
 plot_rga(result)
 ```
 
-## The Piecewise Weibull NHPP with Change Point Detection
+## The Piecewise NHPP with Change Point Detection
 
-This enhanced version of the Piecewise Weibull NHPP model incorporates **change point detection**, which identifies time points where the underlying failure process shifts. Rather than manually specifying breakpoints, this model automatically segments the data based on significant changes in reliability behavior using statistical techniques.
+This enhanced version of the Piecewise NHPP incorporates **change point detection**, which identifies time points where the underlying failure process shifts. Rather than manually specifying breakpoints, this model automatically segments the data based on significant changes in reliability behavior using statistical techniques.
 
 ### Example
 
@@ -135,7 +135,7 @@ failures <- c(1, 1, 2, 4, 4, 1, 1, 2, 1, 4, 1, 1, 3, 3, 4)
 
 Then run the rga and plot the results:
 ```{r}
-result <- rga(times, failures, model_type = "Piecewise Weibull NHPP")
+result <- rga(times, failures, model_type = "Piecewise NHPP")
 plot_rga(result)
 ```
 
@@ -158,4 +158,4 @@ fit <- duane_plot(times, failures)
 
 ## Summary 
 
-Reliability Growth Analysis (RGA) provides a powerful statistical framework for tracking and predicting how a system's reliability evolves throughout development. Models like Crow-AMSAA, Piecewise Weibull NHPP, and the Duane Model allow engineers and analysts to quantify improvements (or regressions) in reliability, understand system behavior across development phases, detect significant shifts in failure patterns, and guide design changes and process improvements.
+Reliability Growth Analysis (RGA) provides a powerful statistical framework for tracking and predicting how a system's reliability evolves throughout development. Models like Crow-AMSAA, Piecewise NHPP, and the Duane Model allow engineers and analysts to quantify improvements (or regressions) in reliability, understand system behavior across development phases, detect significant shifts in failure patterns, and guide design changes and process improvements.

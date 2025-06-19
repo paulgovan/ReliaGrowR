@@ -23,7 +23,7 @@ test_that("rga throws error when breaks are used with invalid model", {
 })
 
 test_that("rga throws error for invalid breaks input", {
-  expect_error(rga(c(100, 200), c(1, 2), model_type = "Piecewise Weibull NHPP", breaks = c(-150)), "Breakpoints must be a numeric vector")
+  expect_error(rga(c(100, 200), c(1, 2), model_type = "Piecewise NHPP", breaks = c(-150)), "Breakpoints must be a numeric vector")
 })
 
 test_that("rga returns an object of class 'rga'", {
@@ -38,8 +38,8 @@ test_that("Crow-AMSAA model returns expected components", {
   expect_null(result$breakpoints)
 })
 
-test_that("Piecewise Weibull NHPP model handles automatic segmentation", {
-  result <- rga(c(100, 200, 300, 400, 500, 600), c(1, 1, 2, 2, 3, 2), model_type = "Piecewise Weibull NHPP")
+test_that("Piecewise NHPP model handles automatic segmentation", {
+  result <- rga(c(100, 200, 300, 400, 500, 600), c(1, 1, 2, 2, 3, 2), model_type = "Piecewise NHPP")
   expect_s3_class(result, "rga")
   expect_true(!is.null(result$breakpoints))
 })
