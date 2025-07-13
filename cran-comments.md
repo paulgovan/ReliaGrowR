@@ -1,6 +1,15 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note
+
+ * Found the following (possibly) invalid URLs:
+    URL: https://apps.dtic.mil/sti/citations/ADA020296
+      From: DESCRIPTION
+            man/rga.Rd
+      Status: 403
+      Message: Forbidden
+
+ * This is the correct url.
 
 ## revdepcheck results
 

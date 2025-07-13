@@ -1,6 +1,9 @@
 ---
-title: "ReliaGrowR: Open Source Software for Reliability Growth Analysis"
-output: html_document
+title: 'ReliaGrowR: Open Source Software for Reliability Growth Analysis'
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -11,20 +14,23 @@ Keywords: Reliability Growth Analysis, ReliaGrowR, R package, reliability engine
 
 ## Summary & Conclusions
 
-Reliability Growth Analysis plays a crucial role in engineering and product development by improving system reliability throughout the development and testing phases. ReliaGrowR is an open-source software package developed specifically to support the analysis of reliability growth data. It offers a set of simple yet effective functions for analyzing failure data, estimating reliability parameters, and visualizing reliability trends over time. Built on the R programming language, widely used in statistical computing and data analysis, ReliaGrowR provides intuitive functionality suitable for both novice and experienced users. The package is lightweight and extensible, allowing for customization and enhancement, and making it a versatile tool for researchers and practitioners in the field of reliability engineering. 
+ReliaGrowR is an open-source R package designed for Reliability Growth Analysis (RGA), providing essential tools for analyzing and visualizing reliability growth data. The package includes functions for various reliability growth models, such as the Duane Model, Crow-AMSAA Model, Piecewise NHPP Model, and Piecewise NHPP with Change Point Detection. ReliaGrowR is lightweight, easy to use, and extensible, allowing users to add custom models or features as needed. The package is available on the Comprehensive R Archive Network (CRAN) and has been verified through unit tests and example analyses to ensure reliability and correctness. ReliaGrowR is the only R package for RGA currently available on CRAN, making it a valuable resource for reliability engineers and researchers.
 
 ## Introduction
 
+Reliability Growth Analysis (RGA) is a critical aspect of reliability engineering by focusing on improving system reliability throughout the development and testing phases. ReliaGrowR [1] is an open-source software package developed to support the analysis of reliability growth data. The package provides a set of simple yet effective functions for analyzing failure data, estimating reliability parameters, and visualizing reliability trends over time. The package is built on the R [2] programming language, which is widely used for statistical computing and data analysis.
+
+ReliaGrowR is the only R package for RGA currently available on the CRAN. Complimentary to other R packages, such as `WeibullR` [3] and `WeibullR.alt` [4], ReliaGrowR focuses on providing essential functionality for RGA without unnecessary complexity. Other open source packages, such as the library `reliability` [5], provide functionality for RGA, but do not include advanced models such as the Piecewise NHPP with Change Point Detection. ReliaGrowR includes functions for various reliability growth models, such as the Duane Model [6], Crow-AMSAA Model [7], Piecewise NHPP Model [8], and Piecewise NHPP with Change Point Detection [9]. These models are essential for understanding how reliability improves (or degrades) over time as changes are made to a product or system.
 
 ## Implementation
 
-ReliaGrowR is an R package designed for Reliability Growth Analysis (RGA), providing tools to analyze and visualize reliability growth data. The package includes functions for various reliability growth models, such as the Duane Model, Crow-AMSAA Model, Piecewise NHPP Model, and Piecewise NHPP with Change Point Detection. The package is built on the R programming language, which is widely used for statistical computing and data analysis.
+ReliaGrowR is an R package designed for Reliability Growth Analysis (RGA), providing tools to analyze and visualize reliability growth data. The package includes functions for various reliability growth models, both statistical and graphical. The package is built on the R programming language, which is widely used for statistical computing and data analysis.
 
-The package is designed to be lightweight and easy to use, with a focus on providing essential functionality for RGA without unnecessary complexity. It is also designed to be extensible, allowing users to add custom models or features as needed. ReliaGrowR has one primary dependency on the `segmented` package [*] for regression modeling with break or change points, which is the underlying library for the Piecewise NHPP with or without change point detection.
+The package is designed to be lightweight and easy to use, with a focus on providing essential functionality for RGA without unnecessary complexity. It is also designed to be extensible, allowing users to add custom models or features as needed. ReliaGrowR has one primary dependency on the `segmented` package [10] for regression modeling with break or change points, which is the underlying library for the Piecewise NHPP with or without change point detection.
 
 ## Usage
 
-R is available on the Comprehensive R Archive Network (CRAN) [*]. To install R, follow the instructions provided on the CRAN website for the applicable operating system. Once R is installed, install the ReliaGrowR package from CRAN using the following command:
+ReliaGrowR is available on CRAN. To install R, follow the instructions provided on the CRAN website for the applicable operating system. Once R is installed, install the ReliaGrowR package from CRAN using the following command:
 
 ```{r install-package, eval=FALSE}
 install.packages("ReliaGrowR")
@@ -38,7 +44,7 @@ library(ReliaGrowR)
 
 ### The Duane Model
 
-The Duane Model [*] provides a simple and graphical way to observe and analyze whether failure rates are improving as changes are made to a product or system. The Duane Model is a log-log plot of the cumulative Mean Time Between Failures (MTBF) vs cumulative time.
+The Duane Model provides a simple and graphical way to observe and analyze whether failure rates are improving as changes are made to a product or system. The Duane Model is a log-log plot of the cumulative Mean Time Between Failures (MTBF) vs cumulative time.
 
 The slope of the line on the plot indicates the rate of reliability growth:
 
@@ -61,11 +67,15 @@ Next, use the `duane_plot` function to create the plot:
 fit <- duane_plot(times, failures)
 ```
 
-The `duane_plot` function returns a `duane` object with the fitted model results that can be further customized or saved. The plot shows the cumulative MTBF on the y-axis and cumulative time on the x-axis, with a fitted line indicating the reliability growth trend.
+The plot shows the cumulative MTBF on the y-axis and cumulative time on the x-axis, with a fitted line indicating the reliability growth trend. The `duane_plot` function returns a `duane` object with the model results that can be further customized or saved. To view the model results, print the `duane` object using the `print` function:
+
+```{r echo=TRUE}
+print(fit)
+```
 
 ### The Crow-AMSAA Model
 
-The Army Materiel Systems Analysis Activity Model by Crow (Crow-AMSAA) [*] takes failure behavior as a Non-Homogeneous Poisson Process (NHPP) governed by a power law, making the model particularly effective for systems undergoing reliability growth due to continuous improvements.
+The Army Materiel Systems Analysis Activity Model by Crow (Crow-AMSAA) takes failure behavior as a Non-Homogeneous Poisson Process (NHPP) governed by a power law, making the model particularly effective for systems undergoing reliability growth due to continuous improvements.
 
 Similar to the Duane Model, the shape of the model indicates the rate of reliability growth:
 
@@ -89,11 +99,15 @@ result <- rga(times, failures)
 plot_rga(result)
 ```
 
-The `rga` function returns an `rga` object containing the fitted model parameters, and the `plot_rga` function generates a plot showing the cumulative MTBF on the y-axis and cumulative time on the x-axis, with a fitted curve indicating the reliability growth trend.
+The `plot_rga` function generates a plot showing the cumulative MTBF on the y-axis and cumulative time on the x-axis, with a fitted curve indicating the reliability growth trend. The `rga` function returns an `rga` object containing the fitted model parameters. To view the model results, print the `rga` object:
+
+```{r echo=TRUE}
+print(result)
+```
 
 ### The Piecewise NHPP Model
 
-The Piecewise NHPP model [*], [*] is an extension of the standard NHPP model that includes different segments or phases of time that follow separate failure distributions. This model is particularly useful when a system experiences changes in failure behavior over different development phases, such as the initial, interim and final phases of a development process.
+The Piecewise NHPP model is an extension of the standard NHPP model that includes different segments or phases of time that follow separate failure distributions. This model is particularly useful when a system experiences changes in failure behavior over different development phases, such as the initial, interim and final phases of a development process.
 
 To use the Piecewise NHPP model in ReliaGrowR, first, set up some cumulative time and failure data and specify a breakpoint:
 
@@ -110,9 +124,15 @@ result <- rga(times, failures, model_type = "Piecewise NHPP", breaks = breaks)
 plot_rga(result)
 ```
 
+To view the model results, print the `rga` object using the `print` function:
+
+```{r echo=TRUE}
+print(result)
+```
+
 ### The Piecewise NHPP with Change Point Detection
 
-The Piecewise NHPP with Change Point Detection [*] is an advanced model to identify changes in failure behavior and model system reliability. This method builds on the Piecewise NHPP model by introducing the concept of change points, which represent the time when the underlying failure behavior changes. Detection of change points involves statistical techniques that analyze failure data to automatically identify when the behavior changes, allowing for a more precise segmentation of the model into different distributions.
+The Piecewise NHPP with Change Point Detection is an advanced model to identify changes in failure behavior and model system reliability. This method builds on the Piecewise NHPP model by introducing the concept of change points, which represent the time when the underlying failure behavior changes. Detection of change points involves statistical techniques that analyze failure data to automatically identify when the behavior changes, allowing for a more precise segmentation of the model into different distributions.
 
 To use the Piecewise NHPP with Change Point Detection in ReliaGrowR, use the `rga` function with the model type set to "Piecewise NHPP" and breaks set to NULL. The function will automatically detect change points based on the provided failure data. First, set up some cumulative time and failure data:
 
@@ -128,6 +148,12 @@ result <- rga(times, failures, model_type = "Piecewise NHPP")
 plot_rga(result)
 ```
 
+Print the `rga` object using the `print` function to view the model results:
+
+```{r echo=TRUE}
+print(result)
+```
+
 ## Verification
 
 ReliaGrowR was verified through unit tests and example analyses to ensure that the package performs as expected. The package includes a suite of tests that cover the core functionalities, including model fitting, plotting, and change point detection. These tests run automatically during package development to ensure reliability and correctness.
@@ -136,8 +162,50 @@ ReliaGrowR was also tested on different operating systems and R versions to ensu
 
 ## Extensibility 
 
-ReliaGrowR is designed to be extensible, allowing users to add custom models or features as needed.  The package has already been extended in a number of ways, including education [*], advanced visualization [*], and web-based applications [*]. Users can contribute to the package by submitting pull requests on the project repository, where the source code is hosted. The package is also open to contributions from the community, and users are encouraged to report issues or suggest improvements.
+ReliaGrowR is designed to be extensible, allowing users to add custom models or features as needed.  The package has already been extended in several ways, including education [11], advanced visualization [12], and web-based applications [13]. The package is experimental and is in active development with new features and models being added regularly. Users can contribute to the package by submitting pull requests on the project repository, where the source code is hosted. The package is also open to contributions from the community, and users are encouraged to report issues or suggest improvements.
 
 ## References
 
-
+1. Placeholder, "ReliaGrowR: Reliability Growth Analysis", R
+  package version 0.1, 2024, doi:10.32614/CRAN.package.ReliaGrowR,
+  https://cran.r-project.org/package=ReliaGrowR.
+  
+2. R Core Team, "R: A Language and Environment for Statistical Computing", R Foundation
+  for Statistical Computing, Vienna, Austria, 2024, https://www.R-project.org/.
+  
+3. D. Silkworth, J. Symynck, "WeibullR: Weibull Analysis for Reliability Engineering", R
+  package version 1.2.1, 2022, https://CRAN.R-project.org/package=WeibullR.
+  
+4. D. Silkworth, "WeibullR.ALT: Accelerated Life Testing Using 'WeibullR'", R package
+  version 0.7.2, 2022, https://CRAN.R-project.org/package=WeibullR.ALT.
+  
+5. M. Reid, "Reliability – a Python library for reliability engineering", Version 0.8.2,
+  2022, https://doi.org/10.5281/ZENODO.3938000.
+  
+6. J. T. Duane, "Learning Curve Approach to Reliability Monitoring", IEEE Transactions on Aerospace,
+  vol. 2, no. 2, pp. 563-566, April 1964, doi: 10.1109/TA.1964.4319640.
+  
+7. L.H. Crow, "Reliability analysis for complex repairable systems.", Reliability and biometry:
+  Statistical analysis of lifelength, pp. 379-410, 1974.
+  
+8. H. Guo, A. Mettas, G. Sarakakis and P. Niu, "Piecewise NHPP models with maximum likelihood estimation
+  for repairable systems", 2010 Proceedings - Annual Reliability and Maintainability Symposium (RAMS),
+  San Jose, CA, USA, 2010, pp. 1-7, doi:10.1109/RAMS.2010.5448029.
+  
+9. S. Fasola, V.M.R Muggeo, K. Kuchenhoff, "A heuristic, iterative algorithm for change-point
+  detection in abrupt change models", Computational Statistics, 33, pp. 997-1015, 2018.
+  
+10. V.M.V Muggeo, "segmented: an R Package to Fit Regression Models with Broken-Line
+  Relationships", R News, 8/1, pp. 20-25, https://cran.r-project.org/doc/Rnews/.
+  
+11. Placeholder, "WeibullR.learnr: An Interactive Introduction to Life Data Analysis",
+  R package version 0.1.1, 2023, doi:10.32614/CRAN.package.WeibullR.learnr,
+  https://CRAN.R-project.org/package=WeibullR.learnr.
+  
+12. Placeholder, "WeibullR.plotly: Interactive Weibull Probability Plots",
+  R package version 0.2.0, 2023, doi:10.32614/CRAN.package.WeibullR.plotly
+  https://CRAN.R-project.org/package=WeibullR.plotly.
+  
+13. Placeholder, "WeibullR.shiny: A Shiny App for Weibull Analysis",
+  R package version 0.2.0, 2023, doi:10.32614/CRAN.package.WeibullR.shiny
+  https://CRAN.R-project.org/package=WeibullR.shiny.

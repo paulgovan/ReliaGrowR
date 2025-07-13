@@ -1,3 +1,8 @@
+# ReliaGrowR 0.1.5
+
+## Minor Updates and Bug Fixes
+* Minor improvements, documentation updates, and bug fixes.
+
 # ReliaGrowR 0.1.4
 
 ## New features
