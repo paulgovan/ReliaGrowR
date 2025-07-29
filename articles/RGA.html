@@ -59,7 +59,7 @@
       <h1>Reliability Growth Analysis</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/v0.1.5/vignettes/RGA.Rmd" class="external-link"><code>vignettes/RGA.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/main/vignettes/RGA.Rmd" class="external-link"><code>vignettes/RGA.Rmd</code></a></small>
       <div class="d-none name"><code>RGA.Rmd</code></div>
     </div>
 
@@ -68,96 +68,60 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p><strong>Reliability Growth Analysis (RGA)</strong> is a crucial
-method for evaluating how the reliability of systems or products
-improves over time, particularly during development and testing phases.
-By monitoring failures and implementing corrective actions, engineers
-can track the rate of reliability improvement and forecast future
-performance.</p>
-<p>RGA is especially useful in scenarios where iterative enhancements
-are made—such as design updates or process optimizations—with the
-ultimate goal of achieving a mature, dependable product.</p>
+<p><strong>Reliability Growth Analysis (RGA)</strong> is an important
+aspect of reliability engineering, aimed at improving system reliability
+during development and testing. By analyzing failure data, RGA helps
+engineers identify trends, estimate reliability parameters, and
+visualize reliability improvement over time. This insight is crucial for
+assessing the impact of design changes, guiding engineering decisions,
+and managing risks effectively.</p>
 </div>
 <div class="section level2">
 <h2 id="the-crow-amsaa-model">The Crow-AMSAA Model<a class="anchor" aria-label="anchor" href="#the-crow-amsaa-model"></a>
 </h2>
-<p><strong>The Crow-AMSAA</strong> introduced by Larry Crow in 1975, is
-a widely adopted model in reliability engineering. The model takes
-failure behavior as a Non-Homogeneous Poisson Process (NHPP) governed by
-a power law, making it particularly effective for systems undergoing
-reliability growth due to continuous improvements.</p>
-<div class="section level3">
-<h3 id="non-homogeneous-poisson-process">Non-Homogeneous Poisson Process:<a class="anchor" aria-label="anchor" href="#non-homogeneous-poisson-process"></a>
-</h3>
-<p>In an NHPP, the rate of failures is not constant over time—it changes
-as improvements are made. While the individual failure events still
-follow a Poisson distribution, the intensity (or rate) of failures is
-time-dependent. This characteristic allows the Crow-AMSAA model to
-capture both reliability growth (decreasing failure rate) and
-degradation (increasing failure rate).</p>
-</div>
-<div class="section level3">
-<h3 id="the-power-law-model">The Power Law Model:<a class="anchor" aria-label="anchor" href="#the-power-law-model"></a>
-</h3>
-<p>The failure intensity (rate of failures per time unit) is modeled as
-a power function of time:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>β</mi><mo>⋅</mo><msup><mi>t</mi><mrow><mi>β</mi><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">
-\lambda(t) = \beta \cdot t^{\beta - 1}
+<p>The Army Materiel Systems Analysis Activity model by Crow
+<strong>(Crow-AMSAA)</strong> takes failure behavior as a
+<strong>Non-Homogeneous Poisson Process (NHPP)</strong> governed by a
+power law, making the model particularly effective for systems
+undergoing reliability growth due to continuous improvements.</p>
+<p>The Crow-AMSAA model is a statistical model that characterizes the
+relationship between the cumulative number of failures and cumulative
+time as the following:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>λ</mi><mspace width="0.167em"></mspace><msup><mi>t</mi><mi>β</mi></msup></mrow><annotation encoding="application/x-tex">
+N(t) = \lambda\, t^{\beta}
 </annotation></semantics></math></p>
-<p>where:</p>
-<ul>
-<li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\lambda(t)</annotation></semantics></math>
-is the failure intensity at time
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,</li>
-<li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-is the shape parameter,</li>
-<li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-is the time.</li>
-</ul>
-<p>The cumulative number of failures up to time
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-is given by:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>λ</mi><mn>0</mn></msub><mo>⋅</mo><msup><mi>t</mi><mi>β</mi></msup></mrow><annotation encoding="application/x-tex">
-N(t) = \lambda_0 \cdot t^{\beta}
-</annotation></semantics></math></p>
-<p>Where:</p>
-<ul>
-<li>
+<p>where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">N(t)</annotation></semantics></math>
-is the cumulative number of failures,</li>
-<li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\lambda_0</annotation></semantics></math>
-is the scale parameter.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="parameters">Parameters:<a class="anchor" aria-label="anchor" href="#parameters"></a>
-</h3>
-<p>The Shape Parameter
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>)
-indicates whether the system is improving or deteriorating:</p>
+denotes the cumulative number of failures by time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+is a scaling parameter, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+is the shape parameter.</p>
+<p>The shape parameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+indicates whether the system’s reliability is improving or
+deteriorating.</p>
 <ul>
-<li><p>If
+<li>If
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-&gt; 1, failures are increasing over time, indicating that reliability
-is worsening.</p></li>
-<li><p>If
+&lt; 1, then the system is improving (reliability is growing, the
+failure rate is decreasing).</li>
+<li>If
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-&lt; 1, failures are decreasing, indicating that reliability is
-improving over time.</p></li>
-<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-= 1 implies a constant failure rate (no growth or degradation).</p></li>
-<li><p>The Scale Parameter
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\lambda_0</annotation></semantics></math>)
-is related to the initial failure rate.</p></li>
+= 1, then there is no change in reliability (the system is stable).</li>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+&gt; 1, then reliability is worsening (the failure rate is
+increasing).</li>
 </ul>
-</div>
 <div class="section level3">
 <h3 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h3>
+<p>To use the Crow-AMSAA model in ReliaGrowR, use the <code>rga</code>
+function. This function takes a vector of failure times and a vector of
+failure counts, and generates a plot of cumulative MTBF vs cumulative
+time with the fitted model.</p>
 <p>First, load the package:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://paulgovan.github.io/ReliaGrowR/">ReliaGrowR</a></span><span class="op">)</span></span></code></pre></div>
@@ -175,45 +139,38 @@ is related to the initial failure rate.</p></li>
 <div class="section level2">
 <h2 id="the-piecewise-nhpp-model">The Piecewise NHPP Model<a class="anchor" aria-label="anchor" href="#the-piecewise-nhpp-model"></a>
 </h2>
-<p>The <strong>Piecewise NHPP</strong>, developed by Guo et al. (2010),
-extends the traditional NHPP by allowing different time segments to
-follow their own failure distributions. This method is especially useful
-when failure behavior shifts across phases of development — such as
-early, middle, and late stages — where the underlying reliability
-dynamics may differ.</p>
-<div class="section level3">
-<h3 id="the-failure-distribution">The Failure Distribution<a class="anchor" aria-label="anchor" href="#the-failure-distribution"></a>
-</h3>
-<p>The intensity function for each time segment
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
-is modeled as:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><msub><mi>β</mi><mi>i</mi></msub><msub><mi>η</mi><mi>i</mi></msub></mfrac><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mi>t</mi><mo>−</mo><msub><mi>t</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><msub><mi>η</mi><mi>i</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mrow><msub><mi>β</mi><mi>i</mi></msub><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">
-\lambda_i(t) = \frac{\beta_i}{\eta_i} \left( \frac{t - t_{i-1}}{\eta_i} \right)^{\beta_i - 1}
+<p><strong>The Piecewise NHPP model</strong> is an extension of the
+standard NHPP model that includes different segments or phases of time
+that follow separate failure distributions. This model is particularly
+useful when a system experiences changes in failure behavior over
+different development phases, such as the initial, interim and final
+phases of a development process.</p>
+<p>For a Piecewise NHPP model, the cumulative number of failures is
+modeled as a piecewise function, where each segment has its own
+parameters. Formally, for time t within phase i, the relationship
+between the cumulative number of failures and cumulative time is given
+by:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>t</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msub><mi>λ</mi><mi>i</mi></msub><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><msub><mi>t</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>β</mi><mi>i</mi></msub></msup><mo>,</mo><mspace width="0.167em"></mspace><mrow><mtext mathvariant="normal">for </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>t</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>&lt;</mo><mi>t</mi><mo>≤</mo><msub><mi>t</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">
+N_i(t) = N(t_{i-1}) + \lambda_i (t - t_{i-1})^{\beta_i}, \, \text{for } t_{i-1} &lt; t \leq t_i
 </annotation></semantics></math></p>
-<p>Where:</p>
-<ul>
-<li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\lambda_i(t)</annotation></semantics></math>
-is the failure intensity in time interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,</li>
-<li>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">N_i(t)</annotation></semantics></math>
+is the cumulative number of failures by time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+in phase
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\lambda_i</annotation></semantics></math>
+is the scale parameter for phase
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\beta_i</annotation></semantics></math>
-is the shape parameter for interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,</li>
-<li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>η</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\eta_i</annotation></semantics></math>
-is the scale parameter (characteristic life) for interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,</li>
-<li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">t_{i-1}</annotation></semantics></math>
-is the start time of the interval.</li>
-</ul>
-</div>
+is the shape parameter for phase
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.</p>
 <div class="section level3">
 <h3 id="example-1">Example<a class="anchor" aria-label="anchor" href="#example-1"></a>
 </h3>
-<p>First, set up some cumulative time/failure data and specify the
-breakpoint:</p>
+<p>To use the Piecewise NHPP model in ReliaGrowR, first, set up some
+cumulative time and failure data and specify a breakpoint:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">55</span>, <span class="fl">97</span>, <span class="fl">146</span>, <span class="fl">201</span>, <span class="fl">268</span>, <span class="fl">341</span>, <span class="fl">423</span>, <span class="fl">513</span>, <span class="fl">609</span>, <span class="fl">710</span>, <span class="fl">820</span>, <span class="fl">940</span>, <span class="fl">1072</span>, <span class="fl">1217</span><span class="op">)</span></span>
 <span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span></span>
@@ -228,16 +185,22 @@ breakpoint:</p>
 <div class="section level2">
 <h2 id="the-piecewise-nhpp-with-change-point-detection">The Piecewise NHPP with Change Point Detection<a class="anchor" aria-label="anchor" href="#the-piecewise-nhpp-with-change-point-detection"></a>
 </h2>
-<p>This enhanced version of the Piecewise NHPP incorporates
-<strong>change point detection</strong>, which identifies time points
-where the underlying failure process shifts. Rather than manually
-specifying breakpoints, this model automatically segments the data based
-on significant changes in reliability behavior using statistical
-techniques.</p>
+<p>The Piecewise NHPP with <strong>Change Point Detection</strong> is an
+advanced model to identify changes in failure behavior and model system
+reliability. This method builds on the Piecewise NHPP model by
+introducing the concept of change points, which represent the time when
+the underlying failure behavior changes. Detection of change points
+involves statistical techniques that analyze failure data to
+automatically identify when the behavior changes, allowing for a more
+precise segmentation of the model into different distributions.</p>
 <div class="section level3">
 <h3 id="example-2">Example<a class="anchor" aria-label="anchor" href="#example-2"></a>
 </h3>
-<p>First, set up some cumulative time and failure data:</p>
+<p>To use the Piecewise NHPP with Change Point Detection in ReliaGrowR,
+use the <code>rga</code> function with the model type set to “Piecewise
+NHPP” and breaks set to NULL. The function will automatically detect
+change points based on the provided failure data. First, set up some
+cumulative time and failure data:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">55</span>, <span class="fl">97</span>, <span class="fl">146</span>, <span class="fl">201</span>, <span class="fl">268</span>, <span class="fl">341</span>, <span class="fl">423</span>, <span class="fl">513</span>, <span class="fl">609</span>, <span class="fl">710</span>, <span class="fl">820</span>, <span class="fl">940</span>, <span class="fl">1072</span>, <span class="fl">1217</span><span class="op">)</span></span>
 <span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
@@ -251,11 +214,24 @@ techniques.</p>
 <div class="section level2">
 <h2 id="the-duane-model">The Duane Model<a class="anchor" aria-label="anchor" href="#the-duane-model"></a>
 </h2>
-<p>The <strong>Duane Model</strong>, introduced by J.T. Duane in 1964,
-is a graphical technique for evaluating reliability growth. The model is
-based on the assumption that reliability improves over time and
-visualizes this via a log-log plot of cumulative failure rate (or mean
-time between failures, MTBF) versus time.</p>
+<p><strong>The Duane model</strong> provides a simple and graphical way
+to observe and analyze whether failure rates are improving as changes
+are made to a product or system. The Duane Model is a log-log plot of
+the cumulative Mean Time Between Failures (MTBF) vs cumulative time.</p>
+<p>The slope of the line on the plot indicates the rate of reliability
+growth:</p>
+<ul>
+<li>A positive slope means that the system is improving (reliability is
+growing, the failure rate is decreasing).</li>
+<li>A zero slope means there is no change in reliability (the system is
+stable).</li>
+<li>A negative slope indicates that reliability is worsening (the
+failure rate is increasing).</li>
+</ul>
+<p>To use the Duane Model in ReliaGrowR, use the <code>duane_plot</code>
+function. This function takes a a vector of failure times and a vector
+of failure counts, and generates a log-log plot of cumulative MTBF vs
+cumulative time.</p>
 <div class="section level3">
 <h3 id="example-3">Example<a class="anchor" aria-label="anchor" href="#example-3"></a>
 </h3>
@@ -272,13 +248,13 @@ time between failures, MTBF) versus time.</p>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
-<p>Reliability Growth Analysis (RGA) provides a powerful statistical
-framework for tracking and predicting how a system’s reliability evolves
-throughout development. Models like Crow-AMSAA, Piecewise NHPP, and the
-Duane Model allow engineers and analysts to quantify improvements (or
-regressions) in reliability, understand system behavior across
-development phases, detect significant shifts in failure patterns, and
-guide design changes and process improvements.</p>
+<p>RGA provides a powerful statistical framework for tracking and
+predicting how a system’s reliability evolves throughout development.
+Models like Crow-AMSAA, Piecewise NHPP, and the Duane Model allow
+engineers and analysts to quantify improvements (or regressions) in
+reliability, understand system behavior across development phases,
+detect significant shifts in failure patterns, and guide design changes
+and process improvements.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
