@@ -19,56 +19,29 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-**Reliability Growth Analysis (RGA)** is a crucial method for evaluating how the reliability of systems or products improves over time, particularly during development and testing phases. By monitoring failures and implementing corrective actions, engineers can track the rate of reliability improvement and forecast future performance.
-
-RGA is especially useful in scenarios where iterative enhancements are made—such as design updates or process optimizations—with the ultimate goal of achieving a mature, dependable product.
+**Reliability Growth Analysis (RGA)** is an important aspect of reliability engineering, aimed at improving system reliability during development and testing. By analyzing failure data, RGA helps engineers identify trends, estimate reliability parameters, and visualize reliability improvement over time. This insight is crucial for assessing the impact of design changes, guiding engineering decisions, and managing risks effectively.
 
 ## The Crow-AMSAA Model
 
-**The Crow-AMSAA** introduced by Larry Crow in 1975, is a widely adopted model in reliability engineering. The model takes failure behavior as a Non-Homogeneous Poisson Process (NHPP) governed by a power law, making it particularly effective for systems undergoing reliability growth due to continuous improvements.
+The Army Materiel Systems Analysis Activity model by Crow **(Crow-AMSAA)** takes failure behavior as a **Non-Homogeneous Poisson Process (NHPP)** governed by a power law, making the model particularly effective for systems undergoing reliability growth due to continuous improvements.
 
-### Non-Homogeneous Poisson Process:
-
-In an NHPP, the rate of failures is not constant over time—it changes as improvements are made. While the individual failure events still follow a Poisson distribution, the intensity (or rate) of failures is time-dependent. This characteristic allows the Crow-AMSAA model to capture both reliability growth (decreasing failure rate) and degradation (increasing failure rate). 
-
-### The Power Law Model:
-
-The failure intensity (rate of failures per time unit) is modeled as a power function of time:
+The Crow-AMSAA model is a statistical model that characterizes the relationship between the cumulative number of failures and cumulative time as the following:
 
 \[
-\lambda(t) = \beta \cdot t^{\beta - 1}
-\]
- 
-where:
-
-* \( \lambda(t) \) is the failure intensity at time \( t \),
-* \( \beta \) is the shape parameter,
-* \( t \) is the time.
-
-The cumulative number of failures up to time \( t \) is given by:
-
-\[
-N(t) = \lambda_0 \cdot t^{\beta}
+N(t) = \lambda\, t^{\beta}
 \]
 
-Where:
+where \(N(t)\) denotes the cumulative number of failures by time \(t\), \(\lambda\) is a scaling parameter, and \(\beta\) is the shape parameter.  
 
-* \( N(t) \) is the cumulative number of failures,
-* \( \lambda_0 \) is the scale parameter.
+The shape parameter \(\beta\) indicates whether the system’s reliability is improving or deteriorating.
 
-### Parameters:
-
-The Shape Parameter (\( \beta \)) indicates whether the system is improving or deteriorating:
-
-* If \( \beta \) > 1, failures are increasing over time, indicating that reliability is worsening.
-
-* If \( \beta \) < 1, failures are decreasing, indicating that reliability is improving over time.
-
-* \( \beta \) = 1 implies a constant failure rate (no growth or degradation).
-
-* The Scale Parameter (\( \lambda_0 \)) is related to the initial failure rate.
+* If \(\beta\) < 1, then the system is improving (reliability is growing, the failure rate is decreasing).
+* If \(\beta\) = 1, then there is no change in reliability (the system is stable).
+* If \(\beta\) > 1, then reliability is worsening (the failure rate is increasing).
 
 ### Example
+
+To use the Crow-AMSAA model in ReliaGrowR, use the `rga` function. This function takes a vector of failure times and a vector of failure counts, and generates a plot of cumulative MTBF vs cumulative time with the fitted model.
 
 First, load the package:
 ```{r}
@@ -89,26 +62,19 @@ plot_rga(result)
 
 ## The Piecewise NHPP Model
 
-The **Piecewise NHPP**, developed by Guo et al. (2010), extends the traditional NHPP by allowing different time segments to follow their own failure distributions. This method is especially useful when failure behavior shifts across phases of development — such as early, middle, and late stages — where the underlying reliability dynamics may differ.
+**The Piecewise NHPP model** is an extension of the standard NHPP model that includes different segments or phases of time that follow separate failure distributions. This model is particularly useful when a system experiences changes in failure behavior over different development phases, such as the initial, interim and final phases of a development process.
 
-### The Failure Distribution
-
-The intensity function for each time segment \(i\) is modeled as:
+For a Piecewise NHPP model, the cumulative number of failures is modeled as a piecewise function, where each segment has its own parameters. Formally, for time t within phase i, the relationship between the cumulative number of failures and cumulative time is given by:
 
 \[
-\lambda_i(t) = \frac{\beta_i}{\eta_i} \left( \frac{t - t_{i-1}}{\eta_i} \right)^{\beta_i - 1}
+N_i(t) = N(t_{i-1}) + \lambda_i (t - t_{i-1})^{\beta_i}, \, \text{for } t_{i-1} < t \leq t_i
 \]
 
-Where:
-
-* \( \lambda_i(t) \) is the failure intensity in time interval \( i \),
-* \( \beta_i \) is the shape parameter for interval \( i \),
-* \( \eta_i \) is the scale parameter (characteristic life) for interval \( i \),
-* \( t_{i-1} \) is the start time of the interval.
+where \(N_i(t)\) is the cumulative number of failures by time \(t\) in phase \(i\), \(\lambda_i\) is the scale parameter for phase \(i\), and \(\beta_i\) is the shape parameter for phase \(i\).
 
 ### Example
 
-First, set up some cumulative time/failure data and specify the breakpoint:
+To use the Piecewise NHPP model in ReliaGrowR, first, set up some cumulative time and failure data and specify a breakpoint:
 ```{r}
 times <- c(25, 55, 97, 146, 201, 268, 341, 423, 513, 609, 710, 820, 940, 1072, 1217)
 failures <- c(1, 1, 2, 4, 4, 1, 1, 2, 1, 4, 1, 1, 3, 3, 4)
@@ -123,11 +89,11 @@ plot_rga(result)
 
 ## The Piecewise NHPP with Change Point Detection
 
-This enhanced version of the Piecewise NHPP incorporates **change point detection**, which identifies time points where the underlying failure process shifts. Rather than manually specifying breakpoints, this model automatically segments the data based on significant changes in reliability behavior using statistical techniques.
+The Piecewise NHPP with **Change Point Detection** is an advanced model to identify changes in failure behavior and model system reliability. This method builds on the Piecewise NHPP model by introducing the concept of change points, which represent the time when the underlying failure behavior changes. Detection of change points involves statistical techniques that analyze failure data to automatically identify when the behavior changes, allowing for a more precise segmentation of the model into different distributions.
 
 ### Example
 
-First, set up some cumulative time and failure data:
+To use the Piecewise NHPP with Change Point Detection in ReliaGrowR, use the `rga` function with the model type set to "Piecewise NHPP" and breaks set to NULL. The function will automatically detect change points based on the provided failure data. First, set up some cumulative time and failure data:
 ```{r}
 times <- c(25, 55, 97, 146, 201, 268, 341, 423, 513, 609, 710, 820, 940, 1072, 1217)
 failures <- c(1, 1, 2, 4, 4, 1, 1, 2, 1, 4, 1, 1, 3, 3, 4)
@@ -141,7 +107,15 @@ plot_rga(result)
 
 ## The Duane Model
 
-The **Duane Model**, introduced by J.T. Duane in 1964, is a graphical technique for evaluating reliability growth. The model is based on the assumption that reliability improves over time and visualizes this via a log-log plot of cumulative failure rate (or mean time between failures, MTBF) versus time.
+**The Duane model** provides a simple and graphical way to observe and analyze whether failure rates are improving as changes are made to a product or system. The Duane Model is a log-log plot of the cumulative Mean Time Between Failures (MTBF) vs cumulative time.
+
+The slope of the line on the plot indicates the rate of reliability growth:
+
+* A positive slope means that the system is improving (reliability is growing, the failure rate is decreasing).
+* A zero slope means there is no change in reliability (the system is stable).
+* A negative slope indicates that reliability is worsening (the failure rate is increasing).
+
+To use the Duane Model in ReliaGrowR, use the `duane_plot` function. This function takes a a vector of failure times and a vector of failure counts, and generates a log-log plot of cumulative MTBF vs cumulative time.
 
 ### Example
 
@@ -158,4 +132,4 @@ fit <- duane_plot(times, failures)
 
 ## Summary 
 
-Reliability Growth Analysis (RGA) provides a powerful statistical framework for tracking and predicting how a system's reliability evolves throughout development. Models like Crow-AMSAA, Piecewise NHPP, and the Duane Model allow engineers and analysts to quantify improvements (or regressions) in reliability, understand system behavior across development phases, detect significant shifts in failure patterns, and guide design changes and process improvements.
+RGA provides a powerful statistical framework for tracking and predicting how a system's reliability evolves throughout development. Models like Crow-AMSAA, Piecewise NHPP, and the Duane Model allow engineers and analysts to quantify improvements (or regressions) in reliability, understand system behavior across development phases, detect significant shifts in failure patterns, and guide design changes and process improvements.
