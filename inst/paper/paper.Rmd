@@ -1,7 +1,7 @@
 ---
 title: 'ReliaGrowR: Modeling and Plotting Functions for Reliability Growth Analysis (RGA)'
 output:
-  html_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
