@@ -7,10 +7,10 @@
 \method{print}{rga}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{rga}.}
+\item{x}{An object of class \code{rga}, which contains the results from the RGA model.}
 
 \item{...}{Additional arguments (not used).}
 }
 \description{
-This function prints a summary of the RGA analysis result.
+Print method for rga objects.
 }

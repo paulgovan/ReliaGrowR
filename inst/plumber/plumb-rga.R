@@ -30,7 +30,6 @@
 #'
 #' @importFrom stats lm predict AIC BIC logLik
 #' @importFrom segmented segmented slope intercept seg.control
-#' @export
 rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_level = 0.95) {
 
   # Validation checks
@@ -92,7 +91,6 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
 
     # Standard Error
     beta_se <- slope["Std. Error"]
-    lambdas_se <- exp(intercept["Std. Error"])
   }
 
   # Fit statistics
@@ -108,7 +106,8 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
 
   # Return object
   result <- list(
-    model = updated_fit,
+    log_times = log_times,
+    log_cum_failures = log_cum_failures,
     logLik = loglik,
     AIC = aic,
     BIC = bic,
@@ -120,53 +119,14 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
     betas_se = beta_se,
     lambdas = lambdas
   )
-  class(result) <- "rga"
   return(result)
-}
-
-#' Print method for rga objects.
-#' @param x An object of class \code{rga}, which contains the results from the RGA model.
-#' @param ... Additional arguments (not used).
-#' @export
-print.rga <- function(x, ...) {
-  cat("Reliability Growth Analysis (RGA)\n")
-  cat("---------------------------------\n")
-
-  model_type <- if (is.null(x$breakpoints)) "Crow-AMSAA" else "Piecewise NHPP"
-  cat("Model Type:", model_type, "\n\n")
-
-  if (!is.null(x$breakpoints)) {
-    cat("Breakpoints (original scale):\n")
-    cat(round(exp(x$breakpoints), 4), "\n\n")
-  }
-
-  cat("Parameters (per segment):\n")
-  if (model_type == "Piecewise NHPP") {
-    betas <- round(x$betas$log_times[, "Est."], 4)
-    betas_se <- round(x$betas_se, 4)
-    cat(sprintf("  Betas: %s\n", paste(betas, collapse = ", ")))
-    cat(sprintf("  Std. Errors (Betas): %s\n", paste(betas_se, collapse = ", ")))
-
-    lambdas <- round(x$lambdas[, "Est."], 4)
-    cat(sprintf("  Lambdas: %s\n", paste(lambdas, collapse = ", ")))
-  } else {
-    cat(sprintf("  Beta: %.4f (SE = %.4f)\n", x$betas, x$betas_se))
-    cat(sprintf("  Lambda: %.4f\n", x$lambdas))
-  }
-
-  cat("\nGoodness of Fit:\n")
-  cat(sprintf("  Log-likelihood: %.2f\n", x$logLik))
-  cat(sprintf("  AIC: %.2f\n", x$AIC))
-  cat(sprintf("  BIC: %.2f\n", x$BIC))
-
-  invisible(x)
 }
 
 #' Plot Method for RGA Objects
 #'
 #' This function generates plots for objects of class \code{rga}.
 #'
-#' @param x An object of class \code{rga}, which contains the results from the RGA model.
+#' @param x A list of results from the \code{rga} function.
 #' @param conf_bounds Logical; include confidence bounds (default: TRUE).
 #' @param legend Logical; show the legend (default: TRUE).
 #' @param log Logical; use a log-log scale (default: FALSE).
@@ -180,25 +140,18 @@ print.rga <- function(x, ...) {
 #' plot(result, main = "Reliability Growth Analysis",
 #' xlab = "Cumulative Time", ylab = "Cumulative Failures")
 #' @importFrom graphics lines abline legend plot
-#' @export
 plot.rga <- function(x,
                      conf_bounds = TRUE,
                      legend = TRUE,
                      log = FALSE,
                      legend_pos = "bottomright",
                      ...) {
-  if (!inherits(x, "rga")) stop("Input must be an object of class 'rga'.")
   if (!is.logical(conf_bounds) || !is.logical(legend) || !is.logical(log)) {
     stop("Arguments 'conf_bounds', 'legend', and 'log' must be logical.")
   }
 
-  # Extract original log-log model data
-  if (!all(c("log_times", "log_cum_failures") %in% names(x$model$model))) {
-    stop("The 'rga' object appears malformed or missing model data.")
-  }
-
-  times <- exp(x$model$model$log_times)
-  cum_failures <- exp(x$model$model$log_cum_failures)
+  times <- exp(x$log_times)
+  cum_failures <- exp(x$log_cum_failures)
 
   # Base plot
   plot_args <- list(

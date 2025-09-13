@@ -61,7 +61,7 @@ Then run the rga and plot the results:
 
 ``` r
 result <- rga(times, failures)
-plot_rga(result)
+plot(result, main = "Reliability Growth Analysis", xlab = "Cumulative Time", ylab = "Cumulative Failures")
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />

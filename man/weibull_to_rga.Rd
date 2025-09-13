@@ -4,23 +4,34 @@
 \alias{weibull_to_rga}
 \title{Weibull to RGA}
 \usage{
-weibull_to_rga(failures, suspensions = NULL)
+weibull_to_rga(
+  failures,
+  suspensions = NULL,
+  interval_starts = NULL,
+  interval_ends = NULL
+)
 }
 \arguments{
-\item{failures}{A vector of failure times.}
+\item{failures}{A numeric vector of exact failure times.}
 
-\item{suspensions}{A vector of suspension (censoring) times.}
+\item{suspensions}{A numeric vector of suspension (right-censored) times.}
+
+\item{interval_starts}{A numeric vector of interval start times (lower bound of censoring).}
+
+\item{interval_ends}{A numeric vector of interval end times (upper bound of censoring).}
 }
 \value{
-A data frame with times and failure counts suitable for reliability growth analysis.
+A data frame with cumulative time and failure counts suitable for RGA.
 }
 \description{
-This function converts Weibull data (failure and suspension times) into a format
-suitable for reliability growth analysis (RGA).
+Converts Weibull data (failure, suspension, and interval-censored times)
+into a format suitable for reliability growth analysis (RGA).
 }
 \examples{
 failures <- c(100, 200, 200, 400)
 suspensions <- c(250, 350, 450)
-result <- weibull_to_rga(failures, suspensions)
+interval_starts <- c(150, 300)
+interval_ends <- c(180, 320)
+result <- weibull_to_rga(failures, suspensions, interval_starts, interval_ends)
 print(result)
 }

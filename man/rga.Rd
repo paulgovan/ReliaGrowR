@@ -13,7 +13,7 @@ rga(
 )
 }
 \arguments{
-\item{times}{A vector of cumulative times at which failures occurred.}
+\item{times}{A vector of cumulative failure times.}
 
 \item{failures}{A vector of the number of failures at each corresponding time in times.}
 
@@ -24,7 +24,17 @@ rga(
 \item{conf_level}{The desired confidence level, which defaults to 95\%.}
 }
 \value{
-The function returns an object of class \code{rga} that contains the results for the model.
+The function returns an object of class \code{rga} that contains:
+\item{model}{The fitted model object (lm or segmented).}
+\item{logLik}{The log-likelihood of the fitted model.}
+\item{AIC}{Akaike Information Criterion.}
+\item{BIC}{Bayesian Information Criterion.}
+\item{breakpoints}{Breakpoints (log scale) if applicable.}
+\item{fitted_values}{Fitted cumulative failures on the original scale.}
+\item{lower_bounds}{Lower confidence bounds (original scale).}
+\item{upper_bounds}{Upper confidence bounds (original scale).}
+\item{betas}{Estimated beta(s).}
+\item{lambdas}{Estimated lambda(s).}
 }
 \description{
 This function performs reliability growth analysis using the Crow-AMSAA model by
@@ -36,4 +46,5 @@ times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 result <- rga(times, failures)
 print(result)
+
 }
