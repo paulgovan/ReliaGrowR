@@ -16,19 +16,19 @@ ReliaGrowR is an open-source project for Reliability Growth Analysis (RGA), prov
 
 ## Introduction
 
-Reliability Growth Analysis (RGA) is an important aspect of reliability engineering, aimed at improving system reliability during development and testing. By analyzing failure data, RGA helps engineers identify trends, estimate reliability parameters, and visualize reliability improvement over time. This insight is crucial for assessing the impact of design changes, guiding engineering decisions, and managing risks effectively.
+Reliability Growth Analysis (RGA) is an important part of reliability engineering, focused on improving system reliability during development and testing. By analyzing failure data, RGA helps engineers identify trends, estimate reliability parameters, and track improvements over time. These insights are essential for assessing the impact of design changes, guiding engineering decisions, and managing risks effectively.
 
-ReliaGrowR [1] is an RGA open-source software (OSS) project for non-commercial use. The project provides a suite of classic models for analyzing reliability growth data and visualizing results. The project is currently experimental and under active development, with new functionality and advanced models planned for future development releases. As an OSS project, ReliaGrowR enables reproducibility and transparency, allowing users to view the source code, verify calculations, and contribute to the project's development. In addition, OSS lowers barriers to entry and promotes equity by providing access to reliability engineers regardless of resources.
+ReliaGrowR [1] is an open-source software (OSS) and non-commercial project for RGA. It provides a set of classic models for analyzing reliability growth data and visualizing results. The project is currently experimental and under active development, with plans to expand functionality and add advanced models in future releases. As an OSS project, ReliaGrowR promotes reproducibility and transparency by allowing users to review the source code, verify calculations, and contribute to development. In addition, open access lowers barriers to entry and promotes equity by making RGA tools available to engineers regardless of resources.
 
-ReliaGrowR is built on the widely adopted R programming language [2], which is known for its extensive statistical and data analysis capabilities. By leveraging R, the project benefits from a large and active community of users and developers, as well as a rich ecosystem of packages and libraries that can be integrated with the project. ReliaGrowR is the only package dedicated to RGA currently available on the Comprehensive R Archive Network (CRAN). The project fills the gap for RGA functionality from other reliability engineering projects, such as WeibullR [3] for life data analysis and WeibullR.alt [4] for accelerated life testing. While other open-source projects (e.g., reliability [5]) offer limited RGA functionality, none currently support a broad range of RGA models. In contrast, ReliaGrowR supports core reliability growth models, including the Duane model [6], Crow-AMSAA model [7], Piecewise NHPP model [8], and Piecewise NHPP with Change Point Detection [9]. These models are essential for understanding how reliability improves (or degrades) over time as changes are made to a product or system.
+ReliaGrowR is built on the R programming language [2], which is widely used for statistical computing and data analysis. By leveraging R, the project benefits from a large user community and a rich ecosystem of packages that can be integrated with the software. ReliaGrowR is the only package on the Comprehensive R Archive Network (CRAN) dedicated to RGA. It fills a gap not addressed by other reliability engineering packages, such as WeibullR [3] for life data analysis and WeibullR.alt [4] for accelerated life testing. While other open-source projects (e.g., reliability [5]) offer limited RGA support, none currently provide a broad range of models. In contrast, ReliaGrowR implements core reliability growth models, including the Duane model [6], Crow-AMSAA model [7], Piecewise NHPP model [8], and Piecewise NHPP with Change Point Detection [9]. These models are essential for understanding how reliability improves—or degrades—over time as design changes are made to a product or system.
 
 ## Design
 
-ReliaGrowR is implemented as an R project, providing modeling and plotting functions for analyzing reliability growth over time. The design emphasizes simplicity and ease of use, with most of the functionality available through a few core functions. The primary functions include `rga` for fitting reliability growth models and `duane` for the Duane model. Additional utility functions are available for plotting, printing results, data conversion, and goodness-of-fit tests.
+ReliaGrowR is implemented as an R project, providing modeling and plotting tools for analyzing reliability growth over time. The design emphasizes simplicity and ease of use, with most features available through a small set of core functions. The main functions include rga for fitting reliability growth models and duane for the Duane model. Additional utility functions support plotting, printing results, data conversion, and goodness-of-fit testing.
 
-The project is built largely from base functions, with limited dependencies on external packages. This approach ensures that the project remains lightweight and easy to install. The project's primary dependency is the `segmented` package [10], which is used for regression modeling with break or change points. This package provides the underlying functionality for the Piecewise NHPP model with or without change point detection.
+The project is built mostly from base R functions, with minimal reliance on external packages. This approach keeps the software lightweight and easy to install. The main dependency is the segmented package [10], which supports regression modeling with break or change points. This package provides the core functionality for the Piecewise NHPP model, with or without change-point detection.
 
-ReliaGrowR also suggests a few additional packages for improved functionality. These packages include ellmer [11] for chatting with Large Language Models (LLMs), knitr [12] and rmarkdown [13] for creating dynamic documents, and testthat [14] for unit testing. However, these packages are not required for the core functionality of the project.
+ReliaGrowR also suggests a few optional packages for enhanced functionality. These include ellmer [11] for interacting with Large Language Models (LLMs), knitr [12] and rmarkdown [13] for creating dynamic documents, plumber[14] for Application Program Interface (API) development, and testthat [15] for unit testing. However, none of these packages are required for the core functions of the project.
 
 ## Usage
 
@@ -46,17 +46,17 @@ To use the ReliaGrowR package, load the package into the current session with th
 library(ReliaGrowR)
 ```
 
-### Application Programming Interface
+### API
 
-For web-based applications and non-R users, the project includes an Application Programming Interface (API) for accessing the core functionality. The API is implemented using the `plumber` [14] package, which allows R functions to be exposed as a set of endpoints that can be called from other programming languages or web applications. The API endpoints include `rga`, `duane`, `plot.rga`, `plot.duane`, and `rdt`. These endpoints provide access to the core functionality of the project, allowing users to fit models, generate plots, and calculate reliability demonstration plans.
+For web-based applications and non-R users, the project includes an Application Programming Interface (API) that provides access to its core functionality. The API is implemented using the plumber package, which exposes R functions as endpoints that can be called from other programming languages or web applications. Available endpoints include rga, duane, plot.rga, plot.duane, and rdt. These endpoints allow users to fit models, generate plots, and calculate reliability demonstration plans.
 
-The function `grwr_api` spins up a local server to host the API that can be accessed via HTTP requests. The server can be started with the following command:
+The function grwr_api starts a local server to host the API, which can be accessed through standard HTTP requests. The server is launched with the following command:
 
 ```{r start-api, eval=FALSE}
 grwr_api()
 ```
 
-Once the server is running, users can access the API endpoints using HTTP requests or use the web interface provided by the package. The web interface allows users to input data, select models, and generate plots without needing to write any code. The API is in developement and is not deployed to a public server at this time.
+Once the server is running, users can access the API endpoints directly or use the package’s built-in web interface. The interface allows users to upload data, select models, and generate plots without writing any code. The API is still under development and has not yet been deployed to a public ser
 
 ### The Duane Model
 
@@ -68,7 +68,7 @@ The slope of the line on the plot indicates the rate of reliability growth:
 * A zero slope means there is no change in reliability (the system is stable).
 * A negative slope indicates that reliability is worsening (the failure rate is increasing).
 
-To use the Duane Model in ReliaGrowR, use the `duane_plot` function. This function takes a a vector of failure times and a vector of failure counts, and generates a log-log plot of cumulative MTBF vs cumulative time.
+To use the Duane Model in ReliaGrowR, use the duane_plot function. This function takes a a vector of failure times and a vector of failure counts, and generates a log-log plot of cumulative MTBF vs cumulative time.
 
 First, set up some dummy cumulative time and failure data:
 
@@ -77,20 +77,20 @@ times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 ```
 
-Next, use the `duane_plot` function to create the plot:
+Next, use the duane_plot function to create the plot:
 
 ```{r duane-plot, echo=TRUE}
 fit <- duane(times, failures)
 plot(fit, main = "Duane Model Plot", xlab = "Cumulative Time", ylab = "Cumulative MTBF")
 ```
 
-The plot shows the cumulative MTBF on the y-axis and cumulative time on the x-axis, with a fitted line indicating the reliability growth trend. The `duane_plot` function returns a `duane` object with the model results that can be further customized or saved. To view the model results, print the `duane` object using the `print` function:
+The plot shows the cumulative MTBF on the y-axis and cumulative time on the x-axis, with a fitted line indicating the reliability growth trend. The duane_plot function returns a duane object with the model results that can be further customized or saved. To view the model results, print the duane object using the print function:
 
 ```{r echo=TRUE}
 print(fit)
 ```
 
-The 'duane' object contains the model type, parameters, standard error, and goodness-of-fit statistics log-likelihood, AIC, and BIC.
+The duane object contains the model type, parameters, standard error, and goodness-of-fit statistics log-likelihood, AIC, and BIC.
 
 ### The Crow-AMSAA Model
 
@@ -110,7 +110,7 @@ Similar to the Duane model, the shape parameter \(\beta\) indicates whether the 
 * If \(beta\) = 1, then there is no change in reliability (the system is stable).
 * If \(beta\) > 1, then reliability is worsening (the failure rate is increasing).
 
-To use the Crow-AMSAA Model in ReliaGrowR, use the `rga` function. This function takes a vector of failure times and a vector of failure counts, and generates a plot of cumulative MTBF vs cumulative time with the fitted model.
+To use the Crow-AMSAA Model in ReliaGrowR, use the rga function. This function takes a vector of failure times and a vector of failure counts, and generates a plot of cumulative MTBF vs cumulative time with the fitted model.
 
 First, set up some dummy cumulative time and failure data:
 
@@ -119,20 +119,20 @@ times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 ```
 
-Then use the `rga` function to fit the model and the `rga_plot` function to plot the results:
+Then use the rga function to fit the model and the rga_plot function to plot the results:
 
 ```{r}
 result <- rga(times, failures)
 plot(result, main = "Crow-AMSAA Model Plot", xlab = "Cumulative Time", ylab = "Cumulative Failures")
 ```
 
-The `rga_plot` function generates a plot showing the cumulative MTBF on the y-axis and cumulative time on the x-axis, with a fitted curve indicating the reliability growth trend. The `rga` function returns an `rga` object containing the fitted model parameters. To view the model results, print the `rga` object:
+The rga_plot function generates a plot showing the cumulative MTBF on the y-axis and cumulative time on the x-axis, with a fitted curve indicating the reliability growth trend. The rga function returns an rga object containing the fitted model parameters. To view the model results, print the rga object:
 
 ```{r echo=TRUE}
 print(result)
 ```
 
-Similarly, the `rga` object contains the model type, parameters, standard error, and goodness-of-fit statistics log-likelihood, AIC, and BIC.
+Similarly, the rga object contains the model type, parameters, standard error, and goodness-of-fit statistics log-likelihood, AIC, and BIC.
 
 ### The Piecewise NHPP Model
 
@@ -154,40 +154,40 @@ failures <- c(1, 1, 2, 4, 4, 1, 1, 2, 1, 4, 1, 1, 3, 3, 4)
 breaks <- 500
 ```
 
-Then use the `rga` function with model type "Piecewise NHPP model" to fit the model and the `rga_plot` function to plot the results:
+Then use the rga function with model type "Piecewise NHPP model" to fit the model and the rga_plot function to plot the results:
 
 ```{r echo=TRUE}
 result <- rga(times, failures, model_type = "Piecewise NHPP", breaks = breaks)
 plot(result, main = "Piecewise NHPP Model Plot", xlab = "Cumulative Time", ylab = "Cumulative Failures")
 ```
 
-To view the model results, print the `rga` object using the `print` function:
+To view the model results, print the rga object using the print function:
 
 ```{r echo=TRUE}
 print(result)
 ```
 
-Now the `rga` object contains among other information, the parameters for each phase.
+Now the rga object contains among other information, the parameters for each phase.
 
 ### The Piecewise NHPP with Change Point Detection
 
 The Piecewise NHPP with Change Point Detection is an advanced model to identify changes in failure behavior and model system reliability. This method builds on the Piecewise NHPP model by introducing the concept of change points, which represent the time when the underlying failure behavior changes. Detection of change points involves statistical techniques that analyze failure data to automatically identify when the behavior changes, allowing for a more precise segmentation of the model into different distributions.
 
-To use the Piecewise NHPP with Change Point Detection in ReliaGrowR, use the `rga` function with the model type set to "Piecewise NHPP" and breaks set to NULL. The function will automatically detect change points based on the provided failure data. First, set up some cumulative time and failure data:
+To use the Piecewise NHPP with Change Point Detection in ReliaGrowR, use the rga function with the model type set to "Piecewise NHPP" and breaks set to NULL. The function will automatically detect change points based on the provided failure data. First, set up some cumulative time and failure data:
 
 ```{r echo=TRUE}
 times <- c(25, 55, 97, 146, 201, 268, 341, 423, 513, 609, 710, 820, 940, 1072, 1217)
 failures <- c(1, 1, 2, 4, 4, 1, 1, 2, 1, 4, 1, 1, 3, 3, 4)
 ```
 
-Then use the `rga` function with model type "Piecewise NHPP model" to fit the model and the `rga_plot` function to plot the results:
+Then use the rga function with model type "Piecewise NHPP model" to fit the model and the rga_plot function to plot the results:
 
 ```{r echo=TRUE}
 result <- rga(times, failures, model_type = "Piecewise NHPP")
 plot(result, main = "Piecewise NHPP with Change Point Detection Plot", xlab = "Cumulative Time", ylab = "Cumulative Failures")
 ```
 
-Print the `rga` object using the `print` function to view the model results:
+Print the rga object using the print function to view the model results:
 
 ```{r echo=TRUE}
 print(result)
@@ -195,7 +195,7 @@ print(result)
 
 ## Goodness-of-Fit Plots
 
-The project includes wrapper functions to generate goodness-of-fit plots for the fitted models. These plots help assess how well the model fits the data. To generate goodness-of-fit plots, use the `qqplot.rga` and `ppplot.rga` functions for Q-Q and P-P plots, respectively. These functions take an `rga` object as input. For example, to create a Q-Q plot for a Crow-AMSAA model:
+The project includes wrapper functions for generating goodness-of-fit plots, which help assess how well a model matches the observed data. Two key functions are qqplot.rga for Q-Q plots and ppplot.rga for P-P plots. Both functions take an rga object as input.
 
 ```{r echo=TRUE}
 times <- c(50, 100, 150, 200, 300, 400, 600, 800, 1000)
@@ -204,21 +204,21 @@ result <- rga(times, failures)
 qqplot.rga(result)
 ```
 
-The `qqplot.rga` function generates a Q-Q plot comparing the quantiles of the observed data to the quantiles of the fitted model. A good fit is indicated by points closely following the 45-degree reference line. 
+The qqplot.rga function produces a Q-Q plot that compares the quantiles of the observed data with those of the fitted model. A good fit is indicated when the points closely follow the 45-degree reference line. 
 
-Similarly, to create a P-P plot:
+Similarly, a P-P plot can be created with:
 
 ```{r echo=TRUE}
 ppplot.rga(result)
 ```
 
-The `ppplot.rga` function generates a P-P plot comparing the cumulative probabilities of the observed data to the cumulative probabilities of the fitted model. Again, a good fit is indicated by points closely following the 45-degree reference line.
+The ppplot.rga function compares the cumulative probabilities of the observed data with those of the fitted model. As with the Q-Q plot, a good fit is indicated when the points closely follow the 45-degree line.
 
 ## Data Conversion
 
-Reliability data can be represented in different formats, such as exact failure times, right censored times, or failure times over specified intervals. The `weibull_to_rga` utility function converts data from the format used in the `WeibullR` package to the format required for RGA analysis in ReliaGrowR. This function takes a vector of failure times, and optional vectors of right censored or suspension times, and interval censored times, and returns a data frame with cumulative time and failure counts suitable for use with the `rga` function. 
+Reliability data can be recorded in different formats, such as exact failure times, right-censored times, or failure times grouped into intervals. The weibull_to_rga utility function converts data from the format used in the WeibullR package into the format required for RGA analysis in ReliaGrowR. It accepts a vector of failure times and optional vectors of right-censored (suspension) times and interval-censored times, then returns a data frame with cumulative times and failure counts suitable for use with the rga function.
 
-Consider the following example data that includes failure times, right censored times, and interval censored times:
+For example, consider the following dataset with failure times, right-censored times, and interval-censored times:
 
 ```{r echo=TRUE}
 failures <- c(100, 200, 200, 400)
@@ -227,40 +227,41 @@ interval_starts <- c(150, 300)
 interval_ends <- c(180, 320)
 ```
 
-Use the `weibull_to_rga` function to convert the data:
+The data can be converted using weibull_to_rga:
 
 ```{r echo=TRUE}
 result <- weibull_to_rga(failures, suspensions, interval_starts, interval_ends)
 print(result)
 ```
 
-The resulting data frame contains cumulative time and failure counts that can be used with the `rga` function for RGA analysis.
+The resulting data frame contains cumulative times and failure counts, which can then be passed directly to the rga function for reliability growth analysis.
 
 ## Reliability Demonstration Plan
 
-ReliaGrowR includes a utility function `rdt` to calculate the required test time or sample size for a Reliability
-Demonstration Test (RDT) based on specified target reliability, mission time, and confidence level. 
+ReliaGrowR provides a utility function, rdt, for calculating the required test time or sample size for a Reliability Demonstration Test (RDT). The calculation is based on the specified target reliability, mission time, and confidence level.
 
-To use the `rdt` function, specify the target reliability, mission time, confidence level, and either the test time or sample size. For example, to calculate the required test time for a target reliability of 0.9 over a mission time of 100 hours with a confidence level of 0.95 and a sample size of 10:
+To use rdt, supply the target reliability, mission time, confidence level, and either the test time or sample size. For example, the following code calculates the required test time for a target reliability of 0.9 over a 100-hour mission with 95% confidence and a sample size of 10:
 
 ```{r echo=TRUE}
 test_plan <- rdt(target = 0.9, mission_time = 100, conf_level = 0.95, beta = 1, n = 10)
 print(test_plan)
 ```
 
-The `rdt` function returns the required test time to achieve the specified reliability demonstration.
+The rdt function returns the required test time to achieve the specified reliability demonstration.
 
 ## Testing
 
-ReliaGrowR was verified through example analyses and unit tests to ensure that the package performs as expected. The unit tests follow best practices for package development and use the `testthat` package for testing. The tests cover the core functionality, including model fitting, plotting, and change point detection. These tests run automatically during package development to ensure reliability and correctness. All examples and unit tests are included in the package source code and are available for users to review and run. ReliaGrowR was also tested on different operating systems and R versions to ensure compatibility and performance. The results of these tests are documented on CRAN. Full documentation and working examples are available on the project website, where users can also contribute to or report issues with the package.
+ReliaGrowR was verified through example analyses and unit tests to ensure the package performs as expected. Unit tests follow best practices for package development and use the testthat framework. They cover core functionality such as model fitting, plotting, and change-point detection, and run automatically during development to ensure reliability and correctness. All examples and tests are included in the package source code, allowing users to review and run them.
+
+The package has also been tested on different operating systems and R versions to confirm compatibility and performance. Test results are documented on CRAN. Full documentation and working examples are available on the project website, where users can also contribute or report issues.
 
 ## Extensions
 
-ReliaGrowR is designed with extensibility in mind, enabling users to incorporate custom models or additional features as needed. The accessibility and ease of use make the package particularly well-suited for educational purposes, allowing students and professionals to explore RGA concepts through practical examples and hands-on experimentation [15]. While the package includes basic plotting capabilities, users can easily enhance visualizations or develop interactive applications by integrating other libraries [16], [17].
+ReliaGrowR is designed with extensibility in mind, allowing users to add custom models or new features as needed. Its accessibility and ease of use also make it well-suited for education, helping students and professionals learn RGA concepts through practical examples and hands-on experimentation [15]. While the package includes basic plotting functions, users can enhance visualizations or create interactive applications by integrating other libraries [16], [17].
 
-ReliaGrowR is currently experimental and under active development, with new features and improvements added on a regular basis. Planned enhancements include support for advanced models, such as Bayesian reliability growth models, and additional goodness-of-fit tests. The project also aims to improve the API and web interface for easier access to the core functionality.
+The package is currently experimental and under active development, with new features and improvements added regularly. Planned updates include support for advanced models such as Bayesian reliability growth, as well as additional goodness-of-fit tests. Work is also underway to improve the API and web interface for easier access to the core functionality.
 
-As an open-source project, contributions from the community are welcome. Users can submit pull requests to the public repository, report issues, or propose enhancements. This collaborative approach ensures that the package continues to evolve in response to user needs and advances in reliability engineering.
+As an open-source project, ReliaGrowR welcomes contributions from the community. Users can submit pull requests, report issues, or suggest enhancements through the public repository. This collaborative approach ensures that the package evolves in step with user needs and advances in reliability engineering.
 
 ## References
 
