@@ -132,7 +132,7 @@ time with the fitted model.</p>
 <p>Then run the rga and plot the results:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_rga.html">plot_rga</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span>, main <span class="op">=</span> <span class="st">"Crow-AMSAA Model"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="RGA_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 </div>
 </div>
@@ -178,7 +178,7 @@ cumulative time and failure data and specify a breakpoint:</p>
 <p>Then run the rga and plot the results:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span>, model_type <span class="op">=</span> <span class="st">"Piecewise NHPP"</span>, breaks <span class="op">=</span> <span class="va">breaks</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_rga.html">plot_rga</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span>, main <span class="op">=</span> <span class="st">"Piecewise NHPP Model"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="RGA_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
 </div>
 </div>
@@ -207,7 +207,7 @@ cumulative time and failure data:</p>
 <p>Then run the rga and plot the results:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span>, model_type <span class="op">=</span> <span class="st">"Piecewise NHPP"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_rga.html">plot_rga</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span>, main <span class="op">=</span> <span class="st">"Piecewise NHPP with Change Point Detection"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="RGA_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 </div>
 </div>
@@ -239,9 +239,10 @@ cumulative time.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">300</span>, <span class="fl">400</span>, <span class="fl">500</span><span class="op">)</span></span>
 <span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p>Then plot the results:</p>
+<p>Then fit the model and plot the results:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/duane_plot.html">duane_plot</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/duane.html">duane</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="st">"Duane Plot"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative MTBF"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="RGA_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 </div>
 </div>
