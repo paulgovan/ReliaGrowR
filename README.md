@@ -16,7 +16,6 @@ coverage](https://codecov.io/gh/paulgovan/ReliaGrowR/graph/badge.svg)](https://a
 [![](http://cranlogs.r-pkg.org/badges/grand-total/ReliaGrowR)](https://cran.r-project.org/package=ReliaGrowR)
 [![](http://cranlogs.r-pkg.org/badges/last-month/ReliaGrowR)](https://cran.r-project.org/package=ReliaGrowR)
 [![](https://img.shields.io/badge/doi-10.32614/CRAN.package.ReliaGrowR-green.svg)](https://doi.org/10.32614/CRAN.package.ReliaGrowR)
-
 <!-- badges: end -->
 
 ## Introduction
