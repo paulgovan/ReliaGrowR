@@ -7,6 +7,7 @@
 #' @param x An object of class \code{rga}.
 #' @param main Title of the plot.
 #' @param ... Additional arguments passed to \code{stats::qqplot()}.
+#' @family goodness-of-fit
 #' @importFrom stats lsfit
 #' @export
 qqplot.rga <- function(x,
@@ -44,6 +45,7 @@ qqplot.rga <- function(x,
 #' @param x An object of class \code{rga}.
 #' @param main Title of the plot.
 #' @param ... Additional arguments passed to \code{plot()}.
+#' @family goodness-of-fit
 #' @importFrom stats lsfit
 #' @export
 ppplot.rga <- function(x,

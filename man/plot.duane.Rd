@@ -45,3 +45,9 @@ failures <- c(1, 2, 1, 3, 2)
 fit <- duane(times, failures, conf.int = TRUE)
 plot(fit, main = "Duane Plot", xlab = "Cumulative Time", ylab = "Cumulative MTBF")
 }
+\seealso{
+Other Duane functions: 
+\code{\link{duane}()},
+\code{\link{print.duane}()}
+}
+\concept{Duane functions}

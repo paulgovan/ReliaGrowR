@@ -11,6 +11,15 @@
 
 \item{...}{Additional arguments (not used).}
 }
+\value{
+Invisibly returns the input object.
+}
 \description{
 This function prints a summary of the Duane analysis result.
 }
+\seealso{
+Other Duane functions: 
+\code{\link{duane}()},
+\code{\link{plot.duane}()}
+}
+\concept{Duane functions}

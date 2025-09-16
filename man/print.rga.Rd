@@ -11,6 +11,15 @@
 
 \item{...}{Additional arguments (not used).}
 }
+\value{
+Invisibly returns the input object.
+}
 \description{
 Print method for rga objects.
 }
+\seealso{
+Other Reliability Growth Analysis: 
+\code{\link{plot.rga}()},
+\code{\link{rga}()}
+}
+\concept{Reliability Growth Analysis}

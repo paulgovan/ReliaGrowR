@@ -39,3 +39,9 @@ result <- rga(times, failures)
 plot(result, main = "Reliability Growth Analysis",
 xlab = "Cumulative Time", ylab = "Cumulative Failures")
 }
+\seealso{
+Other Reliability Growth Analysis: 
+\code{\link{print.rga}()},
+\code{\link{rga}()}
+}
+\concept{Reliability Growth Analysis}

@@ -39,3 +39,9 @@ fit <- duane(times, failures, conf.int = TRUE, conf.level = 0.90)
 print(fit)
 
 }
+\seealso{
+Other Duane functions: 
+\code{\link{plot.duane}()},
+\code{\link{print.duane}()}
+}
+\concept{Duane functions}

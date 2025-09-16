@@ -48,3 +48,9 @@ result <- rga(times, failures)
 print(result)
 
 }
+\seealso{
+Other Reliability Growth Analysis: 
+\code{\link{plot.rga}()},
+\code{\link{print.rga}()}
+}
+\concept{Reliability Growth Analysis}

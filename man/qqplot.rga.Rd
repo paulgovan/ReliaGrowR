@@ -17,3 +17,8 @@ qqplot.rga(x, main = "Q-Q Plot", ...)
 This function creates a Q-Q plot for a fitted Reliability Growth Analysis (RGA) model
 Currently only supports the Crow-AMSAA model.
 }
+\seealso{
+Other goodness-of-fit: 
+\code{\link{ppplot.rga}()}
+}
+\concept{goodness-of-fit}

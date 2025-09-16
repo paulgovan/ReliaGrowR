@@ -10,6 +10,7 @@
 #' @param model_type The model type. Either `Crow-AMSAA` (default) or `Piecewise NHPP` with change point detection.
 #' @param breaks An optional vector of breakpoints for the `Piecewise NHPP` model.
 #' @param conf_level The desired confidence level, which defaults to 95%.
+#' @family Reliability Growth Analysis
 #' @return The function returns an object of class `rga` that contains:
 #' \item{model}{The fitted model object (lm or segmented).}
 #' \item{logLik}{The log-likelihood of the fitted model.}
@@ -127,6 +128,9 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
 #' Print method for rga objects.
 #' @param x An object of class \code{rga}, which contains the results from the RGA model.
 #' @param ... Additional arguments (not used).
+#' @family Reliability Growth Analysis
+#' @return Invisibly returns the input object.
+#'
 #' @export
 print.rga <- function(x, ...) {
   cat("Reliability Growth Analysis (RGA)\n")
@@ -172,6 +176,7 @@ print.rga <- function(x, ...) {
 #' @param log Logical; use a log-log scale (default: FALSE).
 #' @param legend_pos Position of the legend (default: "bottomright").
 #' @param ... Additional arguments passed to \code{plot()}.
+#' @family Reliability Growth Analysis
 #' @return Invisibly returns \code{NULL}.
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)

@@ -9,6 +9,7 @@
 #' @param failures A numeric vector of the number of failures at each corresponding time in \code{times}.
 #' @param conf.int Logical; whether to compute confidence bounds (default: \code{FALSE}).
 #' @param conf.level Confidence level for the confidence bounds (default: \code{0.95}).
+#' @family Duane functions
 #'
 #' @return A list of class \code{"duane"} containing:
 #' \item{model}{The fitted \code{lm} object.}
@@ -86,6 +87,9 @@ duane <- function(times, failures, conf.int = FALSE, conf.level = 0.95) {
 #'
 #' @param x An object of class "duane" returned by the duane_plot function.
 #' @param ... Additional arguments (not used).
+#' @family Duane functions
+#' @return Invisibly returns the input object.
+#'
 #' @export
 print.duane <- function(x, ...) {
   cat("Duane Analysis Result\n")
@@ -125,6 +129,7 @@ print.duane <- function(x, ...) {
 #' @param legend Logical; whether to include a legend (default: TRUE).
 #' @param legend_pos Position of the legend (default: "bottomright").
 #' @param ... Further arguments passed to \code{plot()}.
+#' @family Duane functions
 #'
 #' @return Invisibly returns \code{NULL}.
 #' @examples

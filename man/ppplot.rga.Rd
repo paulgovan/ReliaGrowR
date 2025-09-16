@@ -17,3 +17,8 @@ ppplot.rga(x, main = "P-P Plot", ...)
 This function creates a P-P plot for a fitted Reliability Growth Analysis (RGA) model
 Currently only supports the Crow-AMSAA model.
 }
+\seealso{
+Other goodness-of-fit: 
+\code{\link{qqplot.rga}()}
+}
+\concept{goodness-of-fit}
