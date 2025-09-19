@@ -13,9 +13,18 @@ qqplot.rga(x, main = "Q-Q Plot", ...)
 
 \item{...}{Additional arguments passed to \code{stats::qqplot()}.}
 }
+\value{
+A Q-Q plot comparing empirical and theoretical quantiles.
+}
 \description{
 This function creates a Q-Q plot for a fitted Reliability Growth Analysis (RGA) model
 Currently only supports the Crow-AMSAA model.
+}
+\examples{
+times <- c(5, 10, 15, 20, 25)
+failures <- c(1, 2, 1, 3, 2)
+fit <- rga(times, failures)
+qqplot.rga(fit)
 }
 \seealso{
 Other goodness-of-fit: 

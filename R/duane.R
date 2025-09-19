@@ -88,6 +88,11 @@ duane <- function(times, failures, conf.int = FALSE, conf.level = 0.95) {
 #' @param x An object of class "duane" returned by the duane_plot function.
 #' @param ... Additional arguments (not used).
 #' @family Duane functions
+#' @examples
+#' times <- c(100, 200, 300, 400, 500)
+#' failures <- c(1, 2, 1, 3, 2)
+#' fit <- duane(times, failures, conf.int = TRUE)
+#' print(fit)
 #' @return Invisibly returns the input object.
 #'
 #' @export

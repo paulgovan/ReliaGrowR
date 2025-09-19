@@ -17,6 +17,12 @@ Invisibly returns the input object.
 \description{
 Print method for rga objects.
 }
+\examples{
+times <- c(100, 200, 300, 400, 500)
+failures <- c(1, 2, 1, 3, 2)
+result <- rga(times, failures)
+print(result)
+}
 \seealso{
 Other Reliability Growth Analysis: 
 \code{\link{plot.rga}()},

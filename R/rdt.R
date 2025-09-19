@@ -91,6 +91,10 @@ rdt <- function(target, mission_time, conf_level,
 #' This function provides a formatted print method for objects of class `rdt`.
 #' @param x An object of class `rdt`.
 #' @param ... Additional arguments (not used).
+#' @examples
+#' plan <- rdt(target=0.9, mission_time=1000, conf_level=0.9, beta=1, n=10)
+#' print(plan)
+#' @return Invisibly returns the input object.
 #' @export
 print.rdt <- function(x, ...) {
   cat("Reliability Demonstration Test (RDT) Plan\n")

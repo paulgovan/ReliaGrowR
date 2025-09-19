@@ -13,9 +13,18 @@ ppplot.rga(x, main = "P-P Plot", ...)
 
 \item{...}{Additional arguments passed to \code{plot()}.}
 }
+\value{
+A P-P plot comparing empirical and theoretical CDFs.
+}
 \description{
 This function creates a P-P plot for a fitted Reliability Growth Analysis (RGA) model
 Currently only supports the Crow-AMSAA model.
+}
+\examples{
+times <- c(5, 10, 15, 20, 25)
+failures <- c(1, 2, 1, 3, 2)
+fit <- rga(times, failures)
+ppplot.rga(fit)
 }
 \seealso{
 Other goodness-of-fit: 

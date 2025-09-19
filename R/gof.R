@@ -7,6 +7,12 @@
 #' @param x An object of class \code{rga}.
 #' @param main Title of the plot.
 #' @param ... Additional arguments passed to \code{stats::qqplot()}.
+#' @examples
+#' times <- c(5, 10, 15, 20, 25)
+#' failures <- c(1, 2, 1, 3, 2)
+#' fit <- rga(times, failures)
+#' qqplot.rga(fit)
+#' @return A Q-Q plot comparing empirical and theoretical quantiles.
 #' @family goodness-of-fit
 #' @importFrom stats lsfit
 #' @export
@@ -45,6 +51,12 @@ qqplot.rga <- function(x,
 #' @param x An object of class \code{rga}.
 #' @param main Title of the plot.
 #' @param ... Additional arguments passed to \code{plot()}.
+#' @examples
+#' times <- c(5, 10, 15, 20, 25)
+#' failures <- c(1, 2, 1, 3, 2)
+#' fit <- rga(times, failures)
+#' ppplot.rga(fit)
+#' @returns A P-P plot comparing empirical and theoretical CDFs.
 #' @family goodness-of-fit
 #' @importFrom stats lsfit
 #' @export

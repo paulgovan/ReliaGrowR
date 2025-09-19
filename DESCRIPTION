@@ -17,7 +17,8 @@ Suggests:
     knitr,
     rmarkdown,
     spelling,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    vdiffr
 Language: en-US
 URL: https://paulgovan.github.io/ReliaGrowR/, https://github.com/paulgovan/ReliaGrowR
 Config/testthat/edition: 3

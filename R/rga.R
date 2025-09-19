@@ -128,6 +128,11 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
 #' Print method for rga objects.
 #' @param x An object of class \code{rga}, which contains the results from the RGA model.
 #' @param ... Additional arguments (not used).
+#' @examples
+#' times <- c(100, 200, 300, 400, 500)
+#' failures <- c(1, 2, 1, 3, 2)
+#' result <- rga(times, failures)
+#' print(result)
 #' @family Reliability Growth Analysis
 #' @return Invisibly returns the input object.
 #'
