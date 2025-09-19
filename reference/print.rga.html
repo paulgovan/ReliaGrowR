@@ -70,6 +70,26 @@
 <code><a href="rga.html">rga</a>()</code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">300</span>, <span class="fl">400</span>, <span class="fl">500</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Reliability Growth Analysis (RGA)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Model Type: Crow-AMSAA </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Parameters (per segment):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Beta: 0.7987 (SE = 0.0562)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Lambda: 0.0269</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Goodness of Fit:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Log-likelihood: 4.78</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AIC: -3.55</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   BIC: -4.72</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
