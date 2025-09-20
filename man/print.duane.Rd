@@ -20,7 +20,7 @@ This function prints a summary of the Duane analysis result.
 \examples{
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
-fit <- duane(times, failures, conf.int = TRUE)
+fit <- duane(times, failures)
 print(fit)
 }
 \seealso{

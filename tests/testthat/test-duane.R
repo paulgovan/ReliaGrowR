@@ -1,5 +1,3 @@
-library(testthat)
-
 test_that("duane rejects invalid inputs", {
   times <- c(100, 200, 300)
   failures <- c(1, 2, 3)
@@ -12,7 +10,7 @@ test_that("duane rejects invalid inputs", {
   expect_error(duane(c(100, 200), c(1, -2)), "> 0")
 })
 
-test_that("duane runs without confidence intervals", {
+test_that("duane runs and always returns confidence intervals", {
   times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
 
@@ -23,19 +21,23 @@ test_that("duane runs without confidence intervals", {
                       "Cumulative_Time", "Cumulative_MTBF",
                       "Fitted_Values", "Confidence_Bounds"))
 
-  expect_null(fit$conf.level)
-  expect_null(fit$Confidence_Bounds)
+  # confidence intervals are always present
+  expect_equal(fit$conf.level, 0.95)
+  expect_true(!is.null(fit$Confidence_Bounds))
+  expect_equal(nrow(fit$Confidence_Bounds), length(times))
+  expect_true(all(fit$Confidence_Bounds[, "lwr"] > 0))
+  expect_true(all(fit$Confidence_Bounds[, "upr"] > 0))
 
   expect_true(all(fit$Cumulative_Time > 0))
   expect_true(all(fit$Cumulative_MTBF > 0))
   expect_equal(length(fit$Fitted_Values), length(times))
 })
 
-test_that("duane runs with confidence intervals", {
+test_that("duane runs with custom confidence level", {
   times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
 
-  fit <- duane(times, failures, conf.int = TRUE, conf.level = 0.90)
+  fit <- duane(times, failures, conf.level = 0.90)
 
   expect_s3_class(fit, "duane")
   expect_equal(fit$conf.level, 0.90)
@@ -49,7 +51,7 @@ test_that("print.duane works", {
   times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
 
-  fit <- duane(times, failures, conf.int = TRUE)
+  fit <- duane(times, failures)
   expect_invisible(out <- print(fit))
   expect_s3_class(out, "duane")
 })
@@ -58,7 +60,7 @@ test_that("plot.duane works with defaults", {
   times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
 
-  fit <- duane(times, failures, conf.int = TRUE)
+  fit <- duane(times, failures)
   expect_invisible(plot(fit, main = "Duane Plot"))
 })
 
@@ -66,11 +68,10 @@ test_that("plot.duane works with options", {
   times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
 
-  fit <- duane(times, failures, conf.int = TRUE)
+  fit <- duane(times, failures)
 
-  # linear scale, custom colors, no legend
+  # linear scale, no CI plotting, no legend
   expect_invisible(plot(fit, log = FALSE,
-                        point_col = "blue", line_col = "green",
-                        conf_col = "purple",
+                        conf.int = FALSE,
                         legend = FALSE))
 })

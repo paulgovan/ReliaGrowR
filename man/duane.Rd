@@ -4,14 +4,12 @@
 \alias{duane}
 \title{Duane Analysis}
 \usage{
-duane(times, failures, conf.int = FALSE, conf.level = 0.95)
+duane(times, failures, conf.level = 0.95)
 }
 \arguments{
 \item{times}{A numeric vector of cumulative failure times.}
 
 \item{failures}{A numeric vector of the number of failures at each corresponding time in \code{times}.}
-
-\item{conf.int}{Logical; whether to compute confidence bounds (default: \code{FALSE}).}
 
 \item{conf.level}{Confidence level for the confidence bounds (default: \code{0.95}).}
 }
@@ -21,11 +19,11 @@ A list of class \code{"duane"} containing:
 \item{logLik}{The log-likelihood of the fitted model.}
 \item{AIC}{Akaike Information Criterion.}
 \item{BIC}{Bayesian Information Criterion.}
-\item{conf.level}{The confidence level, if applicable.}
+\item{conf.level}{The confidence level.}
 \item{Cumulative_Time}{The cumulative operating times.}
 \item{Cumulative_MTBF}{The cumulative mean time between failures.}
 \item{Fitted_Values}{The fitted values on the MTBF scale.}
-\item{Confidence_Bounds}{Matrix of fitted values and confidence bounds on the MTBF scale (if applicable).}
+\item{Confidence_Bounds}{Matrix of fitted values and confidence bounds on the MTBF scale.}
 }
 \description{
 This function performs a Duane analysis (1962) \url{doi:10.1109/TA.1964.4319640}
@@ -35,7 +33,7 @@ versus cumulative time.
 \examples{
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
-fit <- duane(times, failures, conf.int = TRUE, conf.level = 0.90)
+fit <- duane(times, failures, conf.level = 0.90)
 print(fit)
 
 }

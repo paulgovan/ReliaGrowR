@@ -7,7 +7,6 @@
 #'
 #' @param times A numeric vector of cumulative failure times.
 #' @param failures A numeric vector of the number of failures at each corresponding time in \code{times}.
-#' @param conf.int Logical; whether to compute confidence bounds (default: \code{FALSE}).
 #' @param conf.level Confidence level for the confidence bounds (default: \code{0.95}).
 #' @family Duane functions
 #'
@@ -16,21 +15,21 @@
 #' \item{logLik}{The log-likelihood of the fitted model.}
 #' \item{AIC}{Akaike Information Criterion.}
 #' \item{BIC}{Bayesian Information Criterion.}
-#' \item{conf.level}{The confidence level, if applicable.}
+#' \item{conf.level}{The confidence level.}
 #' \item{Cumulative_Time}{The cumulative operating times.}
 #' \item{Cumulative_MTBF}{The cumulative mean time between failures.}
 #' \item{Fitted_Values}{The fitted values on the MTBF scale.}
-#' \item{Confidence_Bounds}{Matrix of fitted values and confidence bounds on the MTBF scale (if applicable).}
+#' \item{Confidence_Bounds}{Matrix of fitted values and confidence bounds on the MTBF scale.}
 #'
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
-#' fit <- duane(times, failures, conf.int = TRUE, conf.level = 0.90)
+#' fit <- duane(times, failures, conf.level = 0.90)
 #' print(fit)
 #'
 #' @importFrom stats lm AIC BIC logLik predict
 #' @export
-duane <- function(times, failures, conf.int = FALSE, conf.level = 0.95) {
+duane <- function(times, failures, conf.level = 0.95) {
   if (length(times) != length(failures)) {
     stop("The length of 'times' and 'failures' must be equal.")
   }
@@ -57,21 +56,16 @@ duane <- function(times, failures, conf.int = FALSE, conf.level = 0.95) {
   # fitted values back-transformed
   fitted_values <- exp(predict(fit))
 
-  # CI if requested
-  ci_bounds <- NULL
-  used_conf_level <- NULL
-  if (conf.int) {
-    pred <- predict(fit, interval = "confidence", level = conf.level)
-    ci_bounds <- exp(pred)
-    used_conf_level <- conf.level
-  }
+  # always compute CI
+  pred <- predict(fit, interval = "confidence", level = conf.level)
+  ci_bounds <- exp(pred)
 
   result <- list(
     model = fit,
     logLik = loglik,
     AIC = aic,
     BIC = bic,
-    conf.level = used_conf_level,
+    conf.level = conf.level,
     Cumulative_Time = cum_times,
     Cumulative_MTBF = cum_mtbf,
     Fitted_Values = fitted_values,
@@ -91,7 +85,7 @@ duane <- function(times, failures, conf.int = FALSE, conf.level = 0.95) {
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
-#' fit <- duane(times, failures, conf.int = TRUE)
+#' fit <- duane(times, failures)
 #' print(fit)
 #' @return Invisibly returns the input object.
 #'
@@ -128,11 +122,9 @@ print.duane <- function(x, ...) {
 #'
 #' @param x An object of class \code{"duane"}.
 #' @param log Logical; whether to use logarithmic scales for axes (default: \code{TRUE}).
-#' @param point_col Color for the observed data points (default: "black").
-#' @param line_col Color for the fitted line (default: "black").
-#' @param conf_col Color for the confidence bound lines (default: "red").
+#' @param conf.int Logical; whether to plot confidence bounds (default: \code{TRUE}).
 #' @param legend Logical; whether to include a legend (default: TRUE).
-#' @param legend_pos Position of the legend (default: "bottomright").
+#' @param legend.pos Position of the legend (default: "topleft").
 #' @param ... Further arguments passed to \code{plot()}.
 #' @family Duane functions
 #'
@@ -140,16 +132,15 @@ print.duane <- function(x, ...) {
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
-#' fit <- duane(times, failures, conf.int = TRUE)
+#' fit <- duane(times, failures)
 #' plot(fit, main = "Duane Plot", xlab = "Cumulative Time", ylab = "Cumulative MTBF")
 #' @importFrom graphics legend lines plot
 #' @export
 plot.duane <- function(x,
                        log = TRUE,
-                       point_col = "black", line_col = "black",
-                       conf_col = "black",
+                       conf.int = TRUE,
                        legend = TRUE,
-                       legend_pos = "bottomright",
+                       legend.pos = "topleft",
                        ...) {
   if (!inherits(x, "duane")) stop("Input must be an object of class 'duane'.")
 
@@ -160,37 +151,34 @@ plot.duane <- function(x,
     x = cum_time,
     y = cum_mtbf,
     pch = 16,
-    col = point_col,
     ...
   )
   if (log) plot_args$log <- "xy"
   do.call(graphics::plot, plot_args)
 
   # fitted line
-  graphics::lines(cum_time, x$Fitted_Values, col = line_col, lty = 1)
+  graphics::lines(cum_time, x$Fitted_Values, lty = 1)
 
-  # confidence bounds
-  if (!is.null(x$Confidence_Bounds)) {
-    graphics::lines(cum_time, x$Confidence_Bounds[, "lwr"], col = conf_col, lty = 2)
-    graphics::lines(cum_time, x$Confidence_Bounds[, "upr"], col = conf_col, lty = 2)
+  # confidence bounds (optional)
+  if (conf.int && !is.null(x$Confidence_Bounds)) {
+    graphics::lines(cum_time, x$Confidence_Bounds[, "lwr"], lty = 2)
+    graphics::lines(cum_time, x$Confidence_Bounds[, "upr"], lty = 2)
   }
 
   # legend
   if (legend) {
     legend_items <- c("Observed", "Fitted Line")
-    cols <- c(point_col, line_col)
     pch <- c(16, NA)
     lty <- c(NA, 1)
 
-    if (!is.null(x$Confidence_Bounds)) {
+    if (conf.int && !is.null(x$Confidence_Bounds)) {
       legend_items <- c(legend_items, "Confidence Bounds")
-      cols <- c(cols, conf_col)
       pch <- c(pch, NA)
       lty <- c(lty, 2)
     }
 
-    graphics::legend(legend_pos, legend = legend_items,
-                     col = cols, pch = pch, lty = lty, bty = "n")
+    graphics::legend(legend.pos, legend = legend_items,
+                     pch = pch, lty = lty, bty = "n")
   }
 
   invisible(NULL)

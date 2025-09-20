@@ -7,11 +7,9 @@
 \method{plot}{duane}(
   x,
   log = TRUE,
-  point_col = "black",
-  line_col = "black",
-  conf_col = "black",
+  conf.int = TRUE,
   legend = TRUE,
-  legend_pos = "bottomright",
+  legend.pos = "topleft",
   ...
 )
 }
@@ -20,15 +18,11 @@
 
 \item{log}{Logical; whether to use logarithmic scales for axes (default: \code{TRUE}).}
 
-\item{point_col}{Color for the observed data points (default: "black").}
-
-\item{line_col}{Color for the fitted line (default: "black").}
-
-\item{conf_col}{Color for the confidence bound lines (default: "red").}
+\item{conf.int}{Logical; whether to plot confidence bounds (default: \code{TRUE}).}
 
 \item{legend}{Logical; whether to include a legend (default: TRUE).}
 
-\item{legend_pos}{Position of the legend (default: "bottomright").}
+\item{legend.pos}{Position of the legend (default: "topleft").}
 
 \item{...}{Further arguments passed to \code{plot()}.}
 }
@@ -42,7 +36,7 @@ and optional confidence bounds.
 \examples{
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
-fit <- duane(times, failures, conf.int = TRUE)
+fit <- duane(times, failures)
 plot(fit, main = "Duane Plot", xlab = "Cumulative Time", ylab = "Cumulative MTBF")
 }
 \seealso{
