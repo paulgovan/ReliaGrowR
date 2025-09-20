@@ -50,11 +50,9 @@ and optional confidence bounds.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  log <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  point_col <span class="op">=</span> <span class="st">"black"</span>,</span>
-<span>  line_col <span class="op">=</span> <span class="st">"black"</span>,</span>
-<span>  conf_col <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>  conf.int <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  legend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  legend_pos <span class="op">=</span> <span class="st">"bottomright"</span>,</span>
+<span>  legend.pos <span class="op">=</span> <span class="st">"topleft"</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -71,24 +69,16 @@ and optional confidence bounds.</p>
 <dd><p>Logical; whether to use logarithmic scales for axes (default: <code>TRUE</code>).</p></dd>
 
 
-<dt id="arg-point-col">point_col<a class="anchor" aria-label="anchor" href="#arg-point-col"></a></dt>
-<dd><p>Color for the observed data points (default: "black").</p></dd>
-
-
-<dt id="arg-line-col">line_col<a class="anchor" aria-label="anchor" href="#arg-line-col"></a></dt>
-<dd><p>Color for the fitted line (default: "black").</p></dd>
-
-
-<dt id="arg-conf-col">conf_col<a class="anchor" aria-label="anchor" href="#arg-conf-col"></a></dt>
-<dd><p>Color for the confidence bound lines (default: "red").</p></dd>
+<dt id="arg-conf-int">conf.int<a class="anchor" aria-label="anchor" href="#arg-conf-int"></a></dt>
+<dd><p>Logical; whether to plot confidence bounds (default: <code>TRUE</code>).</p></dd>
 
 
 <dt id="arg-legend">legend<a class="anchor" aria-label="anchor" href="#arg-legend"></a></dt>
 <dd><p>Logical; whether to include a legend (default: TRUE).</p></dd>
 
 
-<dt id="arg-legend-pos">legend_pos<a class="anchor" aria-label="anchor" href="#arg-legend-pos"></a></dt>
-<dd><p>Position of the legend (default: "bottomright").</p></dd>
+<dt id="arg-legend-pos">legend.pos<a class="anchor" aria-label="anchor" href="#arg-legend-pos"></a></dt>
+<dd><p>Position of the legend (default: "topleft").</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -110,7 +100,7 @@ and optional confidence bounds.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">300</span>, <span class="fl">400</span>, <span class="fl">500</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="duane.html">duane</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span>, conf.int <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="duane.html">duane</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="st">"Duane Plot"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative MTBF"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot.duane-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
