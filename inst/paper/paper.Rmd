@@ -68,7 +68,7 @@ The slope of the line on the plot indicates the rate of reliability growth:
 * A zero slope means there is no change in reliability (the system is stable).
 * A negative slope indicates that reliability is worsening (the failure rate is increasing).
 
-To use the Duane Model in ReliaGrowR, use the duane_plot function. This function takes a a vector of failure times and a vector of failure counts, and generates a log-log plot of cumulative MTBF vs cumulative time.
+To use the Duane Model in ReliaGrowR, use the duane function. This function takes a a vector of failure times and a vector of failure counts, and generates a log-log plot of cumulative MTBF vs cumulative time.
 
 First, set up some dummy cumulative time and failure data:
 
