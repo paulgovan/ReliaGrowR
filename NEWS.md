@@ -1,4 +1,4 @@
-# ReliaGrowR 0.2 (In Progress)
+# ReliaGrowR 0.2
 * Upcoming release with new features and improvements.
 
 ## Breaking Changes

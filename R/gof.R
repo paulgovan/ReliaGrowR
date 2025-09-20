@@ -26,7 +26,9 @@ qqplot.rga <- function(x,
   lambda <- if (is.matrix(x$lambdas)) x$lambdas[1, "Est."] else x$lambdas[1]
 
   # Observed cumulative times
-  times <- sort(x$model$model$log_times |> exp())
+  times <- sort(
+    exp(x$model$model$log_times)
+    )
   n <- length(times)
 
   # Empirical probs
@@ -70,7 +72,9 @@ ppplot.rga <- function(x,
   lambda <- if (is.matrix(x$lambdas)) x$lambdas[1, "Est."] else x$lambdas[1]
 
   # Observed cumulative times
-  times <- sort(x$model$model$log_times |> exp())
+  times <- sort(
+    exp(x$model$model$log_times)
+  )
   n <- length(times)
 
   # Empirical CDF (median rank plotting position)

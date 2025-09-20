@@ -1,19 +1,18 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
-
- * Found the following (possibly) invalid URLs:
-    URL: https://apps.dtic.mil/sti/citations/ADA020296
-      From: DESCRIPTION
-            man/rga.Rd
-      Status: 403
-      Message: Forbidden
-
- * This is the correct url.
+0 errors | 0 warnings | 0 notes
 
 ## revdepcheck results
 
 We checked 3 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
- * We saw 0 new problems
+ * We saw 1 new problems
  * We failed to check 0 packages
+
+Issues with CRAN packages are summarised below.
+
+### New problems
+(This reports the first line of each new failure)
+
+* WeibullR.plotly
+  checking examples ... ERROR
