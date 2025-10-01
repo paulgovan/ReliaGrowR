@@ -59,7 +59,7 @@
       <h1>Reliability Growth Analysis</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/v0.2/vignettes/RGA.Rmd" class="external-link"><code>vignettes/RGA.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/main/vignettes/RGA.Rmd" class="external-link"><code>vignettes/RGA.Rmd</code></a></small>
       <div class="d-none name"><code>RGA.Rmd</code></div>
     </div>
 
@@ -69,12 +69,12 @@
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p><strong>Reliability Growth Analysis (RGA)</strong> is an important
-aspect of reliability engineering, aimed at improving system reliability
+part of reliability engineering, focused on improving system reliability
 during development and testing. By analyzing failure data, RGA helps
-engineers identify trends, estimate reliability parameters, and
-visualize reliability improvement over time. This insight is crucial for
-assessing the impact of design changes, guiding engineering decisions,
-and managing risks effectively.</p>
+engineers identify trends, estimate reliability parameters, and track
+improvements over time. These insights are essential for assessing the
+impact of design changes, guiding engineering decisions, and managing
+risks effectively.</p>
 </div>
 <div class="section level2">
 <h2 id="the-crow-amsaa-model">The Crow-AMSAA Model<a class="anchor" aria-label="anchor" href="#the-crow-amsaa-model"></a>
@@ -134,6 +134,9 @@ time with the fitted model.</p>
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span>, main <span class="op">=</span> <span class="st">"Crow-AMSAA Model"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="RGA_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<p>The plot shows the cumulative failures on the y-axis and cumulative
+time on the x-axis, with a fitted curve indicating the reliability
+growth trend.</p>
 </div>
 </div>
 <div class="section level2">
@@ -177,7 +180,7 @@ cumulative time and failure data and specify a breakpoint:</p>
 <span><span class="va">breaks</span> <span class="op">&lt;-</span> <span class="fl">500</span></span></code></pre></div>
 <p>Then run the rga and plot the results:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span>, model_type <span class="op">=</span> <span class="st">"Piecewise NHPP"</span>, breaks <span class="op">=</span> <span class="va">breaks</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span>, model_type <span class="op">=</span> <span class="st">"Piecewise NHPP"</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">breaks</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span>, main <span class="op">=</span> <span class="st">"Piecewise NHPP Model"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="RGA_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
 </div>
@@ -242,9 +245,67 @@ cumulative time.</p>
 <p>Then fit the model and plot the results:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/duane.html">duane</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="st">"Duane Plot"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative MTBF"</span>, col <span class="op">=</span> <span class="st">"blue"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="st">"Duane Plot"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative MTBF"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="RGA_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<p>The plot shows the cumulative MTBF on the y-axis and cumulative time
+on the x-axis, with a fitted line indicating the reliability growth
+trend.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="goodness-of-fit">Goodness of Fit<a class="anchor" aria-label="anchor" href="#goodness-of-fit"></a>
+</h2>
+<p>Goodness of fit plots help assess how well a model matches the
+observed data. Two key functions are <code>qqplot.rga</code> for Q-Q
+plots and <code>ppplot.rga</code> for P-P plots. Both functions take an
+rga object as input.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">100</span>, <span class="fl">150</span>, <span class="fl">200</span>, <span class="fl">300</span>, <span class="fl">400</span>, <span class="fl">600</span>, <span class="fl">800</span>, <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">8</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/qqplot.rga.html">qqplot.rga</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+<p><img src="RGA_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
+<p>The <code>qqplot.rga</code> function produces a Q-Q plot that
+compares the quantiles of the observed data with those of the fitted
+model. A good fit is indicated when the points closely follow the
+45-degree reference line.</p>
+<p>Similarly, a P-P plot can be created with:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/ppplot.rga.html">ppplot.rga</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+<p><img src="RGA_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
+<p>The <code>ppplot.rga</code> function compares the cumulative
+probabilities of the observed data with those of the fitted model. As
+with the Q-Q plot, a good fit is indicated when the points closely
+follow the 45-degree line.</p>
+</div>
+<div class="section level2">
+<h2 id="data-conversion">Data Conversion<a class="anchor" aria-label="anchor" href="#data-conversion"></a>
+</h2>
+<p>Reliability data can be recorded in different formats, such as exact
+failure times, right-censored times, or failure times grouped into
+intervals. The <code>weibull_to_rga</code> utility function converts
+data from the format used in the WeibullR package into the format
+required for RGA analysis in ReliaGrowR. It accepts a vector of failure
+times and optional vectors of right-censored (suspension) times and
+interval-censored times, then returns a data frame with cumulative times
+and failure counts suitable for use with the rga function.</p>
+<p>For example, consider the following dataset with failure times,
+right-censored times, and interval-censored times:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">200</span>, <span class="fl">400</span><span class="op">)</span></span>
+<span><span class="va">suspensions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">250</span>, <span class="fl">350</span>, <span class="fl">450</span><span class="op">)</span></span>
+<span><span class="va">interval_starts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">150</span>, <span class="fl">300</span><span class="op">)</span></span>
+<span><span class="va">interval_ends</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">180</span>, <span class="fl">320</span><span class="op">)</span></span></code></pre></div>
+<p>The data can be converted using <code>weibull_to_rga</code>:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weibull_to_rga.html">weibull_to_rga</a></span><span class="op">(</span><span class="va">failures</span>, <span class="va">suspensions</span>, <span class="va">interval_starts</span>, <span class="va">interval_ends</span><span class="op">)</span></span></code></pre></div>
+<p>The resulting data frame contains cumulative times and failure
+counts, which can then be passed directly to the <code>rga</code>
+function for reliability growth analysis.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">CumulativeTime</span>, <span class="va">result</span><span class="op">$</span><span class="va">Failures</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="st">"RGA from Converted Data"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="RGA_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>

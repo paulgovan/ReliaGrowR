@@ -37,7 +37,7 @@ level, and Weibull shape parameter."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Reliability Demonstration Test (RDT) Plan Calculator</h1>
-      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/v0.2/R/rdt.R" class="external-link"><code>R/rdt.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/main/R/rdt.R" class="external-link"><code>R/rdt.R</code></a></small>
       <div class="d-none name"><code>rdt.Rd</code></div>
     </div>
 
@@ -61,23 +61,25 @@ level, and Weibull shape parameter.</p>
 
 
 <dt id="arg-mission-time">mission_time<a class="anchor" aria-label="anchor" href="#arg-mission-time"></a></dt>
-<dd><p>Mission duration (time units).</p></dd>
+<dd><p>Mission duration (time units). Must be greater than 0.</p></dd>
 
 
 <dt id="arg-conf-level">conf_level<a class="anchor" aria-label="anchor" href="#arg-conf-level"></a></dt>
-<dd><p>Desired confidence level (e.g., 0.9 for 90% confidence).</p></dd>
+<dd><p>Desired confidence level (e.g., 0.9 for 90% confidence). The
+confidence level must be between 0 and 1 (exclusive).</p></dd>
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>Weibull shape parameter (beta=1 corresponds to exponential distribution).</p></dd>
+<dd><p>Weibull shape parameter (beta=1 corresponds to exponential distribution).
+Must be greater than 0. Default is 1.</p></dd>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>Sample size (optional, supply if solving for test_time).</p></dd>
+<dd><p>Sample size (optional, supply if solving for test_time). Must be a positive integer.</p></dd>
 
 
 <dt id="arg-test-time">test_time<a class="anchor" aria-label="anchor" href="#arg-test-time"></a></dt>
-<dd><p>Test time per unit (optional, supply if solving for n).</p></dd>
+<dd><p>Test time per unit (optional, supply if solving for n). Must be greater than 0.</p></dd>
 
 </dl></div>
     <div class="section level2">
