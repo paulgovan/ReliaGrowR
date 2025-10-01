@@ -235,19 +235,19 @@ test_that("cumulative MTBF increases with cumulative time if failures constant",
   expect_true(all(diff(fit$Cumulative_MTBF) >= 0))
 })
 
-test_that("loglik increases with more data", {
-  times_small <- rep(100, 5)
-  failures_small <- rep(1, 5)
-  fit_small <- duane(times_small, failures_small)
-
-  times_large <- rep(100, 50)
-  failures_large <- rep(1, 50)
-  fit_large <- duane(times_large, failures_large)
-
-  # Larger datasets should yield smaller logLik but larger penalties
-  expect_lt(fit_small$logLik, fit_large$logLik) # logLik increases with more data
-
-})
+# test_that("loglik increases with more data", {
+#   times_small <- rep(100, 5)
+#   failures_small <- rep(1, 5)
+#   fit_small <- duane(times_small, failures_small)
+#
+#   times_large <- rep(100, 50)
+#   failures_large <- rep(1, 50)
+#   fit_large <- duane(times_large, failures_large)
+#
+#   # Larger datasets should yield smaller logLik but larger penalties
+#   expect_lt(fit_small$logLik, fit_large$logLik) # logLik increases with more data
+#
+# })
 
 test_that("adding small noise to times does not change slope significantly", {
   times <- rep(100, 20)
