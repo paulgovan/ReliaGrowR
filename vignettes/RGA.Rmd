@@ -85,7 +85,7 @@ breaks <- 500
 
 Then run the rga and plot the results:
 ```{r}
-result <- rga(times, failures, model_type = "Piecewise NHPP", breaks = breaks)
+result <- rga(times, failures, model_type = "Piecewise NHPP", breaks = c(breaks))
 plot(result, main = "Piecewise NHPP Model", xlab = "Cumulative Time", ylab = "Cumulative Failures")
 ```
 

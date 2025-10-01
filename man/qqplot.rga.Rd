@@ -18,7 +18,9 @@ A Q-Q plot comparing empirical and theoretical quantiles.
 }
 \description{
 This function creates a Q-Q plot for a fitted Reliability Growth Analysis (RGA) model
-Currently only supports the Crow-AMSAA model.
+Currently only supports the Crow-AMSAA model. A Q-Q plot compares the quantiles of
+the empirical data to the quantiles of the theoretical distribution specified by the model.
+If the model fits well, the points should fall approximately along a straight line.
 }
 \examples{
 times <- c(5, 10, 15, 20, 25)

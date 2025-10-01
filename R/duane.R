@@ -1,20 +1,67 @@
-
 #' Duane Analysis
 #'
 #' This function performs a Duane analysis (1962) <doi:10.1109/TA.1964.4319640>
-#' on failure data by fitting a log-log linear regression of cumulative MTBF
-#' versus cumulative time.
+#' on failure data by fitting a log-log linear regression of cumulative Mean Time
+#' Between Failures (MTBF) versus cumulative time. The function accepts either
+#' two numeric vectors (`times`, `failures`) or a data frame containing both.
 #'
-#' @param times A numeric vector of cumulative failure times.
-#' @param failures A numeric vector of the number of failures at each corresponding time in \code{times}.
-#' @param conf.level Confidence level for the confidence bounds (default: \code{0.95}).
+#' @srrstats {G1.0} The primary reference for Duane Analysis is provided in the
+#' description.
+#' @srrstats {G1.1} The `duane` function is the first implementation of the Duane
+#' model within an R package on CRAN.
+#' @srrstats {G1.2} Life Cycle Statement: This function has been implemented and
+#' is maintained as part of the reliability growth analysis features of the package.
+#' @srrstats {G1.3} All statistical terminology is explicitly defined in the documentation.
+#' @srrstats {G1.4} [roxygen2](https://roxygen2.r-lib.org/) documentation is used
+#' to document all functions.
+#' @srrstats {G1.5} All code necessary to reproduce results in examples is included.
+#' @srrstats {G2.0} Inputs are validated for length and structure.
+#' @srrstats {G2.1} Inputs are validated for type.
+#' @srrstats {G2.2} Univariate inputs are validated for being univariate.
+#' @srrstats {G2.4b} Explicit conversion of log-likelihood to continuous is made via `as.numeric()`.
+#' @srrstats {G2.6} Both one-dimensional vectors and data frames are accepted as input.
+#' @srrstats {G2.7} Both one-dimensional vectors and data frames are accepted as input.
+#' @srrstats {G2.8} Sub-functions `print.duane` and `plot.duane` are provided for the `duane` class.
+#' @srrstats {G2.10} Data extracted from tabular `data.frame` objects are validated for length and type.
+#' @srrstats {G2.11} Unit tests check that `data.frame` inputs  are appropriately processed and do not error without reason.
+#' @srrstats {G2.14} See sub-tags for responses.
+#' @srrstats {G2.14a} Missing data results in an error.
+#' @srrstats {G2.14c} Missing data results in an error.
+#' @srrstats {G2.15} The function checks for missing data and errors if any is found.
+#' @srrstats {G2.16} The function checks for NA and NaN values and errors if any are found.
+#' @srrstats {G5.2a} Every message produced by `stop()` is unique.
+#' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
+#' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.
+#' @srrstats {G5.6} Unit tests include parameter recovery checks to test that the implementation produce expected results given data with known properties.
+#' @srrstats {G5.6a} Results parameter recovery tests are expected to be within a defined tolerance rather than exact values.
+#' @srrstats {G5.7} Unit tests include algorithm performance checks to test that the function performs as expected as data changes.
+#' @srrstats {G5.8} See sub-tags for responses.
+#' @srrstats {G5.8a} Unit tests include checks for zero-length data.
+#' @srrstats {G5.8b} Unit tests include checks for unsupported data types.
+#' @srrstats {G5.8c} Unit tests include checks for data with 'NA' fields.
+#' @srrstats {G5.8d} Unit tests include checks for data outside the scope of the algorithm.
+#' @srrstats {G5.9} Unit tests include noise susceptibility tests for expected stochastic behavior.
+#' @srrstats {G5.9a} Unit tests check that adding trivial noise to data does not meaningfully change results.
+#'
+#' @param times Either:
+#'   - A numeric vector of cumulative failure times, or
+#'   - A data frame containing two columns: `times` and `failures`. The `times`
+#'     column contains cumulative failure times, and the `failures` column
+#'     contains the number of failures at each corresponding time.
+#' @param failures A numeric vector of the number of failures at each corresponding
+#'   time in `times`. Ignored if `times` is a data frame. Must be the same length as
+#'   `times` if both are vectors.
+#'   All values must be positive and finite.
+#' @param conf.level Confidence level for the confidence bounds (default: `0.95`).
+#'   Must be between 0 and 1 (exclusive).
+#'
 #' @family Duane functions
 #'
 #' @return A list of class \code{"duane"} containing:
-#' \item{model}{The fitted \code{lm} object.}
+#' \item{model}{The fitted \code{lm} (linear model) object containing the regression results.}
 #' \item{logLik}{The log-likelihood of the fitted model.}
-#' \item{AIC}{Akaike Information Criterion.}
-#' \item{BIC}{Bayesian Information Criterion.}
+#' \item{AIC}{Akaike Information Criterion (AIC).}
+#' \item{BIC}{Bayesian Information Criterion (BIC).}
 #' \item{conf.level}{The confidence level.}
 #' \item{Cumulative_Time}{The cumulative operating times.}
 #' \item{Cumulative_MTBF}{The cumulative mean time between failures.}
@@ -24,17 +71,61 @@
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
-#' fit <- duane(times, failures, conf.level = 0.90)
-#' print(fit)
+#' fit1 <- duane(times, failures, conf.level = 0.90)
+#' print(fit1)
+#'
+#' df <- data.frame(times = times, failures = failures)
+#' fit2 <- duane(df, conf.level = 0.95)
+#' print(fit2)
 #'
 #' @importFrom stats lm AIC BIC logLik predict
 #' @export
-duane <- function(times, failures, conf.level = 0.95) {
+duane <- function(times, failures = NULL, conf.level = 0.95) {
+  # Case 1: data frame input
+  if (is.data.frame(times)) {
+    if (!all(c("times", "failures") %in% names(times))) {
+      stop(
+        "Data frame input must contain columns named 'times' and 'failures'."
+      )
+    }
+    failures <- times$failures
+    times <- times$times
+  }
+
+  # Input validation
+  if (!is.numeric(times) || !is.vector(times)) {
+    stop("'times' must be a numeric vector.")
+  }
+  if (!is.numeric(failures) || !is.vector(failures)) {
+    stop("'failures' must be a numeric vector.")
+  }
+  if (any(is.na(times)) || any(is.nan(times))) {
+    stop("'times' contains missing (NA) or NaN values.")
+  }
+  if (any(is.na(failures)) || any(is.nan(failures))) {
+    stop("'failures' contains missing (NA) or NaN values.")
+  }
+  if (length(times) == 0) {
+    stop("'times' cannot be empty.")
+  }
+  if (length(failures) == 0) {
+    stop("'failures' cannot be empty.")
+  }
   if (length(times) != length(failures)) {
     stop("The length of 'times' and 'failures' must be equal.")
   }
-  if (any(times <= 0)) stop("All values in 'times' must be > 0.")
-  if (any(failures <= 0)) stop("All values in 'failures' must be > 0.")
+  if (any(!is.finite(times)) || any(times <= 0)) {
+    stop("All values in 'times' must be finite and > 0.")
+  }
+  if (any(!is.finite(failures)) || any(failures <= 0)) {
+    stop("All values in 'failures' must be finite and > 0.")
+  }
+  if (!is.numeric(conf.level) || length(conf.level) != 1) {
+    stop("'conf.level' must be a single numeric value.")
+  }
+  if (conf.level <= 0 || conf.level >= 1) {
+    stop("'conf.level' must be between 0 and 1 (exclusive).")
+  }
 
   # Cumulative times & failures
   cum_failures <- cumsum(failures)
@@ -56,7 +147,7 @@ duane <- function(times, failures, conf.level = 0.95) {
   # fitted values back-transformed
   fitted_values <- exp(predict(fit))
 
-  # always compute CI
+  # confidence intervals on MTBF scale
   pred <- predict(fit, interval = "confidence", level = conf.level)
   ci_bounds <- exp(pred)
 
@@ -75,6 +166,7 @@ duane <- function(times, failures, conf.level = 0.95) {
   return(result)
 }
 
+
 #' Print method for duane objects.
 #'
 #' This function prints a summary of the Duane analysis result.
@@ -91,6 +183,11 @@ duane <- function(times, failures, conf.level = 0.95) {
 #'
 #' @export
 print.duane <- function(x, ...) {
+  # Input validation
+  if (!inherits(x, "duane")) {
+    stop("'x' must be an object of class 'duane'.")
+  }
+
   cat("Duane Analysis Result\n")
   cat("----------------------\n")
   cat("Linear model (log-log scale): log(MTBF) ~ log(Time)\n")
@@ -136,13 +233,30 @@ print.duane <- function(x, ...) {
 #' plot(fit, main = "Duane Plot", xlab = "Cumulative Time", ylab = "Cumulative MTBF")
 #' @importFrom graphics legend lines plot
 #' @export
-plot.duane <- function(x,
-                       log = TRUE,
-                       conf.int = TRUE,
-                       legend = TRUE,
-                       legend.pos = "topleft",
-                       ...) {
-  if (!inherits(x, "duane")) stop("Input must be an object of class 'duane'.")
+plot.duane <- function(
+  x,
+  log = TRUE,
+  conf.int = TRUE,
+  legend = TRUE,
+  legend.pos = "topleft",
+  ...
+) {
+  # Input validation
+  if (!inherits(x, "duane")) {
+    stop("'x' must be an object of class 'duane'.")
+  }
+  if (!is.logical(log) || length(log) != 1) {
+    stop("'log' must be a single logical value.")
+  }
+  if (!is.logical(conf.int) || length(conf.int) != 1) {
+    stop("'conf.int' must be a single logical value.")
+  }
+  if (!is.logical(legend) || length(legend) != 1) {
+    stop("'legend' must be a single logical value.")
+  }
+  if (!is.character(legend.pos) || length(legend.pos) != 1) {
+    stop("'legend.pos' must be a single character string.")
+  }
 
   cum_time <- x$Cumulative_Time
   cum_mtbf <- x$Cumulative_MTBF
@@ -153,7 +267,9 @@ plot.duane <- function(x,
     pch = 16,
     ...
   )
-  if (log) plot_args$log <- "xy"
+  if (log) {
+    plot_args$log <- "xy"
+  }
   do.call(graphics::plot, plot_args)
 
   # fitted line
@@ -177,8 +293,13 @@ plot.duane <- function(x,
       lty <- c(lty, 2)
     }
 
-    graphics::legend(legend.pos, legend = legend_items,
-                     pch = pch, lty = lty, bty = "n")
+    graphics::legend(
+      legend.pos,
+      legend = legend_items,
+      pch = pch,
+      lty = lty,
+      bty = "n"
+    )
   }
 
   invisible(NULL)

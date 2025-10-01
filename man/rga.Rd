@@ -13,40 +13,62 @@ rga(
 )
 }
 \arguments{
-\item{times}{A vector of cumulative failure times.}
+\item{times}{Either a numeric vector of cumulative failure times or a data frame
+containing both failure times and failure counts. If a data frame is provided, it must
+contain two columns: \code{times} and \code{failures}. The \code{times} column contains cumulative failure times,
+and the \code{failures} column contains the number of failures at each corresponding time.}
 
-\item{failures}{A vector of the number of failures at each corresponding time in times.}
+\item{failures}{A numeric vector of the number of failures at each corresponding time
+in times. Must be the same length as \code{times} if both are vectors. All values must be
+positive and finite. Ignored if \code{times} is a data frame.}
 
 \item{model_type}{The model type. Either \code{Crow-AMSAA} (default) or \verb{Piecewise NHPP} with change point detection.}
 
 \item{breaks}{An optional vector of breakpoints for the \verb{Piecewise NHPP} model.}
 
-\item{conf_level}{The desired confidence level, which defaults to 95\%.}
+\item{conf_level}{The desired confidence level, which defaults to 95\%. The confidence
+level is the probability that the confidence interval contains the true mean response.}
 }
 \value{
 The function returns an object of class \code{rga} that contains:
-\item{model}{The fitted model object (lm or segmented).}
-\item{logLik}{The log-likelihood of the fitted model.}
-\item{AIC}{Akaike Information Criterion.}
-\item{BIC}{Bayesian Information Criterion.}
+\item{model}{The fitted model object (lm (linear model) or segmented).}
+\item{logLik}{The log-likelihood of the fitted model. The log-likelihood is a
+measure of model fit, with higher values indicating a better fit.}
+\item{AIC}{Akaike Information Criterion (AIC). AIC is a measure used for model selection,
+with lower values indicating a better fit.}
+\item{BIC}{Bayesian Information Criterion(BIC). BIC is another criterion for model selection}
 \item{breakpoints}{Breakpoints (log scale) if applicable.}
 \item{fitted_values}{Fitted cumulative failures on the original scale.}
 \item{lower_bounds}{Lower confidence bounds (original scale).}
 \item{upper_bounds}{Upper confidence bounds (original scale).}
-\item{betas}{Estimated beta(s).}
-\item{lambdas}{Estimated lambda(s).}
+\item{betas}{Estimated beta(s). Betas are the slopes of the log-log plot.}
+\item{betas_se}{Standard error(s) of the estimated beta(s).}
+\item{lambdas}{Estimated lambda(s). Lambdas are the intercepts of the log-log plot.}
 }
 \description{
 This function performs reliability growth analysis using the Crow-AMSAA model by
 Crow (1975) \url{https://apps.dtic.mil/sti/citations/ADA020296} or piecewise
-NHPP model by Guo et al. (2010) \url{doi:10.1109/RAMS.2010.5448029}.
+NHPP model by Guo et al. (2010) \url{doi:10.1109/RAMS.2010.5448029}. It fits
+a log-log linear regression of cumulative failures versus cumulative time. The
+function accepts either two numeric vectors (\code{times}, \code{failures}) or a data frame
+containing both. The \verb{Piecewise NHPP} model can automatically detect change points
+or use user-specified breakpoints.
 }
 \examples{
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
-result <- rga(times, failures)
-print(result)
+result1 <- rga(times, failures)
+print(result1)
 
+df <- data.frame(times = times, failures = failures)
+result2 <- rga(df)
+print(result2)
+
+result3 <- rga(times, failures, model_type = "Piecewise NHPP")
+print(result3)
+
+result4 <- rga(times, failures, model_type = "Piecewise NHPP", breaks = c(450))
+print(result4)
 }
 \seealso{
 Other Reliability Growth Analysis: 

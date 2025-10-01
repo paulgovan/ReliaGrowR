@@ -3,59 +3,159 @@
 #'
 #' This function performs reliability growth analysis using the Crow-AMSAA model by
 #' Crow (1975) <https://apps.dtic.mil/sti/citations/ADA020296> or piecewise
-#' NHPP model by Guo et al. (2010) <doi:10.1109/RAMS.2010.5448029>.
+#' NHPP model by Guo et al. (2010) <doi:10.1109/RAMS.2010.5448029>. It fits
+#' a log-log linear regression of cumulative failures versus cumulative time. The
+#' function accepts either two numeric vectors (`times`, `failures`) or a data frame
+#' containing both. The `Piecewise NHPP` model can automatically detect change points
+#' or use user-specified breakpoints.
 #'
-#' @param times A vector of cumulative failure times.
-#' @param failures A vector of the number of failures at each corresponding time in times.
+#' @srrstats {G1.0} Primary references for Crow-AMSAA and Piecewise NHPP models
+#' are provided in the description.
+#' @srrstats {G1.1} The `rga` function is the first implementation of the Crow-AMSAA
+#'  and Piecewise NHPP models within an R package on CRAN.
+#' @srrstats {G1.2} Life Cycle Statement: This function has been implemented and
+#' is maintained as part of the reliability growth analysis features of the package.
+#' @srrstats {G1.3} All statistical terminology is explicitly defined in the documentation.
+#' @srrstats {G1.4} `roxygen2`](https://roxygen2.r-lib.org/) documentation is used
+#' to document all functions.
+#' @srrstats {G1.5} All code necessary to reproduce results in examples is included.
+#' @srrstats {G2.0} Inputs are validated for length.
+#' @srrstats {G2.1} Inputs are validated for type.
+#' @srrstats {G2.2} Univariate inputs are validated for being univariate.
+#' @srrstats {G2.3} See sub-tags for responses.
+#' @srrstats {G2.3a} `match.arg()` is used for string inputs.
+#' @srrstats {G2.3b} `tolower()` is used for string inputs.
+#' @srrstats {G2.4b} Explicit conversion of log-likelihood to continuous is made via `as.numeric()`
+#' @srrstats {G2.6} Both one-dimensional vectors and data frames are accepted as input.
+#' @srrstats {G2.7} Both one-dimensional vectors and data frames are accepted as input.
+#' @srrstats {G2.8} Sub-functions `print.rga` and `plot.rga` are provided for the `rga` class.
+#' @srrstats {G2.10} Data extracted from tabular `data.frame` objects are validated for length and type.
+#' @srrstats {G2.11} Unit tests check that `data.frame` inputs  are appropriately processed and do not error without reason.
+#' @srrstats {G2.13} The function checks for missing data and errors if any is found.
+#' @srrstats {G2.14} See sub-tags for responses.
+#' @srrstats {G2.14a} Missing data results in an error.
+#' @srrstats {G2.14c} Missing data results in an error.
+#' @srrstats {G2.15} The function checks for missing data and errors if any is found.
+#' @srrstats {G2.16} The function checks for NA and NaN values and errors if any are found.
+#' @srrstats {G5.2a} Every message produced by `stop()` is unique.
+#' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
+#' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.
+#' @srrstats {G5.6} Unit tests include parameter recovery checks to test that the implementation produce expected results given data with known properties.
+#' @srrstats {G5.6a} Results parameter recovery tests are expected to be within a defined tolerance rather than exact values.
+#' @srrstats {G5.7} Unit tests include algorithm performance checks to test that the function performs as expected as parameters change.
+#' @srrstats {G5.8} See sub-tags for responses.
+#' @srrstats {G5.8a} Unit tests include checks for zero-length data.
+#' @srrstats {G5.8b} Unit tests include checks for unsupported data types.
+#' @srrstats {G5.8c} Unit tests include checks for data with 'NA' fields.
+#' @srrstats {G5.8d} Unit tests include checks for data outside the scope of the algorithm.
+#' @srrstats {G5.9} Unit tests include noise susceptibility tests for expected stochastic behavior.
+#' @srrstats {G5.9a} Unit tests check that adding trivial noise to data does not meaningfully change results.
+#'
+#' @param times Either a numeric vector of cumulative failure times or a data frame
+#' containing both failure times and failure counts. If a data frame is provided, it must
+#' contain two columns: `times` and `failures`. The `times` column contains cumulative failure times,
+#' and the `failures` column contains the number of failures at each corresponding time.
+#' @param failures A numeric vector of the number of failures at each corresponding time
+#' in times. Must be the same length as `times` if both are vectors. All values must be
+#' positive and finite. Ignored if `times` is a data frame.
 #' @param model_type The model type. Either `Crow-AMSAA` (default) or `Piecewise NHPP` with change point detection.
 #' @param breaks An optional vector of breakpoints for the `Piecewise NHPP` model.
-#' @param conf_level The desired confidence level, which defaults to 95%.
+#' @param conf_level The desired confidence level, which defaults to 95%. The confidence
+#' level is the probability that the confidence interval contains the true mean response.
 #' @family Reliability Growth Analysis
 #' @return The function returns an object of class `rga` that contains:
-#' \item{model}{The fitted model object (lm or segmented).}
-#' \item{logLik}{The log-likelihood of the fitted model.}
-#' \item{AIC}{Akaike Information Criterion.}
-#' \item{BIC}{Bayesian Information Criterion.}
+#' \item{model}{The fitted model object (lm (linear model) or segmented).}
+#' \item{logLik}{The log-likelihood of the fitted model. The log-likelihood is a
+#' measure of model fit, with higher values indicating a better fit.}
+#' \item{AIC}{Akaike Information Criterion (AIC). AIC is a measure used for model selection,
+#' with lower values indicating a better fit.}
+#' \item{BIC}{Bayesian Information Criterion(BIC). BIC is another criterion for model selection}
 #' \item{breakpoints}{Breakpoints (log scale) if applicable.}
 #' \item{fitted_values}{Fitted cumulative failures on the original scale.}
 #' \item{lower_bounds}{Lower confidence bounds (original scale).}
 #' \item{upper_bounds}{Upper confidence bounds (original scale).}
-#' \item{betas}{Estimated beta(s).}
-#' \item{lambdas}{Estimated lambda(s).}
+#' \item{betas}{Estimated beta(s). Betas are the slopes of the log-log plot.}
+#' \item{betas_se}{Standard error(s) of the estimated beta(s).}
+#' \item{lambdas}{Estimated lambda(s). Lambdas are the intercepts of the log-log plot.}
 #'
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
-#' result <- rga(times, failures)
-#' print(result)
+#' result1 <- rga(times, failures)
+#' print(result1)
 #'
+#' df <- data.frame(times = times, failures = failures)
+#' result2 <- rga(df)
+#' print(result2)
+#'
+#' result3 <- rga(times, failures, model_type = "Piecewise NHPP")
+#' print(result3)
+#'
+#' result4 <- rga(times, failures, model_type = "Piecewise NHPP", breaks = c(450))
+#' print(result4)
 #' @importFrom stats lm predict AIC BIC logLik
 #' @importFrom segmented segmented slope intercept seg.control
 #' @export
 rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_level = 0.95) {
 
+  if (is.data.frame(times)) {
+    if (!all(c("times", "failures") %in% names(times))) {
+      stop("If a data frame is provided, it must contain columns 'times' and 'failures'.")
+    }
+    failures <- times$failures
+    times <- times$times
+  }
+
   # Validation checks
+  if (!is.numeric(times) || !is.vector(times)) {
+    stop("'times' must be a numeric vector.")
+  }
+  if (!is.numeric(failures) || !is.vector(failures)) {
+    stop("'failures' must be a numeric vector.")
+  }
+  if (any(is.na(times)) || any(is.nan(times))) {
+    stop("'times' contains missing (NA) or NaN values.")
+  }
+  if (any(is.na(failures)) || any(is.nan(failures))) {
+    stop("'failures' contains missing (NA) or NaN values.")
+  }
+  if (length(times) == 0) stop("'times' cannot be empty.")
+  if (length(failures) == 0) stop("'failures' cannot be empty.")
   if (length(times) != length(failures)) {
     stop("The length of 'times' and 'failures' must be equal.")
   }
-  if (any(times <= 0)) stop("All values in 'times' must be greater than 0.")
-  if (any(failures <= 0)) stop("All values in 'failures' must be greater than 0.")
-  if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    stop("Conf_level must be a numeric value between 0 and 1 (exclusive).")
+  if (any(!is.finite(times)) || any(times <= 0)) {
+    stop("All values in 'times' must be finite and > 0.")
+  }
+  if (any(!is.finite(failures)) || any(failures <= 0)) {
+    stop("All values in 'failures' must be finite and > 0.")
   }
 
-  valid_models <- c("Crow-AMSAA", "Piecewise NHPP")
-  if (!(model_type %in% valid_models)) {
-    stop(paste("Model_type must be one of", paste(valid_models, collapse = ", "), "."))
+  if (!is.character(model_type) || length(model_type) != 1) {
+    stop("'model_type' must be a single character string.")
   }
+  valid_model <- match.arg(
+    tolower(model_type),
+    tolower(c("crow-amsaa", "piecewise nhpp"))
+  )
 
   if (!is.null(breaks)) {
-    if (!is.numeric(breaks) || any(breaks <= 0)) {
-      stop("Breakpoints must be a numeric vector with positive values.")
+    if (!is.numeric(breaks) || length(breaks) == 0) {
+      stop("'breaks' must be a non-empty numeric vector if provided.")
     }
-    if (model_type != "Piecewise NHPP") {
-      stop("Breakpoints can only be used with the 'Piecewise NHPP' model.")
+    if (any(!is.finite(breaks)) || any(breaks <= 0)) {
+      stop("All values in 'breaks' must be finite and > 0.")
     }
+    if (valid_model != "piecewise nhpp") {
+      stop("'breaks' can only be used with the 'Piecewise NHPP' model.")
+    }
+  }
+
+  if (!is.numeric(conf_level) || length(conf_level) != 1) {
+    stop("'conf_level' must be a single numeric value.")
+  }
+  if (conf_level <= 0 || conf_level >= 1) {
+    stop("'conf_level' must be between 0 and 1 (exclusive).")
   }
 
   # Data prep
@@ -66,7 +166,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
 
   fit <- stats::lm(log_cum_failures ~ log_times)
 
-  if (model_type == "Piecewise NHPP") {
+  if (valid_model == "piecewise nhpp") {
     if (is.null(breaks)) {
       updated_fit <- segmented::segmented(fit, seg.Z = ~log_times)
       breakpoints <- updated_fit$psi[, "Est."]
@@ -138,6 +238,12 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
 #'
 #' @export
 print.rga <- function(x, ...) {
+
+  # Input validation
+  if (!inherits(x, "rga")) {
+    stop("'x' must be an object of class 'rga'.")
+  }
+
   cat("Reliability Growth Analysis (RGA)\n")
   cat("---------------------------------\n")
 
@@ -197,12 +303,24 @@ plot.rga <- function(x,
                      log = FALSE,
                      legend_pos = "bottomright",
                      ...) {
-  if (!inherits(x, "rga")) stop("Input must be an object of class 'rga'.")
-  if (!is.logical(conf_bounds) || !is.logical(legend) || !is.logical(log)) {
-    stop("Arguments 'conf_bounds', 'legend', and 'log' must be logical.")
+
+  # Input validation
+  if (!inherits(x, "rga")) {
+    stop("'x' must be an object of class 'rga'.")
+  }
+  if (!is.logical(conf_bounds) || length(conf_bounds) != 1) {
+    stop("'conf_bounds' must be a single logical value.")
+  }
+  if (!is.logical(legend) || length(legend) != 1) {
+    stop("'legend' must be a single logical value.")
+  }
+  if (!is.logical(log) || length(log) != 1) {
+    stop("'log' must be a single logical value.")
+  }
+  if (!is.character(legend_pos) || length(legend_pos) != 1) {
+    stop("'legend_pos' must be a single character string.")
   }
 
-  # Extract original log-log model data
   if (!all(c("log_times", "log_cum_failures") %in% names(x$model$model))) {
     stop("The 'rga' object appears malformed or missing model data.")
   }

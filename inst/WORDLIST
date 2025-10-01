@@ -1,13 +1,16 @@
 AMSAA
 CMD
 Codecov
+ETI
 Guo
+LRUs
 MTBF
 Muggeo
 NHPP
 ORCID
 RDT
 RGA
+WeibullR
 al
 bottomright
 doi
@@ -17,4 +20,6 @@ leq
 lm
 rdt
 rga
+str
+testdata
 topleft

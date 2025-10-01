@@ -12,6 +12,7 @@ License: CC BY 4.0
 Encoding: UTF-8
 Roxygen: list (markdown = TRUE, roclets = c ("namespace", "rd", "srr::srr_stats_roclet"))
 Suggests: 
+    autotest,
     ellmer,
     knitr,
     rmarkdown,
@@ -24,3 +25,6 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 BugReports: https://github.com/paulgovan/ReliaGrowR/issues
 RoxygenNote: 7.3.3
+Depends: 
+    R (>= 2.10)
+LazyData: true

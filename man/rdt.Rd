@@ -9,15 +9,17 @@ rdt(target, mission_time, conf_level, beta = 1, n = NULL, test_time = NULL)
 \arguments{
 \item{target}{Required reliability at mission time (0 < target < 1).}
 
-\item{mission_time}{Mission duration (time units).}
+\item{mission_time}{Mission duration (time units). Must be greater than 0.}
 
-\item{conf_level}{Desired confidence level (e.g., 0.9 for 90\% confidence).}
+\item{conf_level}{Desired confidence level (e.g., 0.9 for 90\% confidence). The
+confidence level must be between 0 and 1 (exclusive).}
 
-\item{beta}{Weibull shape parameter (beta=1 corresponds to exponential distribution).}
+\item{beta}{Weibull shape parameter (beta=1 corresponds to exponential distribution).
+Must be greater than 0. Default is 1.}
 
-\item{n}{Sample size (optional, supply if solving for test_time).}
+\item{n}{Sample size (optional, supply if solving for test_time). Must be a positive integer.}
 
-\item{test_time}{Test time per unit (optional, supply if solving for n).}
+\item{test_time}{Test time per unit (optional, supply if solving for n). Must be greater than 0.}
 }
 \value{
 The function returns an object of class \code{rdt} that contains:

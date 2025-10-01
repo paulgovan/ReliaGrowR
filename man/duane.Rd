@@ -4,21 +4,31 @@
 \alias{duane}
 \title{Duane Analysis}
 \usage{
-duane(times, failures, conf.level = 0.95)
+duane(times, failures = NULL, conf.level = 0.95)
 }
 \arguments{
-\item{times}{A numeric vector of cumulative failure times.}
+\item{times}{Either:
+\itemize{
+\item A numeric vector of cumulative failure times, or
+\item A data frame containing two columns: \code{times} and \code{failures}. The \code{times}
+column contains cumulative failure times, and the \code{failures} column
+contains the number of failures at each corresponding time.
+}}
 
-\item{failures}{A numeric vector of the number of failures at each corresponding time in \code{times}.}
+\item{failures}{A numeric vector of the number of failures at each corresponding
+time in \code{times}. Ignored if \code{times} is a data frame. Must be the same length as
+\code{times} if both are vectors.
+All values must be positive and finite.}
 
-\item{conf.level}{Confidence level for the confidence bounds (default: \code{0.95}).}
+\item{conf.level}{Confidence level for the confidence bounds (default: \code{0.95}).
+Must be between 0 and 1 (exclusive).}
 }
 \value{
 A list of class \code{"duane"} containing:
-\item{model}{The fitted \code{lm} object.}
+\item{model}{The fitted \code{lm} (linear model) object containing the regression results.}
 \item{logLik}{The log-likelihood of the fitted model.}
-\item{AIC}{Akaike Information Criterion.}
-\item{BIC}{Bayesian Information Criterion.}
+\item{AIC}{Akaike Information Criterion (AIC).}
+\item{BIC}{Bayesian Information Criterion (BIC).}
 \item{conf.level}{The confidence level.}
 \item{Cumulative_Time}{The cumulative operating times.}
 \item{Cumulative_MTBF}{The cumulative mean time between failures.}
@@ -27,14 +37,19 @@ A list of class \code{"duane"} containing:
 }
 \description{
 This function performs a Duane analysis (1962) \url{doi:10.1109/TA.1964.4319640}
-on failure data by fitting a log-log linear regression of cumulative MTBF
-versus cumulative time.
+on failure data by fitting a log-log linear regression of cumulative Mean Time
+Between Failures (MTBF) versus cumulative time. The function accepts either
+two numeric vectors (\code{times}, \code{failures}) or a data frame containing both.
 }
 \examples{
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
-fit <- duane(times, failures, conf.level = 0.90)
-print(fit)
+fit1 <- duane(times, failures, conf.level = 0.90)
+print(fit1)
+
+df <- data.frame(times = times, failures = failures)
+fit2 <- duane(df, conf.level = 0.95)
+print(fit2)
 
 }
 \seealso{

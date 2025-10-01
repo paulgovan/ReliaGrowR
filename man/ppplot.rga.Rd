@@ -17,8 +17,10 @@ ppplot.rga(x, main = "P-P Plot", ...)
 A P-P plot comparing empirical and theoretical CDFs.
 }
 \description{
-This function creates a P-P plot for a fitted Reliability Growth Analysis (RGA) model
-Currently only supports the Crow-AMSAA model.
+This function creates a P-P plot for a fitted Reliability Growth Analysis (RGA)
+model. Currently only supports the Crow-AMSAA model. A P-P plot compares the
+empirical cumulative distribution function (CDF) to the theoretical CDF specified
+by the model. If the model fits well, the points should fall approximately along a straight line.
 }
 \examples{
 times <- c(5, 10, 15, 20, 25)
