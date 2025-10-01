@@ -1,3 +1,5 @@
+set.seed(123)
+
 test_that("data.frame input works the same as separate vectors", {
   times <- c(100, 200, 300)
   failures <- c(1, 2, 1)
@@ -161,7 +163,6 @@ test_that("plot.duane argument type checks", {
 
 test_that("duane recovers known parameters (linear log-log relationship)", {
   # Generate synthetic data for constant MTBF process
-  set.seed(123)
   times <- rep(100, 10)  # equal spacing of 100
   failures <- rep(1, 10) # one failure per interval
 
@@ -247,8 +248,6 @@ test_that("loglik increases with more data", {
   expect_lt(fit_small$logLik, fit_large$logLik) # logLik increases with more data
 
 })
-
-set.seed(123)
 
 test_that("adding small noise to times does not change slope significantly", {
   times <- rep(100, 20)
