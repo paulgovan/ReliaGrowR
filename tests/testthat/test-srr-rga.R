@@ -398,3 +398,16 @@ test_that("Piecewise NHPP is robust to small noise in times and failures", {
   expect_true(all(abs(intercepts_noisy - intercepts_orig) < 0.01))
 })
 
+test_that("rga works with input from testdata (Crow-AMSAA)", {
+  data("testdata", package = "ReliaGrowR")
+
+  g1 <- subset(testdata, LRU == "G1")
+  times <- g1$Cum_ETI
+  failures <- g1$Failure_Count
+
+  fit <- rga(times, failures, model_type = "Crow-AMSAA", conf_level = 0.95)
+
+  expect_true(all(fit$fitted_values > 0))
+  expect_true(all(fit$lower_bounds > 0))
+  expect_true(all(fit$upper_bounds > 0))
+})

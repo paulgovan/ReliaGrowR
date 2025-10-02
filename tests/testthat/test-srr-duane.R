@@ -281,4 +281,19 @@ test_that("adding small noise preserves fitted MTBF values", {
   expect_gt(cor_val, 0.99)
 })
 
+test_that("duane works with input from testdata", {
+  data("testdata", package = "ReliaGrowR")
 
+  # Subset one LRU to get a simple series
+  g1 <- subset(testdata, LRU == "G1")
+
+  # Use cumulative ETI as times and Failure_Count as failures
+  times <- g1$Cum_ETI
+  failures <- g1$Failure_Count
+
+  fit <- duane(times, failures, conf.level = 0.95)
+
+  # Check structure
+  expect_true(all(fit$Cumulative_MTBF > 0))
+  expect_true(all(fit$Fitted_Values > 0))
+})

@@ -40,8 +40,11 @@
 #' @srrstats {G5.2a} Every message produced by `stop()` is unique.
 #' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
 #' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.
-#' @srrstats {G5.6} Unit tests include parameter recovery checks to test that the implementation produce expected results given data with known properties.
-#' @srrstats {G5.6a} Results parameter recovery tests are expected to be within a defined tolerance rather than exact values.
+#' @srrstats {G5.4} Unit tests include correctness tests to test that statistical algorithms produce expected results to some fixed test data sets.
+#' @srrstats {G5.4c} Stored values are drawn from a published paper output.
+#' @srrstats {G5.5} Correctness tests should be run with a fixed random seed.
+#' @srrstats {G5.6} Unit tests include parameter recovery checks to test that the implementation produces expected results given data with known properties.
+#' @srrstats {G5.6a} Parameter recovery tests are expected to be within a defined tolerance rather than exact values.
 #' @srrstats {G5.7} Unit tests include algorithm performance checks to test that the function performs as expected as parameters change.
 #' @srrstats {G5.8} See sub-tags for responses.
 #' @srrstats {G5.8a} Unit tests include checks for zero-length data.
