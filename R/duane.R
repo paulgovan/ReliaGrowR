@@ -1,4 +1,3 @@
-
 #' Duane Analysis
 #'
 #' This function performs a Duane analysis (1962) <doi:10.1109/TA.1964.4319640>
@@ -30,6 +29,7 @@
 #' @srrstats {G2.14c} Missing data results in an error.
 #' @srrstats {G2.15} The function checks for missing data and errors if any is found.
 #' @srrstats {G2.16} The function checks for NA and NaN values and errors if any are found.
+#' @srrstats {G5.0} Tests use standard data set with known properties from published paper.
 #' @srrstats {G5.2a} Every message produced by `stop()` is unique.
 #' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
 #' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.
@@ -238,13 +238,12 @@ print.duane <- function(x, ...) {
 #' @importFrom graphics legend lines plot
 #' @export
 plot.duane <- function(
-  x,
-  log = TRUE,
-  conf.int = TRUE,
-  legend = TRUE,
-  legend.pos = "topleft",
-  ...
-) {
+    x,
+    log = TRUE,
+    conf.int = TRUE,
+    legend = TRUE,
+    legend.pos = "topleft",
+    ...) {
   # Input validation
   if (!inherits(x, "duane")) {
     stop("'x' must be an object of class 'duane'.")

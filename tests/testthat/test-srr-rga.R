@@ -14,12 +14,16 @@ test_that("data.frame input works the same as separate vectors", {
 
 test_that("data.frame without required columns errors", {
   df1 <- data.frame(x = 1:3, y = 1:3)
-  expect_error(rga(df1),
-               "must contain columns 'times' and 'failures'")
+  expect_error(
+    rga(df1),
+    "must contain columns 'times' and 'failures'"
+  )
 
   df2 <- data.frame(times = 1:3)
-  expect_error(rga(df2),
-               "must contain columns 'times' and 'failures'")
+  expect_error(
+    rga(df2),
+    "must contain columns 'times' and 'failures'"
+  )
 })
 
 test_that("NA or NaN in data.frame input throws error", {
@@ -49,107 +53,128 @@ valid_failures <- c(1, 2, 1)
 test_that("data frame without required columns errors", {
   df_bad <- data.frame(a = 1:3, b = 1:3)
   expect_error(rga(df_bad),
-               "If a data frame is provided, it must contain columns 'times' and 'failures'.",
-               fixed = TRUE)
+    "If a data frame is provided, it must contain columns 'times' and 'failures'.",
+    fixed = TRUE
+  )
 })
 
 test_that("NA / NaN checks for times and failures", {
   expect_error(rga(c(1, NA), valid_failures),
-               "'times' contains missing (NA) or NaN values.",
-               fixed = TRUE)
+    "'times' contains missing (NA) or NaN values.",
+    fixed = TRUE
+  )
 
   expect_error(rga(valid_times, c(1, NaN, 1)),
-               "'failures' contains missing (NA) or NaN values.",
-               fixed = TRUE)
+    "'failures' contains missing (NA) or NaN values.",
+    fixed = TRUE
+  )
 })
 
 test_that("type checks for times and failures", {
-  expect_error(rga(list(1,2,3), valid_failures),
-               "'times' must be a numeric vector.",
-               fixed = TRUE)
+  expect_error(rga(list(1, 2, 3), valid_failures),
+    "'times' must be a numeric vector.",
+    fixed = TRUE
+  )
 
-  expect_error(rga(valid_times, list(1,2,3)),
-               "'failures' must be a numeric vector.",
-               fixed = TRUE)
+  expect_error(rga(valid_times, list(1, 2, 3)),
+    "'failures' must be a numeric vector.",
+    fixed = TRUE
+  )
 })
 
 test_that("empty vector checks", {
   expect_error(rga(numeric(0), numeric(0)),
-               "'times' cannot be empty.",
-               fixed = TRUE)
+    "'times' cannot be empty.",
+    fixed = TRUE
+  )
 
   # ensure failures empty triggers its message
   expect_error(rga(valid_times, numeric(0)),
-               "'failures' cannot be empty.",
-               fixed = TRUE)
+    "'failures' cannot be empty.",
+    fixed = TRUE
+  )
 })
 
 test_that("length mismatch check", {
   expect_error(rga(c(1, 2), c(1, 2, 3)),
-               "The length of 'times' and 'failures' must be equal.",
-               fixed = TRUE)
+    "The length of 'times' and 'failures' must be equal.",
+    fixed = TRUE
+  )
 })
 
 test_that("finite and >0 checks for times and failures", {
-  expect_error(rga(c(1, Inf, 3), c(1,1,1)),
-               "All values in 'times' must be finite and > 0.",
-               fixed = TRUE)
+  expect_error(rga(c(1, Inf, 3), c(1, 1, 1)),
+    "All values in 'times' must be finite and > 0.",
+    fixed = TRUE
+  )
 
-  expect_error(rga(c(1,2,3), c(1, 0, 2)),
-               "All values in 'failures' must be finite and > 0.",
-               fixed = TRUE)
+  expect_error(rga(c(1, 2, 3), c(1, 0, 2)),
+    "All values in 'failures' must be finite and > 0.",
+    fixed = TRUE
+  )
 })
 
 test_that("model_type validation errors", {
   # non-single character
   expect_error(rga(valid_times, valid_failures, model_type = c("a", "b")),
-               "'model_type' must be a single character string.",
-               fixed = TRUE)
+    "'model_type' must be a single character string.",
+    fixed = TRUE
+  )
 
   # invalid string - match.arg produces its own message; check for 'one of'
-  expect_error(rga(valid_times, valid_failures, model_type = "not-a-model"),
-               "one of")
+  expect_error(
+    rga(valid_times, valid_failures, model_type = "not-a-model"),
+    "one of"
+  )
 })
 
 test_that("breaks argument validation", {
   # breaks must be numeric non-empty vector if provided
   expect_error(rga(valid_times, valid_failures, model_type = "Piecewise NHPP", breaks = character(1)),
-               "'breaks' must be a non-empty numeric vector if provided.",
-               fixed = TRUE)
+    "'breaks' must be a non-empty numeric vector if provided.",
+    fixed = TRUE
+  )
 
   expect_error(rga(valid_times, valid_failures, model_type = "Piecewise NHPP", breaks = numeric(0)),
-               "'breaks' must be a non-empty numeric vector if provided.",
-               fixed = TRUE)
+    "'breaks' must be a non-empty numeric vector if provided.",
+    fixed = TRUE
+  )
 
   # breaks values must be finite and > 0
   expect_error(rga(valid_times, valid_failures, model_type = "Piecewise NHPP", breaks = c(100, -1)),
-               "All values in 'breaks' must be finite and > 0.",
-               fixed = TRUE)
+    "All values in 'breaks' must be finite and > 0.",
+    fixed = TRUE
+  )
 
   # breaks only allowed with piecewise model
   expect_error(rga(valid_times, valid_failures, model_type = "Crow-AMSAA", breaks = c(150)),
-               "'breaks' can only be used with the 'Piecewise NHPP' model.",
-               fixed = TRUE)
+    "'breaks' can only be used with the 'Piecewise NHPP' model.",
+    fixed = TRUE
+  )
 })
 
 test_that("conf_level validation", {
   expect_error(rga(valid_times, valid_failures, conf_level = c(0.9, 0.95)),
-               "'conf_level' must be a single numeric value.",
-               fixed = TRUE)
+    "'conf_level' must be a single numeric value.",
+    fixed = TRUE
+  )
 
   expect_error(rga(valid_times, valid_failures, conf_level = 1),
-               "'conf_level' must be between 0 and 1 (exclusive).",
-               fixed = TRUE)
+    "'conf_level' must be between 0 and 1 (exclusive).",
+    fixed = TRUE
+  )
 
   expect_error(rga(valid_times, valid_failures, conf_level = 0),
-               "'conf_level' must be between 0 and 1 (exclusive).",
-               fixed = TRUE)
+    "'conf_level' must be between 0 and 1 (exclusive).",
+    fixed = TRUE
+  )
 })
 
 test_that("print.rga errors when input is not rga", {
   expect_error(print.rga(list()),
-               "'x' must be an object of class 'rga'.",
-               fixed = TRUE)
+    "'x' must be an object of class 'rga'.",
+    fixed = TRUE
+  )
 })
 
 test_that("plot.rga argument type checks and malformed object", {
@@ -164,35 +189,41 @@ test_that("plot.rga argument type checks and malformed object", {
 
   # inherits check (non-rga)
   expect_error(plot.rga(list()),
-               "'x' must be an object of class 'rga'.",
-               fixed = TRUE)
+    "'x' must be an object of class 'rga'.",
+    fixed = TRUE
+  )
 
   # conf_bounds must be single logical
   expect_error(plot.rga(x_good, conf_bounds = "nope"),
-               "'conf_bounds' must be a single logical value.",
-               fixed = TRUE)
+    "'conf_bounds' must be a single logical value.",
+    fixed = TRUE
+  )
 
   # legend must be single logical
   expect_error(plot.rga(x_good, conf_bounds = TRUE, legend = "nope"),
-               "'legend' must be a single logical value.",
-               fixed = TRUE)
+    "'legend' must be a single logical value.",
+    fixed = TRUE
+  )
 
   # log must be single logical
   expect_error(plot.rga(x_good, conf_bounds = TRUE, legend = TRUE, log = "nope"),
-               "'log' must be a single logical value.",
-               fixed = TRUE)
+    "'log' must be a single logical value.",
+    fixed = TRUE
+  )
 
   # legend_pos must be single character string
-  expect_error(plot.rga(x_good, conf_bounds = TRUE, legend = TRUE, log = FALSE, legend_pos = c("a","b")),
-               "'legend_pos' must be a single character string.",
-               fixed = TRUE)
+  expect_error(plot.rga(x_good, conf_bounds = TRUE, legend = TRUE, log = FALSE, legend_pos = c("a", "b")),
+    "'legend_pos' must be a single character string.",
+    fixed = TRUE
+  )
 
   # malformed rga: missing required model$model columns
   x_bad_model <- list(model = list(model = data.frame(foo = 1, bar = 2)))
   class(x_bad_model) <- "rga"
   expect_error(plot.rga(x_bad_model),
-               "The 'rga' object appears malformed or missing model data.",
-               fixed = TRUE)
+    "The 'rga' object appears malformed or missing model data.",
+    fixed = TRUE
+  )
 })
 
 library(testthat)
@@ -226,19 +257,20 @@ test_that("Crow-AMSAA parameter recovery works (log-log simulation)", {
   tol_lambda <- 0.01
 
   expect_true(abs(fit$betas - beta_true) < tol_beta,
-              info = paste("beta estimate:", fit$betas))
+    info = paste("beta estimate:", fit$betas)
+  )
   expect_true(abs(fit$lambdas - lambda_true) < tol_lambda,
-              info = paste("lambda estimate:", fit$lambdas))
+    info = paste("lambda estimate:", fit$lambdas)
+  )
 })
 
 test_that("Piecewise NHPP parameter recovery works", {
-
   # True params
   beta1 <- 0.7
   beta2 <- 1.4
   lambda1 <- 0.02
   tb <- 200
-  lambda2 <- lambda1 * tb^(beta1 - beta2)  # continuity at breakpoint
+  lambda2 <- lambda1 * tb^(beta1 - beta2) # continuity at breakpoint
 
   # Generate observation times and interval inputs for rga()
   time_points <- seq(5, 1000, length.out = 200)
@@ -246,22 +278,31 @@ test_that("Piecewise NHPP parameter recovery works", {
 
   # True cumulative counts (piecewise power law, continuous at tb)
   cumN <- ifelse(time_points <= tb,
-                 lambda1 * (time_points ^ beta1),
-                 lambda2 * (time_points ^ beta2))
+    lambda1 * (time_points^beta1),
+    lambda2 * (time_points^beta2)
+  )
   failures <- c(cumN[1], diff(cumN))
   stopifnot(all(failures > 0))
 
   # Run rga with the known breakpoint (simpler, direct parameter recovery)
-  res <- rga(times = intervals, failures = failures,
-             model_type = "Piecewise NHPP", breaks = tb, conf_level = 0.95)
+  res <- rga(
+    times = intervals, failures = failures,
+    model_type = "Piecewise NHPP", breaks = tb, conf_level = 0.95
+  )
 
   # Helper: extract numeric betas from rga output (handles usual segmented structure)
   get_betas_num <- function(b) {
-    if (is.numeric(b)) return(as.numeric(b))
+    if (is.numeric(b)) {
+      return(as.numeric(b))
+    }
     if (is.list(b) && "log_times" %in% names(b)) {
       mat <- b$log_times
-      if ("Est." %in% colnames(mat)) return(as.numeric(mat[, "Est."]))
-      if ("Estimate" %in% colnames(mat)) return(as.numeric(mat[, "Estimate"]))
+      if ("Est." %in% colnames(mat)) {
+        return(as.numeric(mat[, "Est."]))
+      }
+      if ("Estimate" %in% colnames(mat)) {
+        return(as.numeric(mat[, "Estimate"]))
+      }
       return(as.numeric(mat[, 1]))
     }
     stop("Can't extract betas from rga output.")
@@ -305,7 +346,7 @@ test_that("rga() handles increasing dataset sizes efficiently", {
     message(sprintf("n = %d, runtime = %.3f sec", n, runtime))
 
     expect_true(abs(fit$betas - beta_true) < 0.1)
-    expect_true(runtime < 5)  # fail if runtime > 5 sec
+    expect_true(runtime < 5) # fail if runtime > 5 sec
   }
 })
 

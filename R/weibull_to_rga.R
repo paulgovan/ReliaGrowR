@@ -1,4 +1,3 @@
-
 #' Weibull to RGA
 #'
 #' Converts Weibull data (failure, suspension, and interval-censored times)
@@ -60,7 +59,6 @@ weibull_to_rga <- function(failures,
                            suspensions = NULL,
                            interval_starts = NULL,
                            interval_ends = NULL) {
-
   # Validation
   if (any(is.na(failures)) || any(is.nan(failures)) || any(!is.finite(failures))) {
     stop("`failures` contains missing (NA), NaN, or infinite values.")
@@ -103,8 +101,10 @@ weibull_to_rga <- function(failures,
 
   # Data prep
   all_times <- c(failures, suspensions)
-  all_types <- c(rep("Failure", length(failures)),
-                 rep("Suspension", length(suspensions)))
+  all_types <- c(
+    rep("Failure", length(failures)),
+    rep("Suspension", length(suspensions))
+  )
 
   # Handle interval-censored data (approximate failures at midpoint)
   if (!is.null(interval_starts)) {
@@ -120,8 +120,10 @@ weibull_to_rga <- function(failures,
   data$CumulativeTime <- cumsum(data$Time)
 
   # Failure counts by time (Failures + IntervalFailures)
-  failure_counts <- stats::aggregate(Type ~ Time, data = data,
-                                     FUN = function(x) sum(x %in% c("Failure", "IntervalFailure")))
+  failure_counts <- stats::aggregate(Type ~ Time,
+    data = data,
+    FUN = function(x) sum(x %in% c("Failure", "IntervalFailure"))
+  )
 
   result <- merge(failure_counts, data[, c("Time", "CumulativeTime")], by = "Time")
   result <- result[!duplicated(result$Time), ]

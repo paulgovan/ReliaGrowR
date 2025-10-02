@@ -1,4 +1,3 @@
-
 #' Reliability Growth Analysis.
 #'
 #' This function performs reliability growth analysis using the Crow-AMSAA model by
@@ -37,6 +36,7 @@
 #' @srrstats {G2.14c} Missing data results in an error.
 #' @srrstats {G2.15} The function checks for missing data and errors if any is found.
 #' @srrstats {G2.16} The function checks for NA and NaN values and errors if any are found.
+#' @srrstats {G5.0} Tests use standard data set with known properties from published paper.
 #' @srrstats {G5.2a} Every message produced by `stop()` is unique.
 #' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
 #' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.
@@ -100,7 +100,6 @@
 #' @importFrom segmented segmented slope intercept seg.control
 #' @export
 rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_level = 0.95) {
-
   if (is.data.frame(times)) {
     if (!all(c("times", "failures") %in% names(times))) {
       stop("If a data frame is provided, it must contain columns 'times' and 'failures'.")
@@ -184,7 +183,6 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
 
     # Standard errors
     beta_se <- slopes$log_times[, "St.Err."]
-
   } else {
     updated_fit <- fit
     breakpoints <- NULL
@@ -241,7 +239,6 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
 #'
 #' @export
 print.rga <- function(x, ...) {
-
   # Input validation
   if (!inherits(x, "rga")) {
     stop("'x' must be an object of class 'rga'.")
@@ -296,8 +293,10 @@ print.rga <- function(x, ...) {
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
 #' result <- rga(times, failures)
-#' plot(result, main = "Reliability Growth Analysis",
-#' xlab = "Cumulative Time", ylab = "Cumulative Failures")
+#' plot(result,
+#'   main = "Reliability Growth Analysis",
+#'   xlab = "Cumulative Time", ylab = "Cumulative Failures"
+#' )
 #' @importFrom graphics lines abline legend plot
 #' @export
 plot.rga <- function(x,
@@ -306,7 +305,6 @@ plot.rga <- function(x,
                      log = FALSE,
                      legend_pos = "bottomright",
                      ...) {
-
   # Input validation
   if (!inherits(x, "rga")) {
     stop("'x' must be an object of class 'rga'.")
@@ -390,4 +388,3 @@ plot.rga <- function(x,
 
   invisible(NULL)
 }
-

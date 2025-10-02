@@ -20,11 +20,11 @@
 #'  \item{Cause}{Cause of the failure (e.g., D for Design, M for Manufacturing, R for Random, NR for No Report).}
 #'  }
 #'  @usage data(testdata)
-#'  @examples
-#'  data(testdata)
-#'  head(testdata)
-#'  summary(testdata)
-#'  str(testdata)
+#' @examples
+#' data(testdata)
+#' head(testdata)
+#' summary(testdata)
+#' str(testdata)
 #'
 #' @source <https://apps.dtic.mil/sti/tr/pdf/ADA176128.pdf>
 "testdata"

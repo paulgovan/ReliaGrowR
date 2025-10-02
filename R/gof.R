@@ -1,4 +1,3 @@
-
 #' Q-Q Plot for RGA Objects
 #'
 #' This function creates a Q-Q plot for a fitted Reliability Growth Analysis (RGA) model
@@ -39,7 +38,6 @@
 qqplot.rga <- function(x,
                        main = "Q-Q Plot",
                        ...) {
-
   # Input validation
   if (!inherits(x, "rga")) {
     stop("'x' must be an object of class 'rga'.")
@@ -55,7 +53,7 @@ qqplot.rga <- function(x,
   # Observed cumulative times
   times <- sort(
     exp(x$model$model$log_times)
-    )
+  )
   n <- length(times)
 
   # Empirical probs
@@ -65,10 +63,11 @@ qqplot.rga <- function(x,
   theo_quants <- (-log(1 - emp_probs) / lambda)^(1 / beta)
 
   stats::qqplot(theo_quants, times,
-                main = main,
-                xlab = "Theoretical Quantiles",
-                ylab = "Observed Quantiles",
-                ...)
+    main = main,
+    xlab = "Theoretical Quantiles",
+    ylab = "Observed Quantiles",
+    ...
+  )
   abline(lsfit(theo_quants, times))
 }
 
@@ -97,7 +96,6 @@ qqplot.rga <- function(x,
 ppplot.rga <- function(x,
                        main = "P-P Plot",
                        ...) {
-
   # Input validation
   if (!inherits(x, "rga")) {
     stop("'x' must be an object of class 'rga'.")
@@ -124,12 +122,12 @@ ppplot.rga <- function(x,
 
   # Plot with probability scaling
   plot(theo_cdf, emp_cdf,
-       main = main,
-       xlab = "Theoretical CDF",
-       ylab = "Empirical CDF",
-       ...)
+    main = main,
+    xlab = "Theoretical CDF",
+    ylab = "Empirical CDF",
+    ...
+  )
 
   # 45-degree reference line
   abline(lsfit(theo_cdf, emp_cdf))
 }
-

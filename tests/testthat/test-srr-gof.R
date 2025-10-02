@@ -1,4 +1,3 @@
-
 test_that("qqplot.rga() errors on invalid inputs", {
   # Not an rga object
   expect_error(

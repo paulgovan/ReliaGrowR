@@ -17,12 +17,16 @@ test_that("data.frame input works the same as separate vectors", {
 
 test_that("data.frame without required columns errors", {
   df1 <- data.frame(x = 1:3, y = 1:3)
-  expect_error(duane(df1),
-               "must contain columns named 'times' and 'failures'")
+  expect_error(
+    duane(df1),
+    "must contain columns named 'times' and 'failures'"
+  )
 
   df2 <- data.frame(times = 1:3)
-  expect_error(duane(df2),
-               "must contain columns named 'times' and 'failures'")
+  expect_error(
+    duane(df2),
+    "must contain columns named 'times' and 'failures'"
+  )
 })
 
 test_that("NA or NaN in data.frame input throws error", {
@@ -61,74 +65,88 @@ valid_failures <- c(1, 2, 1)
 test_that("data frame without required columns errors", {
   df_bad <- data.frame(a = 1:3, b = 1:3)
   expect_error(duane(df_bad),
-               "Data frame input must contain columns named 'times' and 'failures'.",
-               fixed = TRUE)
+    "Data frame input must contain columns named 'times' and 'failures'.",
+    fixed = TRUE
+  )
 })
 
 test_that("NA / NaN checks for times and failures", {
   expect_error(duane(c(1, NA), valid_failures),
-               "'times' contains missing (NA) or NaN values.",
-               fixed = TRUE)
+    "'times' contains missing (NA) or NaN values.",
+    fixed = TRUE
+  )
 
   expect_error(duane(valid_times, c(1, NaN, 1)),
-               "'failures' contains missing (NA) or NaN values.",
-               fixed = TRUE)
+    "'failures' contains missing (NA) or NaN values.",
+    fixed = TRUE
+  )
 })
 
 test_that("type checks for times and failures", {
-  expect_error(duane(list(1,2,3), valid_failures),
-               "'times' must be a numeric vector.",
-               fixed = TRUE)
+  expect_error(duane(list(1, 2, 3), valid_failures),
+    "'times' must be a numeric vector.",
+    fixed = TRUE
+  )
 
-  expect_error(duane(valid_times, list(1,2,3)),
-               "'failures' must be a numeric vector.",
-               fixed = TRUE)
+  expect_error(duane(valid_times, list(1, 2, 3)),
+    "'failures' must be a numeric vector.",
+    fixed = TRUE
+  )
 })
 
 test_that("empty vector checks", {
   expect_error(duane(numeric(0), numeric(0)),
-               "'times' cannot be empty.",
-               fixed = TRUE)
+    "'times' cannot be empty.",
+    fixed = TRUE
+  )
 
   expect_error(duane(valid_times, numeric(0)),
-               "'failures' cannot be empty.",
-               fixed = TRUE)
+    "'failures' cannot be empty.",
+    fixed = TRUE
+  )
 })
 
 test_that("length mismatch check", {
   expect_error(duane(c(1, 2), c(1, 2, 3)),
-               "The length of 'times' and 'failures' must be equal.",
-               fixed = TRUE)
+    "The length of 'times' and 'failures' must be equal.",
+    fixed = TRUE
+  )
 })
 
 test_that("finite and >0 checks for times and failures", {
-  expect_error(duane(c(1, Inf, 3), c(1,1,1)),
-               "All values in 'times' must be finite and > 0.",
-               fixed = TRUE)
+  expect_error(duane(c(1, Inf, 3), c(1, 1, 1)),
+    "All values in 'times' must be finite and > 0.",
+    fixed = TRUE
+  )
 
   expect_error(duane(valid_times, c(1, 0, 2)),
-               "All values in 'failures' must be finite and > 0.",
-               fixed = TRUE)
+    "All values in 'failures' must be finite and > 0.",
+    fixed = TRUE
+  )
 })
 
 test_that("conf.level validation", {
   expect_error(duane(valid_times, valid_failures, conf.level = c(0.9, 0.95)),
-               "'conf.level' must be a single numeric value.",
-               fixed = TRUE)
+    "'conf.level' must be a single numeric value.",
+    fixed = TRUE
+  )
 
   expect_error(duane(valid_times, valid_failures, conf.level = 1),
-               "'conf.level' must be between 0 and 1 (exclusive).",
-               fixed = TRUE)
+    "'conf.level' must be between 0 and 1 (exclusive).",
+    fixed = TRUE
+  )
 
   expect_error(duane(valid_times, valid_failures, conf.level = 0),
-               "'conf.level' must be between 0 and 1 (exclusive).",
-               fixed = TRUE)
+    "'conf.level' must be between 0 and 1 (exclusive).",
+    fixed = TRUE
+  )
 })
 
 test_that("print.duane errors when input is not duane", {
   expect_error(print.duane(list()),
-               "'x' must be an object of class 'duane'.",
-               fixed = TRUE)
+    "'x' must be an object of class 'duane'.",
+    fixed = TRUE
+  )
 })
 
 test_that("plot.duane argument type checks", {
@@ -137,33 +155,38 @@ test_that("plot.duane argument type checks", {
 
   # inherits check
   expect_error(plot.duane(list()),
-               "'x' must be an object of class 'duane'.",
-               fixed = TRUE)
+    "'x' must be an object of class 'duane'.",
+    fixed = TRUE
+  )
 
   # log must be single logical
   expect_error(plot.duane(dummy_fit, log = "nope"),
-               "'log' must be a single logical value.",
-               fixed = TRUE)
+    "'log' must be a single logical value.",
+    fixed = TRUE
+  )
 
   # conf.int must be single logical
   expect_error(plot.duane(dummy_fit, log = TRUE, conf.int = "nope"),
-               "'conf.int' must be a single logical value.",
-               fixed = TRUE)
+    "'conf.int' must be a single logical value.",
+    fixed = TRUE
+  )
 
   # legend must be single logical
   expect_error(plot.duane(dummy_fit, log = TRUE, conf.int = TRUE, legend = "nope"),
-               "'legend' must be a single logical value.",
-               fixed = TRUE)
+    "'legend' must be a single logical value.",
+    fixed = TRUE
+  )
 
   # legend.pos must be single character
-  expect_error(plot.duane(dummy_fit, log = TRUE, conf.int = TRUE, legend = TRUE, legend.pos = c("a","b")),
-               "'legend.pos' must be a single character string.",
-               fixed = TRUE)
+  expect_error(plot.duane(dummy_fit, log = TRUE, conf.int = TRUE, legend = TRUE, legend.pos = c("a", "b")),
+    "'legend.pos' must be a single character string.",
+    fixed = TRUE
+  )
 })
 
 test_that("duane recovers known parameters (linear log-log relationship)", {
   # Generate synthetic data for constant MTBF process
-  times <- rep(100, 10)  # equal spacing of 100
+  times <- rep(100, 10) # equal spacing of 100
   failures <- rep(1, 10) # one failure per interval
 
   fit <- duane(times, failures, conf.level = 0.95)
@@ -179,15 +202,17 @@ test_that("duane returns same result for vector and data.frame inputs", {
   failures <- c(1, 2, 1, 3, 2)
 
   fit_vec <- duane(times, failures)
-  fit_df  <- duane(data.frame(times = times, failures = failures))
+  fit_df <- duane(data.frame(times = times, failures = failures))
 
   expect_equal(fit_vec$Cumulative_MTBF,
-               fit_df$Cumulative_MTBF,
-               tolerance = 1e-12)
+    fit_df$Cumulative_MTBF,
+    tolerance = 1e-12
+  )
 
   expect_equal(coef(fit_vec$model),
-               coef(fit_df$model),
-               tolerance = 1e-12)
+    coef(fit_df$model),
+    tolerance = 1e-12
+  )
 })
 
 test_that("confidence level is respected", {

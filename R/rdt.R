@@ -1,4 +1,3 @@
-
 #' Reliability Demonstration Test (RDT) Plan Calculator
 #'
 #' This function calculates the required test time or sample size for a Reliability
@@ -44,15 +43,14 @@
 #'
 #' @examples
 #' #' # Example 1: Calculate required test time
-#' plan1 <- rdt(target=0.9, mission_time=1000, conf_level=0.9, beta=1, n=10)
+#' plan1 <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, n = 10)
 #' print(plan1)
 #' # Example 2: Calculate required sample size
-#' plan2 <- rdt(target=0.9, mission_time=1000, conf_level=0.9, beta=1, test_time=2000)
+#' plan2 <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, test_time = 2000)
 #' print(plan2)
 #' @export
 rdt <- function(target, mission_time, conf_level,
-                     beta = 1, n = NULL, test_time = NULL) {
-
+                beta = 1, n = NULL, test_time = NULL) {
   # Input validation
   if (!is.numeric(target) || length(target) != 1 || !is.finite(target)) {
     stop("'target' must be a single finite numeric value.")
@@ -108,35 +106,36 @@ rdt <- function(target, mission_time, conf_level,
   }
 
   # Scale parameter under H0 (Weibull with specified beta)
-  eta0 <- mission_time / (-log(target))^(1/beta)
+  eta0 <- mission_time / (-log(target))^(1 / beta)
 
   if (!is.null(n) & is.null(test_time)) {
     # Solve for required test time
-    T_req <- eta0 * ((-log(1 - conf_level)) / n)^(1/beta)
-    result <- list(Distribution = ifelse(beta==1,"Exponential","Weibull"),
-                Beta = beta,
-                Target_Reliability = target,
-                Mission_Time = mission_time,
-                Required_Test_Time = T_req,
-                Input_Sample_Size = n)
-
+    T_req <- eta0 * ((-log(1 - conf_level)) / n)^(1 / beta)
+    result <- list(
+      Distribution = ifelse(beta == 1, "Exponential", "Weibull"),
+      Beta = beta,
+      Target_Reliability = target,
+      Mission_Time = mission_time,
+      Required_Test_Time = T_req,
+      Input_Sample_Size = n
+    )
   } else if (is.null(n) & !is.null(test_time)) {
     # Solve for required sample size
-    n_req <- ceiling((-log(1 - conf_level)) / ((test_time/eta0)^beta))
-    result <- list(Distribution = ifelse(beta==1,"Exponential","Weibull"),
-                Beta = beta,
-                Target_Reliability = target,
-                Mission_Time = mission_time,
-                Required_Sample_Size = n_req,
-                Input_Test_Time = test_time)
-
+    n_req <- ceiling((-log(1 - conf_level)) / ((test_time / eta0)^beta))
+    result <- list(
+      Distribution = ifelse(beta == 1, "Exponential", "Weibull"),
+      Beta = beta,
+      Target_Reliability = target,
+      Mission_Time = mission_time,
+      Required_Sample_Size = n_req,
+      Input_Test_Time = test_time
+    )
   } else {
     stop("Please provide exactly one of n (sample size) or test_time (test time).")
   }
 
   class(result) <- "rdt"
   return(result)
-
 }
 
 #' Print method for rdt objects
@@ -145,12 +144,11 @@ rdt <- function(target, mission_time, conf_level,
 #' @param x An object of class `rdt`.
 #' @param ... Additional arguments (not used).
 #' @examples
-#' plan <- rdt(target=0.9, mission_time=1000, conf_level=0.9, beta=1, n=10)
+#' plan <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, n = 10)
 #' print(plan)
 #' @return Invisibly returns the input object.
 #' @export
 print.rdt <- function(x, ...) {
-
   # Input validation
   if (!inherits(x, "rdt")) {
     stop("'x' must be an object of class 'rdt'.")
@@ -171,6 +169,3 @@ print.rdt <- function(x, ...) {
     cat("Required Sample Size (n): ", x$Required_Sample_Size, "\n")
   }
 }
-
-
-
