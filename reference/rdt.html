@@ -114,7 +114,7 @@ Must be greater than 0. Default is 1.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#' # Example 1: Calculate required test time</span></span></span>
-<span class="r-in"><span><span class="va">plan1</span> <span class="op">&lt;-</span> <span class="fu">rdt</span><span class="op">(</span>target<span class="op">=</span><span class="fl">0.9</span>, mission_time<span class="op">=</span><span class="fl">1000</span>, conf_level<span class="op">=</span><span class="fl">0.9</span>, beta<span class="op">=</span><span class="fl">1</span>, n<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">plan1</span> <span class="op">&lt;-</span> <span class="fu">rdt</span><span class="op">(</span>target <span class="op">=</span> <span class="fl">0.9</span>, mission_time <span class="op">=</span> <span class="fl">1000</span>, conf_level <span class="op">=</span> <span class="fl">0.9</span>, beta <span class="op">=</span> <span class="fl">1</span>, n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">plan1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reliability Demonstration Test (RDT) Plan</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
@@ -125,7 +125,7 @@ Must be greater than 0. Default is 1.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Input Sample Size (n):  10 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Required Test Time (T):  2185.43 </span>
 <span class="r-in"><span><span class="co"># Example 2: Calculate required sample size</span></span></span>
-<span class="r-in"><span><span class="va">plan2</span> <span class="op">&lt;-</span> <span class="fu">rdt</span><span class="op">(</span>target<span class="op">=</span><span class="fl">0.9</span>, mission_time<span class="op">=</span><span class="fl">1000</span>, conf_level<span class="op">=</span><span class="fl">0.9</span>, beta<span class="op">=</span><span class="fl">1</span>, test_time<span class="op">=</span><span class="fl">2000</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">plan2</span> <span class="op">&lt;-</span> <span class="fu">rdt</span><span class="op">(</span>target <span class="op">=</span> <span class="fl">0.9</span>, mission_time <span class="op">=</span> <span class="fl">1000</span>, conf_level <span class="op">=</span> <span class="fl">0.9</span>, beta <span class="op">=</span> <span class="fl">1</span>, test_time <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">plan2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reliability Demonstration Test (RDT) Plan</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
