@@ -1,7 +1,7 @@
 #' NA_standards
 #'
 #' @srrstatsNA {G1.4a} There are no internal (non-exported) functions.
-#' @srrstatsNA {G1.6} There are no performance claims made in an associated publication.
+#' @srrstatsNA {G1.5} There are no performance claims made in an associated publication.
 #' @srrstatsNA {G1.6} There are no performance claims compared to other R packages.
 #' @srrstatsNA {G2.0a} The primary documentation covers all expectations on lengths of inputs.
 #' @srrstatsNA {G2.1a} The primary documentation covers all expectations on data types of all vector inputs.
