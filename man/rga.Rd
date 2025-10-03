@@ -43,6 +43,7 @@ with lower values indicating a better fit.}
 \item{upper_bounds}{Upper confidence bounds (original scale).}
 \item{betas}{Estimated beta(s). Betas are the slopes of the log-log plot.}
 \item{betas_se}{Standard error(s) of the estimated beta(s).}
+\item{growth_rate}{Estimated growth rate(s). Growth rates are calculated as 1 - beta.}
 \item{lambdas}{Estimated lambda(s). Lambdas are the intercepts of the log-log plot.}
 }
 \description{

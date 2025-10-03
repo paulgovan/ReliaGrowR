@@ -84,6 +84,7 @@
 #' \item{upper_bounds}{Upper confidence bounds (original scale).}
 #' \item{betas}{Estimated beta(s). Betas are the slopes of the log-log plot.}
 #' \item{betas_se}{Standard error(s) of the estimated beta(s).}
+#' \item{growth_rate}{Estimated growth rate(s). Growth rates are calculated as 1 - beta.}
 #' \item{lambdas}{Estimated lambda(s). Lambdas are the intercepts of the log-log plot.}
 #'
 #' @examples
@@ -184,6 +185,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
     slopes <- segmented::slope(updated_fit)
     intercepts <- segmented::intercept(updated_fit)
     betas <- slopes
+    growth_rates <- 1 - slopes$log_times[, "Est."]
     lambdas <- exp(intercepts$log_times)
 
     # Standard errors
@@ -195,6 +197,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
     slope <- smry$coefficients[2, ]
     intercept <- smry$coefficients[1, ]
     betas <- slope["Estimate"]
+    growth_rates <- 1 - betas
     lambdas <- exp(intercept["Estimate"])
 
     # Standard Error
@@ -223,6 +226,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
     fitted_values = exp(fitted_values),
     lower_bounds = lower_bounds,
     upper_bounds = upper_bounds,
+    growth_rate = growth_rates,
     betas = betas,
     betas_se = beta_se,
     lambdas = lambdas
@@ -262,14 +266,17 @@ print.rga <- function(x, ...) {
 
   cat("Parameters (per segment):\n")
   if (model_type == "Piecewise NHPP") {
+    growth_rates <- round(x$growth_rate, 4)
     betas <- round(x$betas$log_times[, "Est."], 4)
     betas_se <- round(x$betas_se, 4)
+    cat(sprintf("  Growth Rates: %s\n", paste(growth_rates, collapse = ", ")))
     cat(sprintf("  Betas: %s\n", paste(betas, collapse = ", ")))
     cat(sprintf("  Std. Errors (Betas): %s\n", paste(betas_se, collapse = ", ")))
 
     lambdas <- round(x$lambdas[, "Est."], 4)
     cat(sprintf("  Lambdas: %s\n", paste(lambdas, collapse = ", ")))
   } else {
+    cat(sprintf("  Growth Rate: %.4f\n", x$growth_rate))
     cat(sprintf("  Beta: %.4f (SE = %.4f)\n", x$betas, x$betas_se))
     cat(sprintf("  Lambda: %.4f\n", x$lambdas))
   }
