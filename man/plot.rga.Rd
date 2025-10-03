@@ -36,8 +36,10 @@ This function generates plots for objects of class \code{rga}.
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 result <- rga(times, failures)
-plot(result, main = "Reliability Growth Analysis",
-xlab = "Cumulative Time", ylab = "Cumulative Failures")
+plot(result,
+  main = "Reliability Growth Analysis",
+  xlab = "Cumulative Time", ylab = "Cumulative Failures"
+)
 }
 \seealso{
 Other Reliability Growth Analysis: 

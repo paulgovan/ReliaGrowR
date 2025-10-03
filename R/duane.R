@@ -1,3 +1,4 @@
+
 #' Duane Analysis
 #'
 #' This function performs a Duane analysis (1962) <doi:10.1109/TA.1964.4319640>
@@ -9,35 +10,38 @@
 #' description.
 #' @srrstats {G1.1} The `duane` function is the first implementation of the Duane
 #' model within an R package on CRAN.
-#' @srrstats {G1.2} Life Cycle Statement: This function has been implemented and
-#' is maintained as part of the reliability growth analysis features of the package.
+#' @srrstats {G1.2} The Life Cycle Statement is in the CONTRIBUTING.md file.
 #' @srrstats {G1.3} All statistical terminology is explicitly defined in the documentation.
 #' @srrstats {G1.4} [roxygen2](https://roxygen2.r-lib.org/) documentation is used
 #' to document all functions.
-#' @srrstats {G1.5} All code necessary to reproduce results in examples is included.
-#' @srrstats {G2.0} Inputs are validated for length and structure.
+#' @srrstats {G2.0} Inputs are validated for length.
 #' @srrstats {G2.1} Inputs are validated for type.
-#' @srrstats {G2.2} Univariate inputs are validated for being univariate.
+#' @srrstats {G2.2} Multivariate inputs are prohibited where only univariate are allowed.
 #' @srrstats {G2.4b} Explicit conversion of log-likelihood to continuous is made via `as.numeric()`.
-#' @srrstats {G2.6} Both one-dimensional vectors and data frames are accepted as input.
+#' @srrstats {G2.6} One-dimensional inputs are appropriately pre-processed.
 #' @srrstats {G2.7} Both one-dimensional vectors and data frames are accepted as input.
 #' @srrstats {G2.8} Sub-functions `print.duane` and `plot.duane` are provided for the `duane` class.
-#' @srrstats {G2.10} Data extracted from tabular `data.frame` objects are validated for length and type.
-#' @srrstats {G2.11} Unit tests check that `data.frame` inputs  are appropriately processed and do not error without reason.
+#' @srrstats {G2.10} `data.frame` objects are appropriately processed to ensure consistent behavior.
+#' @srrstats {G2.11} `data.frame` inputs  are appropriately processed and do not error without reason.
+#' @srrstats {G2.13} The function checks for missing data and errors if any is found.
 #' @srrstats {G2.14} See sub-tags for responses.
 #' @srrstats {G2.14a} Missing data results in an error.
+#' @srrstats {G2.14b} Missing data results in an error.
 #' @srrstats {G2.14c} Missing data results in an error.
 #' @srrstats {G2.15} The function checks for missing data and errors if any is found.
 #' @srrstats {G2.16} The function checks for NA and NaN values and errors if any are found.
-#' @srrstats {G5.0} Tests use standard data set with known properties from published paper.
-#' @srrstats {G5.2a} Every message produced by `stop()` is unique.
+#' @srrstats {G5.0} The function is tested with a standard data set from a published paper.
+#' @srrstats {G5.1} The function is tested with a standard data set. The data set is
+#' created within and used to test the package. The data set is exported so that users
+#' can confirm tests and run examples.
 #' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
+#' @srrstats {G5.2a} Every message produced by `stop()` is unique.
 #' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.
 #' @srrstats {G5.4} Unit tests include correctness tests to test that statistical algorithms produce expected results to some fixed test data sets.
-#' @srrstats {G5.4c} Stored values are drawn from a published paper output.
-#' @srrstats {G5.5} Correctness tests should be run with a fixed random seed.
+#' @srrstats {G5.4c} Unit tests include stored values that are drawn from a published paper output.
+#' @srrstats {G5.5} Correctness tests are run with a fixed random seed.
 #' @srrstats {G5.6} Unit tests include parameter recovery checks to test that the implementation produce expected results given data with known properties.
-#' @srrstats {G5.6a} Results parameter recovery tests are expected to be within a defined tolerance rather than exact values.
+#' @srrstats {G5.6a} Parameter recovery tests are expected to be within a defined tolerance rather than exact values.
 #' @srrstats {G5.7} Unit tests include algorithm performance checks to test that the function performs as expected as data changes.
 #' @srrstats {G5.8} See sub-tags for responses.
 #' @srrstats {G5.8a} Unit tests include checks for zero-length data.
@@ -46,6 +50,8 @@
 #' @srrstats {G5.8d} Unit tests include checks for data outside the scope of the algorithm.
 #' @srrstats {G5.9} Unit tests include noise susceptibility tests for expected stochastic behavior.
 #' @srrstats {G5.9a} Unit tests check that adding trivial noise to data does not meaningfully change results.
+#' @srrstats {G5.9b} Unit tests check that different random seeds do not meaningfully change results.
+#' @srrstats {G5.10} All unit tests run as part of continuous integration.
 #'
 #' @param times Either:
 #'   - A numeric vector of cumulative failure times, or

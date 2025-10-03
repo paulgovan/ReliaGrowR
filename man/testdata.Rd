@@ -17,11 +17,6 @@ A data frame with 25 rows and 6 variables:
 \item{Cause}{Cause of the failure (e.g., D for Design, M for Manufacturing, R for Random, NR for No Report).}
 }
 @usage data(testdata)
-@examples
-data(testdata)
-head(testdata)
-summary(testdata)
-str(testdata)
 }
 \source{
 \url{https://apps.dtic.mil/sti/tr/pdf/ADA176128.pdf}
@@ -34,5 +29,12 @@ A dataset containing example reliability test data from the military report
 "Reliability Growth Prediction" (1986) by The Analytical Sciences Corporation.
 This dataset includes cumulative ETI, failure counts, cumulative MTBF, report
 numbers, flags, and causes for two different LRUs (G1 and G2).
+}
+\examples{
+data(testdata)
+head(testdata)
+summary(testdata)
+str(testdata)
+
 }
 \keyword{datasets}

@@ -1,3 +1,4 @@
+
 #' Q-Q Plot for RGA Objects
 #'
 #' This function creates a Q-Q plot for a fitted Reliability Growth Analysis (RGA) model
@@ -5,23 +6,24 @@
 #' the empirical data to the quantiles of the theoretical distribution specified by the model.
 #' If the model fits well, the points should fall approximately along a straight line.
 #'
+#' @srrstats {G1.2} The Life Cycle Statement is in the CONTRIBUTING.md file.
 #' @srrstats {G1.3} All statistical terminology is explicitly defined in the documentation.
 #' @srrstats {G1.4} `roxygen2`](https://roxygen2.r-lib.org/) documentation is used
 #' to document all functions.
-#' @srrstats {G1.5} All code necessary to reproduce results in examples is included.
 #' @srrstats {G1.3} All statistical terminology is explicitly defined in the documentation.
 #' @srrstats {G2.0} Inputs are validated for length.
 #' @srrstats {G2.1} Inputs are validated for type.
-#' @srrstats {G2.2} Univariate inputs are validated for being univariate.
+#' @srrstats {G2.2} Multivariate inputs are prohibited where only univariate are allowed.
 #' @srrstats {G2.8} Sub-functions `qqplot.rga` and `ppplot.rga` are provided for the `rga` class.
-#' @srrstats {G5.2a} Every message produced by `stop()` is unique.
 #' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
+#' @srrstats {G5.2a} Every message produced by `stop()` is unique.
 #' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.
 #' @srrstats {G5.8} See sub-tags for responses.
 #' @srrstats {G5.8a} Unit tests include checks for zero-length data.
 #' @srrstats {G5.8b} Unit tests include checks for unsupported data types.
 #' @srrstats {G5.8c} Unit tests include checks for data with 'NA' fields.
 #' @srrstats {G5.8d} Unit tests include checks for data outside the scope of the algorithm.
+#' @srrstats {G5.10} All unit tests run as part of continuous integration.
 #'
 #' @param x An object of class \code{rga}.
 #' @param main Title of the plot.

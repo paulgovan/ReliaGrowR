@@ -18,6 +18,6 @@ Invisibly returns the input object.
 This function provides a formatted print method for objects of class \code{rdt}.
 }
 \examples{
-plan <- rdt(target=0.9, mission_time=1000, conf_level=0.9, beta=1, n=10)
+plan <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, n = 10)
 print(plan)
 }

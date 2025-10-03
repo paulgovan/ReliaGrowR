@@ -39,9 +39,9 @@ level, and Weibull shape parameter.
 }
 \examples{
 #' # Example 1: Calculate required test time
-plan1 <- rdt(target=0.9, mission_time=1000, conf_level=0.9, beta=1, n=10)
+plan1 <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, n = 10)
 print(plan1)
 # Example 2: Calculate required sample size
-plan2 <- rdt(target=0.9, mission_time=1000, conf_level=0.9, beta=1, test_time=2000)
+plan2 <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, test_time = 2000)
 print(plan2)
 }

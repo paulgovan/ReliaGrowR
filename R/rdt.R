@@ -1,20 +1,32 @@
+
 #' Reliability Demonstration Test (RDT) Plan Calculator
 #'
 #' This function calculates the required test time or sample size for a Reliability
 #' Demonstration Test (RDT) based on specified reliability, mission time, confidence
 #' level, and Weibull shape parameter.
 #'
+#' @srrstats {G1.2} The Life Cycle Statement is in the CONTRIBUTING.md file.
 #' @srrstats {G1.3} All statistical terminology is explicitly defined in the documentation.
 #' @srrstats {G1.4} `roxygen2`](https://roxygen2.r-lib.org/) documentation is used
 #' to document all functions.
-#' @srrstats {G1.5} All code necessary to reproduce results in examples is included.
 #' @srrstats {G2.0} Inputs are validated for length.
 #' @srrstats {G2.1} Inputs are validated for type.
-#' @srrstats {G2.2} Univariate inputs are validated for being univariate.
+#' @srrstats {G2.2} Multivariate inputs are prohibited where only univariate are allowed.
 #' @srrstats {G2.8} Sub-function `print.rdt` is provided for the `rdt` class.
-#' @srrstats {G5.2a} Every message produced by `stop()` is unique.
 #' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
+#' @srrstats {G5.2a} Every message produced by `stop()` is unique.
 #' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.
+#' @srrstats {G2.6} One-dimensional inputs are appropriately pre-processed.
+#' @srrstats {G2.8} Sub-functions `print.rdt` is provided for the `rdt` class.
+#' @srrstats {G2.13} The function checks for missing data and errors if any is found.
+#' @srrstats {G2.14} See sub-tags for responses.
+#' @srrstats {G2.14a} Missing data results in an error.
+#' @srrstats {G2.14b} Missing data results in an error.
+#' @srrstats {G2.14c} Missing data results in an error.
+#' @srrstats {G2.15} The function checks for missing data and errors if any is found.
+#' @srrstats {G5.4} Unit tests include correctness tests to test that statistical
+#' algorithms produce expected results to some fixed test data sets.
+#' @srrstats {G5.5} Correctness tests are run with a fixed random seed.
 #' @srrstats {G5.8} See sub-tags for responses.
 #' @srrstats {G5.8a} Unit tests include checks for zero-length data.
 #' @srrstats {G5.8b} Unit tests include checks for unsupported data types.
@@ -22,6 +34,7 @@
 #' @srrstats {G5.8d} Unit tests include checks for data outside the scope of the algorithm.
 #' @srrstats {G5.9} Unit tests include noise susceptibility tests for expected stochastic behavior.
 #' @srrstats {G5.9a} Unit tests check that adding trivial noise to data does not meaningfully change results.
+#' @srrstats {G5.10} All unit tests run as part of continuous integration.
 #'
 #' @param target Required reliability at mission time (0 < target < 1).
 #' @param mission_time Mission duration (time units). Must be greater than 0.
