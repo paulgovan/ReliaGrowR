@@ -40,6 +40,10 @@ See our guide on [how to create a great issue](https://code-review.tidyverse.org
 *  We use [testthat](https://cran.r-project.org/package=testthat) for unit tests. 
    Contributions with test cases included are easier to accept.  
 
+## Life Cycle Statement
+
+This project is in a stable state of development, with active subsequent development primarily in response to user feedback.
+
 ## Code of Conduct
 
 Please note that the ReliaGrowR project is released with a
