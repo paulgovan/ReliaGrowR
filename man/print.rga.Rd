@@ -15,7 +15,7 @@
 Invisibly returns the input object.
 }
 \description{
-Print method for rga objects.
+This function prints a summary of the results from an object of class \code{rga}.
 }
 \examples{
 times <- c(100, 200, 300, 400, 500)
