@@ -452,3 +452,45 @@ test_that("rga works with input from testdata (Crow-AMSAA)", {
   expect_true(all(fit$lower_bounds > 0))
   expect_true(all(fit$upper_bounds > 0))
 })
+
+# Create a simple dataset for testing
+times <- c(100, 200, 300, 400, 500)
+failures <- c(1, 2, 1, 3, 2)
+rga_obj <- rga(times, failures)
+
+test_that("print.rga works correctly", {
+  # Output should include key phrases
+  expect_output(print(rga_obj), "Reliability Growth Analysis")
+  expect_output(print(rga_obj), "Model Type: Crow-AMSAA")
+  expect_output(print(rga_obj), "Log-likelihood:")
+  expect_output(print(rga_obj), "AIC:")
+  expect_output(print(rga_obj), "BIC:")
+
+  # Should invisibly return the same object
+  expect_invisible(print(rga_obj))
+})
+
+test_that("plot.rga basic functionality works", {
+  # Just checks that no error is thrown
+  expect_silent(plot(rga_obj))
+
+  # With options
+  expect_silent(plot(rga_obj, conf_bounds = FALSE, legend = FALSE))
+  expect_silent(plot(rga_obj, log = TRUE))
+  expect_silent(plot(rga_obj, legend_pos = "topright"))
+})
+
+test_that("plot.rga argument validation works", {
+  expect_error(plot(rga_obj, conf_bounds = "yes"), "'conf_bounds' must be a single logical value")
+  expect_error(plot(rga_obj, legend = c(TRUE, FALSE)), "'legend' must be a single logical value")
+  expect_error(plot(rga_obj, log = NA), "missing value where TRUE/FALSE needed")
+  expect_error(plot(rga_obj, legend_pos = 1), "'legend_pos' must be a single character string")
+})
+
+# Optional: visual regression tests (requires vdiffr)
+if (requireNamespace("vdiffr", quietly = TRUE)) {
+  test_that("plot.rga visual output is stable", {
+    vdiffr::expect_doppelganger("Crow-AMSAA plot", function() plot(rga_obj))
+  })
+}
+

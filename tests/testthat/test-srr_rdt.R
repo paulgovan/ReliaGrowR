@@ -186,3 +186,41 @@ test_that("RDT with test time input is stable to trivial noise", {
   # Required sample size is integer-valued; expect identical result
   expect_equal(base_result$Required_Sample_Size, noisy_result$Required_Sample_Size)
 })
+
+test_that("print.rdt works for required test time", {
+  plan <- rdt(target = 0.9, mission_time = 1000,
+              conf_level = 0.9, beta = 1, n = 10)
+
+  # Ensure output contains expected lines
+  expect_output(print(plan), "Reliability Demonstration Test \\(RDT\\) Plan")
+  expect_output(print(plan), "Distribution:")
+  expect_output(print(plan), "Weibull Shape Parameter")
+  expect_output(print(plan), "Target Reliability")
+  expect_output(print(plan), "Mission Time")
+  expect_output(print(plan), "Input Sample Size")
+  expect_output(print(plan), "Required Test Time")
+
+  # Invisibly returns the input object
+  expect_invisible(print(plan))
+})
+
+test_that("print.rdt works for required sample size", {
+  plan <- rdt(target = 0.9, mission_time = 1000,
+              conf_level = 0.9, beta = 1, test_time = 2000)
+
+  expect_output(print(plan), "Reliability Demonstration Test \\(RDT\\) Plan")
+  expect_output(print(plan), "Distribution:")
+  expect_output(print(plan), "Weibull Shape Parameter")
+  expect_output(print(plan), "Target Reliability")
+  expect_output(print(plan), "Mission Time")
+  expect_output(print(plan), "Input Test Time")
+  expect_output(print(plan), "Required Sample Size")
+
+  expect_invisible(print(plan))
+})
+
+test_that("print.rdt errors on wrong input", {
+  expect_error(print.rdt(123), "'x' must be an object of class 'rdt'")
+  expect_error(print.rdt(list()), "'x' must be an object of class 'rdt'")
+})
+

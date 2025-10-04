@@ -322,3 +322,45 @@ test_that("duane works with input from testdata", {
   expect_true(all(fit$Cumulative_MTBF > 0))
   expect_true(all(fit$Fitted_Values > 0))
 })
+
+# Example data
+times <- c(100, 200, 300, 400, 500)
+failures <- c(1, 2, 1, 3, 2)
+fit <- duane(times, failures, conf.level = 0.95)
+
+test_that("print.duane works on valid duane object", {
+  expect_invisible(out <- print(fit))
+  expect_s3_class(out, "duane")
+})
+
+test_that("print.duane shows expected content", {
+  output <- capture.output(print(fit))
+  expect_true(any(grepl("Duane Analysis Result", output)))
+  expect_true(any(grepl("Coefficients:", output)))
+  expect_true(any(grepl("Log-likelihood:", output)))
+  expect_true(any(grepl("AIC:", output)))
+  expect_true(any(grepl("Confidence level:", output)))
+})
+
+test_that("print.duane errors on wrong input type", {
+  expect_error(print.duane(123), "'x' must be an object of class 'duane'")
+  expect_error(print.duane(list()), "'x' must be an object of class 'duane'")
+})
+
+test_that("plot.duane works on valid duane object", {
+  expect_invisible(plot(fit)) # default args
+  expect_invisible(plot(fit, log = FALSE, conf.int = FALSE, legend = FALSE))
+})
+
+test_that("plot.duane errors on wrong input type", {
+  expect_error(plot.duane(123), "'x' must be an object of class 'duane'")
+  expect_error(plot.duane(list()), "'x' must be an object of class 'duane'")
+})
+
+test_that("plot.duane input validation works", {
+  expect_error(plot(fit, log = "yes"), "'log' must be a single logical value")
+  expect_error(plot(fit, conf.int = "yes"), "'conf.int' must be a single logical value")
+  expect_error(plot(fit, legend = "yes"), "'legend' must be a single logical value")
+  expect_error(plot(fit, legend.pos = TRUE), "'legend.pos' must be a single character string")
+})
+
