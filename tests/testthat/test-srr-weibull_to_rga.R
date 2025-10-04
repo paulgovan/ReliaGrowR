@@ -113,3 +113,48 @@ test_that("weibull_to_rga() input validation errors", {
     "Each interval start must be strictly less than its corresponding end."
   )
 })
+
+test_that("weibull_to_rga() works with failures only", {
+  res <- weibull_to_rga(c(10, 20, 30))
+  expect_s3_class(res, "data.frame")
+  expect_equal(names(res), c("CumulativeTime", "Failures"))
+  expect_equal(nrow(res), 3)
+  expect_true(all(res$Failures == 1))
+})
+
+test_that("weibull_to_rga() works with failures and suspensions", {
+  res <- weibull_to_rga(c(10, 20), suspensions = c(15, 25))
+  # suspensions should not contribute to Failures
+  expect_equal(res$Failures, c(1, 1))
+  expect_true(all(res$CumulativeTime > 0))
+})
+
+test_that("weibull_to_rga() works with interval-censored data", {
+  res <- weibull_to_rga(
+    failures = c(50, 100),
+    interval_starts = c(30, 80),
+    interval_ends = c(40, 120)
+  )
+  # Two failures + two interval failures
+  expect_true(all(res$Failures >= 1))
+  expect_true(any(diff(res$CumulativeTime) > 0))
+})
+
+test_that("weibull_to_rga() works with failures, suspensions, and interval data", {
+  res <- weibull_to_rga(
+    failures = c(100, 200, 200, 400),
+    suspensions = c(250, 350, 450),
+    interval_starts = c(150, 300),
+    interval_ends = c(180, 320)
+  )
+  # There should be aggregated failures (since 200 repeats)
+  expect_true(any(res$Failures > 1))
+  expect_gt(nrow(res), 2)
+  expect_equal(names(res), c("CumulativeTime", "Failures"))
+})
+
+test_that("weibull_to_rga() handles duplicate failures correctly", {
+  res <- weibull_to_rga(c(10, 10, 20))
+  # At time 10 there should be 2 failures aggregated
+  expect_true(any(res$Failures == 2))
+})

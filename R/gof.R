@@ -149,3 +149,5 @@ ppplot.rga <- function(x,
   # 45-degree reference line
   abline(lsfit(theo_cdf, emp_cdf))
 }
+
+

@@ -144,3 +144,5 @@ weibull_to_rga <- function(failures,
 
   return(result)
 }
+
+
