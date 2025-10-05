@@ -1,4 +1,7 @@
-## code to prepare `testdata` dataset
+
+#' @srrstats {G5.0} The data set is a standard data set from a published paper.
+#' @srrstats {G5.1} The data set is created within and used to test the package.
+#' The data set is exported so that users can confirm tests and run examples.
 
 testdata <- data.frame(
   LRU = c(rep("G1", 15), rep("G2", 10)),

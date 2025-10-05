@@ -1,3 +1,14 @@
+
+#' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
+#' @srrstats {G5.2a} Every message produced by `stop()` is unique.
+#' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.
+#' @srrstats {G5.8} See sub-tags for responses.
+#' @srrstats {G5.8a} Unit tests include checks for zero-length data.
+#' @srrstats {G5.8b} Unit tests include checks for unsupported data types.
+#' @srrstats {G5.8c} Unit tests include checks for data with 'NA' fields.
+#' @srrstats {G5.8d} Unit tests include checks for data outside the scope of the algorithm.
+#' @srrstats {G5.10} All unit tests run as part of continuous integration.
+
 test_that("qqplot.rga() errors on invalid inputs", {
   # Not an rga object
   expect_error(
