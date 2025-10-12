@@ -31,7 +31,13 @@ level is the probability that the confidence interval contains the true mean res
 }
 \value{
 The function returns an object of class \code{rga} that contains:
+\item{times}{The input cumulative failure times.}
+\item{failures}{The input number of failures.}
+\item{n_obs}{The number of observations (failures).}
+\item{cum_failures}{Cumulative failures.}
 \item{model}{The fitted model object (lm (linear model) or segmented).}
+\item{residuals}{Model residuals on the log-log scale. These represent deviations of the observed
+log cumulative failures from the fitted values and are useful for diagnostic checking.}
 \item{logLik}{The log-likelihood of the fitted model. The log-likelihood is a
 measure of model fit, with higher values indicating a better fit.}
 \item{AIC}{Akaike Information Criterion (AIC). AIC is a measure used for model selection,
@@ -54,6 +60,17 @@ a log-log linear regression of cumulative failures versus cumulative time. The
 function accepts either two numeric vectors (\code{times}, \code{failures}) or a data frame
 containing both. The \verb{Piecewise NHPP} model can automatically detect change points
 or use user-specified breakpoints.
+}
+\details{
+The scaling relationship between the size of input data (numbers of observations)
+and speed of algorithm execution is approximately linear (O(n)). The function is
+efficient and can handle large data sets (e.g., thousands of observations) quickly.
+The function uses the \code{segmented} package for piecewise regression, which employs
+an iterative algorithm to estimate breakpoints. The number of iterations required
+for convergence may vary depending on the data and initial values.
+In practice, the function typically converges within a few iterations for most data sets.
+However, in some cases, especially with complex data or poor initial values,
+it may take more iterations.
 }
 \examples{
 times <- c(100, 200, 300, 400, 500)

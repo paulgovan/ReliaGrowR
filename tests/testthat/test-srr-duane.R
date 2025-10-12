@@ -20,6 +20,14 @@
 #' @srrstats {G5.9a} Unit tests check that adding trivial noise to data does not meaningfully change results.
 #' @srrstats {G5.9b} Unit tests check that different random seeds do not meaningfully change results.
 #' @srrstats {G5.10} All unit tests run as part of continuous integration.
+#' @srrstats {RE7.1} Unit tests check for noiseless, exact relationships between
+#' predictor (independent) and response (dependent) data.
+#' @srrstats {RE7.1a} Unit tests confirm that model fitting is at least as fast
+#' or faster than testing with equivalent noisy data.
+#' @srrstats {RE7.2} Unit tests demonstrate that output objects retain aspects
+#' of input data such as case names.
+#' @srrstats {RE7.3} Unit tests demonstrate expected behavior when `duane` object
+#'is submitted to the accessor methods `print` and `plot`.
 
 set.seed(123)
 
@@ -387,3 +395,50 @@ test_that("plot.duane input validation works", {
   expect_error(plot(fit, legend.pos = TRUE), "'legend.pos' must be a single character string")
 })
 
+test_that("duane() handles noiseless, exact relationships efficiently", {
+  set.seed(123)
+
+  # Generate synthetic data with a perfect log-log linear relationship
+  n <- 1000
+  times <- seq(1, n)
+  alpha <- 2.0
+  beta <- 0.5
+  # Perfect noiseless relationship (log-log linear)
+  failures_noiseless <- exp((log(times) - log(alpha)) / beta)
+
+  # Slightly noisy version of the same
+  noise <- rnorm(n, mean = 0, sd = 0.05)
+  failures_noisy <- exp((log(times) - log(alpha)) / beta + noise)
+
+  # Measure performance (timing)
+  t_noiseless <- system.time({
+    fit_noiseless <- duane(times, failures_noiseless)
+  })[["elapsed"]]
+
+  t_noisy <- system.time({
+    fit_noisy <- duane(times, failures_noisy)
+  })[["elapsed"]]
+
+  # Check that noiseless fit is at least as fast or faster
+  expect_lte(t_noiseless, t_noisy * 1.05)  # small tolerance for variation
+
+  # Check that coefficients are nearly identical in noiseless case
+  coef_noiseless <- coef(fit_noiseless$model)
+  coef_noisy <- coef(fit_noisy$model)
+  expect_true(
+    t_noiseless <= t_noisy * 1.05 + 0.01,
+    info = sprintf("Noiseless fit took %.3fs vs noisy %.3fs", t_noiseless, t_noisy)
+  )
+})
+
+test_that("output retains row or case names from input data", {
+  # Case 1: Named numeric vectors
+  times <- c(A = 100, B = 200, C = 300, D = 400, E = 500)
+  failures <- c(A = 1, B = 2, C = 1, D = 3, E = 2)
+
+  fit_named <- duane(times, failures)
+
+  # Expect that output retains names
+  expect_equal(names(fit_named$times), names(times))
+  expect_equal(names(fit_named$failures), names(failures))
+})

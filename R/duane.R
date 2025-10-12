@@ -52,6 +52,39 @@
 #' @srrstats {G5.9a} Unit tests check that adding trivial noise to data does not meaningfully change results.
 #' @srrstats {G5.9b} Unit tests check that different random seeds do not meaningfully change results.
 #' @srrstats {G5.10} All unit tests run as part of continuous integration.
+#' @srrstats {RE1.2] Documentation includes expected format for inputting predictor variables
+#' (`times`, `failures`).
+#' @srrstats {RE1.3} Output retains all relevant aspects of input data.
+#' @srrstats {RE1.3a} Output retains all relevant aspects of input data.
+#' @srrstats {RE1.4} Documentation includes assumptions for the input data (i.e., positive, finite values).
+#' @srrstats {RE2.1} NA, NaN, and Inf values in input data result in an error.
+#' @srrstats {RE2.2} Missing values in input data results in an error.
+#' @srrstats {RE4.0} Software returns a “model” object, which is a modified `lm` model object.
+#' @srrstats {RE4.2} Model coefficients are included in the output object.
+#' @srrstats {RE4.3} Standard errors on the coefficients are included in the output object.
+#' @srrstats {RE4.4} The model specification is included in the output object.
+#' @srrstats {RE4.5} The numbers of observations is included in the output object.
+#' @srrstats {RE4.8} The Response variable (MTBF) is included in the output object.
+#' @srrstats {RE4.9} Modeled values of the response variable are included in the output object.
+#' @srrstats {RE4.10} Model Residuals, including documentation is included in the output object.
+#' @srrstats {RE4.11} Goodness-of-fit statistics (log-likelihood, AIC, BIC) are included
+#' in the output object.
+#' @srrstats {RE4.13} All input variables are included in the output object.
+#' @srrstats {RE4.17} Model objects are extended by a default `print` method which
+#' provides an on-screen summary of model (input) parameters and (output) coefficients.
+#' @srrstats {RE5.0} Scaling relationships between sizes of input data and
+#' speed of algorithm are documented in the function documentation.
+#' @srrstats {RE6.0} Model objects have default plot methods.
+#' @srrstats {RE6.2} The default plot method produces a plot of the fitted values
+#' of the model, with optional visualisation of confidence intervals.
+#' @srrstats {RE7.1} Unit tests check for noiseless, exact relationships between
+#' predictor (independent) and response (dependent) data.
+#' @srrstats {RE7.1a} Unit tests confirm that model fitting is at least as fast
+#' or faster than testing with equivalent noisy data.
+#' @srrstats {RE7.2} Unit tests demonstrate that output objects retain aspects
+#' of input data such as case names.
+#' @srrstats {RE7.3} Unit tests demonstrate expected behavior when `duane` object
+#' is submitted to the accessor methods `print` and `plot`.
 #'
 #' @param times Either:
 #'   - A numeric vector of cumulative failure times, or
@@ -68,6 +101,10 @@
 #' @family Duane functions
 #'
 #' @return A list of class \code{"duane"} containing:
+#' \item{times}{The input cumulative failure times.}
+#' \item{failures}{The input number of failures.}
+#' \item{n_obs}{The number of observations (failures).}
+#' \item{MTBF}{The cumulative mean time between failures.}
 #' \item{model}{The fitted \code{lm} (linear model) object containing the regression results.}
 #' \item{logLik}{The log-likelihood of the fitted model.}
 #' \item{AIC}{Akaike Information Criterion (AIC).}
@@ -77,6 +114,17 @@
 #' \item{Cumulative_MTBF}{The cumulative mean time between failures.}
 #' \item{Fitted_Values}{The fitted values on the MTBF scale.}
 #' \item{Confidence_Bounds}{Matrix of fitted values and confidence bounds on the MTBF scale.}
+#' \item{Residuals_Log}{Residuals on the log(MTBF) scale (from the regression).}
+#' \item{Residuals_MTBF}{Residuals on the MTBF scale (observed - fitted).}
+#'
+#' @details
+#' The scaling relationship between the size of input data (numbers of observations)
+#' and speed of algorithm execution is approximately linear (O(n)). The function is
+#' efficient and can handle large data sets (e.g., thousands of observations) quickly.
+#' The function uses base R functions and does not require any additional packages.
+#' The function includes comprehensive input validation and error handling to ensure
+#' robustness. The function is tested with a standard data set from a published paper
+#' and includes unit tests to verify correctness and performance.
 #'
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
@@ -88,7 +136,7 @@
 #' fit2 <- duane(df, conf.level = 0.95)
 #' print(fit2)
 #'
-#' @importFrom stats lm AIC BIC logLik predict
+#' @importFrom stats lm AIC BIC logLik predict residuals
 #' @export
 duane <- function(times, failures = NULL, conf.level = 0.95) {
   # Case 1: data frame input
@@ -144,9 +192,12 @@ duane <- function(times, failures = NULL, conf.level = 0.95) {
   # cumulative MTBF
   cum_mtbf <- cum_times / cum_failures
 
-  # linear model (log-log)
+  # log-log transform
   log_cum_times <- log(cum_times)
+  log_cum_failures <- log(cum_failures)
   log_cum_mtbf <- log(cum_mtbf)
+
+  # Fit model (log-log)
   fit <- stats::lm(log_cum_mtbf ~ log_cum_times)
 
   # fit stats
@@ -154,14 +205,21 @@ duane <- function(times, failures = NULL, conf.level = 0.95) {
   bic <- stats::BIC(fit)
   loglik <- as.numeric(stats::logLik(fit))
 
-  # fitted values back-transformed
-  fitted_values <- exp(predict(fit))
+  # Fitted values and residuals
+  fitted_log <- predict(fit)
+  fitted_values <- exp(fitted_log)
+  residuals_log <- residuals(fit)
+  residuals_mtbf <- cum_mtbf - fitted_values
 
   # confidence intervals on MTBF scale
   pred <- predict(fit, interval = "confidence", level = conf.level)
   ci_bounds <- exp(pred)
 
   result <- list(
+    times = times,
+    failures = failures,
+    n_obs = length(failures),
+    MTBF = cum_mtbf,
     model = fit,
     logLik = loglik,
     AIC = aic,
@@ -170,7 +228,9 @@ duane <- function(times, failures = NULL, conf.level = 0.95) {
     Cumulative_Time = cum_times,
     Cumulative_MTBF = cum_mtbf,
     Fitted_Values = fitted_values,
-    Confidence_Bounds = ci_bounds
+    Confidence_Bounds = ci_bounds,
+    Residuals_Log = residuals_log,
+    Residuals_MTBF = residuals_mtbf
   )
   class(result) <- "duane"
   return(result)
@@ -248,6 +308,9 @@ print.duane <- function(x, ...) {
   cat("Duane Analysis Result\n")
   cat("----------------------\n")
   cat("Linear model (log-log scale): log(MTBF) ~ log(Time)\n")
+
+  # Number of observations (failures)
+  cat(sprintf("\nNumber of observations (failures): %d\n", x$n_obs))
 
   # Coefficient estimates and standard errors
   smry <- summary(x$model)

@@ -58,6 +58,42 @@
 #' @srrstats {G5.9a} Unit tests check that adding trivial noise to data does not meaningfully change results.
 #' @srrstats {G5.9b} Unit tests check that different random seeds do not meaningfully change results.
 #' @srrstats {G5.10} All unit tests run as part of continuous integration.
+#' @srrstats {RE1.2] Documentation includes expected format for inputting predictor variables
+#' (`times`, `failures`).
+#' @srrstats {RE1.3} Output retains all relevant aspects of input data.
+#' @srrstats {RE1.3a} Output retains all relevant aspects of input data.
+#' @srrstats {RE1.4} Documentation includes assumptions for the input data (i.e., positive, finite values).
+#' @srrstats {RE2.1} NA, NaN, and Inf values in input data results in an error.
+#' @srrstats {RE2.2} Missing values in input data results in an error.
+#' @srrstats {RE2.4} Function includes check for perfect collinearity between predictor and response variables.
+#' @srrstats {RE2.4a} Perfect collinearity between predictor and response variables results in an error.
+#' @srrstats {RE2.4b} Perfect collinearity between predictor and response variables results in an error.
+#' @srrstats {RE4.0} Software returns a “model” object, which is a modified `lm` model object.
+#' @srrstats {RE4.2} Model coefficients are included in the output object.
+#' @srrstats {RE4.3} Standard errors on the coefficients are included in the output object.
+#' @srrstats {RE4.4} The model specification is included in the output object.
+#' @srrstats {RE4.5} The numbers of observations is included in the output object.
+#' @srrstats {RE4.8} The Response variable (cumulative failures) is included in the output object.
+#' @srrstats {RE4.9} Modeled values of the response variable are included in the output object.
+#' @srrstats {RE4.10} Model Residuals, including documentation is included in the output object.
+#' @srrstats {RE4.11} Goodness-of-fit statistics (log-likelihood, AIC, BIC) are included
+#' in the output object.
+#' @srrstats {RE4.13} All input variables are included in the output object.
+#' @srrstats {RE4.17} Model objects are extended by a default `print` method which
+#' provides an on-screen summary of model (input) parameters and (output) coefficients.
+#' @srrstats {RE5.0} Scaling relationships between sizes of input data and
+#' speed of algorithm are documented in the function documentation.
+#' @srrstats {RE6.0} Model objects have default plot methods.
+#' @srrstats {RE6.2} The default plot method produces a plot of the fitted values
+#' of the model, with optional visualisation of confidence intervals.
+#' @srrstats {RE7.1} Unit tests check for noiseless, exact relationships between
+#' predictor (independent) and response (dependent) data.
+#' @srrstats {RE7.1a} Unit tests confirm that model fitting is at least as fast
+#' or faster than testing with equivalent noisy data.
+#' @srrstats {RE7.2} Unit tests demonstrate that output objects retain aspects
+#' of input data such as case names.
+#' @srrstats {RE7.3} Unit tests demonstrate expected behavior when `rga` object
+#'is submitted to the accessor methods `print` and `plot`.
 #'
 #' @param times Either a numeric vector of cumulative failure times or a data frame
 #' containing both failure times and failure counts. If a data frame is provided, it must
@@ -72,7 +108,13 @@
 #' level is the probability that the confidence interval contains the true mean response.
 #' @family Reliability Growth Analysis
 #' @return The function returns an object of class `rga` that contains:
+#' \item{times}{The input cumulative failure times.}
+#' \item{failures}{The input number of failures.}
+#' \item{n_obs}{The number of observations (failures).}
+#' \item{cum_failures}{Cumulative failures.}
 #' \item{model}{The fitted model object (lm (linear model) or segmented).}
+#' \item{residuals}{Model residuals on the log-log scale. These represent deviations of the observed
+#' log cumulative failures from the fitted values and are useful for diagnostic checking.}
 #' \item{logLik}{The log-likelihood of the fitted model. The log-likelihood is a
 #' measure of model fit, with higher values indicating a better fit.}
 #' \item{AIC}{Akaike Information Criterion (AIC). AIC is a measure used for model selection,
@@ -86,6 +128,17 @@
 #' \item{betas_se}{Standard error(s) of the estimated beta(s).}
 #' \item{growth_rate}{Estimated growth rate(s). Growth rates are calculated as 1 - beta.}
 #' \item{lambdas}{Estimated lambda(s). Lambdas are the intercepts of the log-log plot.}
+#'
+#' @details
+#' The scaling relationship between the size of input data (numbers of observations)
+#' and speed of algorithm execution is approximately linear (O(n)). The function is
+#' efficient and can handle large data sets (e.g., thousands of observations) quickly.
+#' The function uses the `segmented` package for piecewise regression, which employs
+#' an iterative algorithm to estimate breakpoints. The number of iterations required
+#' for convergence may vary depending on the data and initial values.
+#' In practice, the function typically converges within a few iterations for most data sets.
+#' However, in some cases, especially with complex data or poor initial values,
+#' it may take more iterations.
 #'
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
@@ -102,7 +155,7 @@
 #'
 #' result4 <- rga(times, failures, model_type = "Piecewise NHPP", breaks = c(450))
 #' print(result4)
-#' @importFrom stats lm predict AIC BIC logLik
+#' @importFrom stats lm predict AIC BIC logLik cor residuals
 #' @importFrom segmented segmented slope intercept seg.control
 #' @export
 rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_level = 0.95) {
@@ -172,6 +225,14 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
   log_times <- log(cum_time)
   log_cum_failures <- log(cum_failures)
 
+  # Check for perfect collinearity
+  cor_val <- suppressWarnings(cor(log_times, log_cum_failures))
+  if (is.na(cor_val) || abs(cor_val - 1) < .Machine$double.eps^0.5 ||
+      abs(cor_val + 1) < .Machine$double.eps^0.5) {
+    stop("Perfect collinearity detected between predictor ('log_times') and response ('log_cum_failures'). Regression cannot be performed.")
+  }
+
+  # Fit initial Crow-AMSAA model
   fit <- stats::lm(log_cum_failures ~ log_times)
 
   if (valid_model == "piecewise nhpp") {
@@ -212,13 +273,19 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
 
   # Predictions values
   fitted_values <- stats::predict(updated_fit)
+  residuals <- stats::residuals(updated_fit)
   conf_intervals <- stats::predict(updated_fit, interval = "confidence", level = conf_level)
   lower_bounds <- exp(conf_intervals[, "lwr"])
   upper_bounds <- exp(conf_intervals[, "upr"])
 
   # Return object
   result <- list(
+    times = times,
+    failures = failures,
+    n_obs = length(failures),
+    cum_failures = cum_failures,
     model = updated_fit,
+    residuals = residuals,
     logLik = loglik,
     AIC = aic,
     BIC = bic,
@@ -316,6 +383,9 @@ print.rga <- function(x, ...) {
     cat("Breakpoints (original scale):\n")
     cat(round(exp(x$breakpoints), 4), "\n\n")
   }
+
+  # Number of observations (failures)
+  cat(sprintf("\nNumber of observations (failures): %d\n", x$n_obs))
 
   cat("Parameters (per segment):\n")
   if (model_type == "Piecewise NHPP") {

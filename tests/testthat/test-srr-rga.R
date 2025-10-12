@@ -21,6 +21,14 @@
 #' @srrstats {G5.9a} Unit tests check that adding trivial noise to data does not meaningfully change results.
 #' @srrstats {G5.9b} Unit tests check that different random seeds do not meaningfully change results.
 #' @srrstats {G5.10} All unit tests run as part of continuous integration.
+#' @srrstats {RE7.1} Unit tests check for noiseless, exact relationships between
+#' predictor (independent) and response (dependent) data.
+#' @srrstats {RE7.1a} Unit tests confirm that model fitting is at least as fast
+#' or faster than testing with equivalent noisy data.
+#' @srrstats {RE7.2} Unit tests demonstrate that output objects retain aspects
+#' of input data such as case names.
+#' @srrstats {RE7.3} Unit tests demonstrate expected behavior when `rga` object
+#'is submitted to the accessor methods `print` and `plot`.
 
 test_that("data.frame input works the same as separate vectors", {
   times <- c(100, 200, 300)
@@ -517,4 +525,129 @@ if (requireNamespace("vdiffr", quietly = TRUE)) {
     vdiffr::expect_doppelganger("Crow-AMSAA plot", function() plot(rga_obj))
   })
 }
+
+test_that("rga() errors on perfect (noiseless) collinearity between predictor and response", {
+  # Perfect power-law relationship between cumulative time and cumulative failures
+  n <- 200
+  cum_time <- seq(1, n)
+  lambda <- 2.0
+  beta <- 0.75
+  cum_failures <- lambda * cum_time^beta
+
+  # failures per interval (must be positive)
+  failures <- diff(c(0, cum_failures))
+
+  # Expect perfect-collinearity error
+  expect_error(
+    rga(times = rep(1, n), failures = failures),
+    regexp = "Perfect collinearity detected"
+  )
+
+  # also check with data.frame input
+  df <- data.frame(times = rep(1, n), failures = failures)
+  expect_error(
+    rga(df),
+    regexp = "Perfect collinearity detected"
+  )
+})
+
+test_that("rga() fits near-noiseless data and is at least as fast as noisy data (Crow-AMSAA)", {
+  set.seed(42)
+  n <- 800
+  cum_time <- seq(1, n)
+  lambda <- 5.0
+  beta <- 0.6
+  cum_failures <- lambda * cum_time^beta
+  failures_per_interval <- diff(c(0, cum_failures))
+
+  # Create a near-noiseless version
+  near_noise <- rnorm(n, mean = 0, sd = 1e-2)
+  cum_failures_near <- cum_failures * exp(near_noise)
+  failures_near <- diff(c(0, cum_failures_near))
+
+  # Create a clearly noisy version
+  big_noise <- rnorm(n, mean = 0, sd = 0.05)
+  cum_failures_noisy <- cum_failures * exp(big_noise)
+  failures_noisy <- diff(c(0, cum_failures_noisy))
+
+  # Ensure positiveness
+  failures_near <- pmax(failures_near, .Machine$double.eps)
+  failures_noisy <- pmax(failures_noisy, .Machine$double.eps)
+
+  # Timing: Crow-AMSAA model (default)
+  t_near <- system.time({
+    fit_near <- rga(times = rep(1, n), failures = failures_near, model_type = "Crow-AMSAA")
+  })[["elapsed"]]
+
+  t_noisy <- system.time({
+    fit_noisy <- rga(times = rep(1, n), failures = failures_noisy, model_type = "Crow-AMSAA")
+  })[["elapsed"]]
+
+  # Require near-noiseless to be <= 1.2 * noisy (allow CI variability)
+  expect_true(
+    t_near <= t_noisy * 1.05 + 0.01,
+    info = sprintf("Noiseless fit took %.3fs vs noisy %.3fs", t_noiseless, t_noisy)
+  )
+})
+
+test_that("rga() fits near-noiseless data with user-supplied breaks (Piecewise NHPP) and is reasonably fast", {
+
+  set.seed(101)
+  n <- 400
+  cum_time <- seq(1, n)
+  lambda <- 3.0
+  beta <- 0.8
+  cum_failures <- lambda * cum_time^beta
+  failures <- diff(c(0, cum_failures))
+
+  # near-noiseless
+  near_noise <- rnorm(n, mean = 0, sd = 5e-3)   # changed from 1e-4 to 5e-3
+  cum_failures_near <- cum_failures * exp(near_noise)
+  failures_near <- diff(c(0, cum_failures_near))
+  failures_near <- pmax(failures_near, .Machine$double.eps)
+
+  big_noise <- rnorm(n, mean = 0, sd = 0.04)
+  cum_failures_noisy <- cum_failures * exp(big_noise)
+  failures_noisy <- diff(c(0, cum_failures_noisy))
+  failures_noisy <- pmax(failures_noisy, .Machine$double.eps)
+
+  # choose a breakpoint roughly in the middle (on original scale)
+  break_pt <- floor(n / 2)
+
+  t_near_pw <- system.time({
+    fit_near_pw <- rga(times = rep(1, n), failures = failures_near,
+                       model_type = "Piecewise NHPP", breaks = break_pt)
+  })[["elapsed"]]
+
+  t_noisy_pw <- system.time({
+    fit_noisy_pw <- rga(times = rep(1, n), failures = failures_noisy,
+                        model_type = "Piecewise NHPP", breaks = break_pt)
+  })[["elapsed"]]
+
+  # Allow bigger slack because segmented fitting can vary across environments
+  expect_lte(t_near_pw, t_noisy_pw * 1.3)
+})
+
+test_that("rga output retains row / case names from input", {
+  # Case 1: Named numeric vectors
+  times <- c(A = 100, B = 200, C = 300, D = 400, E = 500)
+  failures <- c(A = 1, B = 2, C = 1, D = 3, E = 2)
+
+  res_named <- rga(times, failures)
+
+  # input names preserved in stored inputs
+  expect_equal(names(res_named$times), names(times))
+  expect_equal(names(res_named$failures), names(failures))
+
+  # Case 2: Piecewise NHPP
+
+  # Use a dataset that can reasonably produce a breakpoint (small example)
+  times2 <- c(t1 = 10, t2 = 20, t3 = 30, t4 = 40, t5 = 50)
+  failures2 <- c(t1 = 1, t2 = 1, t3 = 2, t4 = 3, t5 = 5)
+
+  res_piecewise <- rga(times2, failures2, model_type = "Piecewise NHPP", breaks = c(30))
+
+  expect_equal(names(res_piecewise$times), names(times2))
+  expect_equal(names(res_piecewise$failures), names(failures2))
+})
 

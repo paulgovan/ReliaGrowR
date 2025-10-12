@@ -25,6 +25,10 @@ Must be between 0 and 1 (exclusive).}
 }
 \value{
 A list of class \code{"duane"} containing:
+\item{times}{The input cumulative failure times.}
+\item{failures}{The input number of failures.}
+\item{n_obs}{The number of observations (failures).}
+\item{MTBF}{The cumulative mean time between failures.}
 \item{model}{The fitted \code{lm} (linear model) object containing the regression results.}
 \item{logLik}{The log-likelihood of the fitted model.}
 \item{AIC}{Akaike Information Criterion (AIC).}
@@ -34,12 +38,23 @@ A list of class \code{"duane"} containing:
 \item{Cumulative_MTBF}{The cumulative mean time between failures.}
 \item{Fitted_Values}{The fitted values on the MTBF scale.}
 \item{Confidence_Bounds}{Matrix of fitted values and confidence bounds on the MTBF scale.}
+\item{Residuals_Log}{Residuals on the log(MTBF) scale (from the regression).}
+\item{Residuals_MTBF}{Residuals on the MTBF scale (observed - fitted).}
 }
 \description{
 This function performs a Duane analysis (1962) \url{doi:10.1109/TA.1964.4319640}
 on failure data by fitting a log-log linear regression of cumulative Mean Time
 Between Failures (MTBF) versus cumulative time. The function accepts either
 two numeric vectors (\code{times}, \code{failures}) or a data frame containing both.
+}
+\details{
+The scaling relationship between the size of input data (numbers of observations)
+and speed of algorithm execution is approximately linear (O(n)). The function is
+efficient and can handle large data sets (e.g., thousands of observations) quickly.
+The function uses base R functions and does not require any additional packages.
+The function includes comprehensive input validation and error handling to ensure
+robustness. The function is tested with a standard data set from a published paper
+and includes unit tests to verify correctness and performance.
 }
 \examples{
 times <- c(100, 200, 300, 400, 500)
