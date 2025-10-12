@@ -103,8 +103,24 @@ level is the probability that the confidence interval contains the true mean res
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The function returns an object of class <code>rga</code> that contains:</p>
-<dl><dt>model</dt>
+<dl><dt>times</dt>
+<dd><p>The input cumulative failure times.</p></dd>
+
+<dt>failures</dt>
+<dd><p>The input number of failures.</p></dd>
+
+<dt>n_obs</dt>
+<dd><p>The number of observations (failures).</p></dd>
+
+<dt>cum_failures</dt>
+<dd><p>Cumulative failures.</p></dd>
+
+<dt>model</dt>
 <dd><p>The fitted model object (lm (linear model) or segmented).</p></dd>
+
+<dt>residuals</dt>
+<dd><p>Model residuals on the log-log scale. These represent deviations of the observed
+log cumulative failures from the fitted values and are useful for diagnostic checking.</p></dd>
 
 <dt>logLik</dt>
 <dd><p>The log-likelihood of the fitted model. The log-likelihood is a
@@ -143,6 +159,18 @@ with lower values indicating a better fit.</p></dd>
 
 </dl></div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The scaling relationship between the size of input data (numbers of observations)
+and speed of algorithm execution is approximately linear (O(n)). The function is
+efficient and can handle large data sets (e.g., thousands of observations) quickly.
+The function uses the <code>segmented</code> package for piecewise regression, which employs
+an iterative algorithm to estimate breakpoints. The number of iterations required
+for convergence may vary depending on the data and initial values.
+In practice, the function typically converges within a few iterations for most data sets.
+However, in some cases, especially with complex data or poor initial values,
+it may take more iterations.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Reliability Growth Analysis:
 <code><a href="plot.rga.html">plot.rga</a>()</code>,
@@ -159,6 +187,8 @@ with lower values indicating a better fit.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Type: Crow-AMSAA </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of observations (failures): 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameters (per segment):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Growth Rate: 0.2013</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Beta: 0.7987 (SE = 0.0562)</span>
@@ -176,6 +206,8 @@ with lower values indicating a better fit.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Type: Crow-AMSAA </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of observations (failures): 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameters (per segment):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Growth Rate: 0.2013</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Beta: 0.7987 (SE = 0.0562)</span>
@@ -196,6 +228,8 @@ with lower values indicating a better fit.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Breakpoints (original scale):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 300.03 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of observations (failures): 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameters (per segment):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Growth Rates: 0.0598, 0.2881</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betas: 0.9402, 0.7119</span>
@@ -217,6 +251,8 @@ with lower values indicating a better fit.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Breakpoints (original scale):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 450 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of observations (failures): 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameters (per segment):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Growth Rates: 0.0598, 0.2881</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betas: 0.9402, 0.7119</span>

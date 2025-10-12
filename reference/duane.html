@@ -82,7 +82,19 @@ Must be between 0 and 1 (exclusive).</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list of class <code>"duane"</code> containing:</p>
-<dl><dt>model</dt>
+<dl><dt>times</dt>
+<dd><p>The input cumulative failure times.</p></dd>
+
+<dt>failures</dt>
+<dd><p>The input number of failures.</p></dd>
+
+<dt>n_obs</dt>
+<dd><p>The number of observations (failures).</p></dd>
+
+<dt>MTBF</dt>
+<dd><p>The cumulative mean time between failures.</p></dd>
+
+<dt>model</dt>
 <dd><p>The fitted <code>lm</code> (linear model) object containing the regression results.</p></dd>
 
 <dt>logLik</dt>
@@ -109,7 +121,23 @@ Must be between 0 and 1 (exclusive).</p></dd>
 <dt>Confidence_Bounds</dt>
 <dd><p>Matrix of fitted values and confidence bounds on the MTBF scale.</p></dd>
 
+<dt>Residuals_Log</dt>
+<dd><p>Residuals on the log(MTBF) scale (from the regression).</p></dd>
+
+<dt>Residuals_MTBF</dt>
+<dd><p>Residuals on the MTBF scale (observed - fitted).</p></dd>
+
 </dl></div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The scaling relationship between the size of input data (numbers of observations)
+and speed of algorithm execution is approximately linear (O(n)). The function is
+efficient and can handle large data sets (e.g., thousands of observations) quickly.
+The function uses base R functions and does not require any additional packages.
+The function includes comprehensive input validation and error handling to ensure
+robustness. The function is tested with a standard data set from a published paper
+and includes unit tests to verify correctness and performance.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Duane functions:
@@ -127,6 +155,8 @@ Must be between 0 and 1 (exclusive).</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ----------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Linear model (log-log scale): log(MTBF) ~ log(Time)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of observations (failures): 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                Estimate Std. Error</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)   3.6144974 0.35199619</span>
@@ -142,6 +172,8 @@ Must be between 0 and 1 (exclusive).</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Duane Analysis Result</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ----------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Linear model (log-log scale): log(MTBF) ~ log(Time)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of observations (failures): 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                Estimate Std. Error</span>
