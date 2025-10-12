@@ -1,4 +1,3 @@
-
 #' Weibull to RGA
 #'
 #' Converts Weibull data (failure, suspension, and interval-censored times)
@@ -144,5 +143,3 @@ weibull_to_rga <- function(failures,
 
   return(result)
 }
-
-

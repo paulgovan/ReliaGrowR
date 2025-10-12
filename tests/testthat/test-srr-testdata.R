@@ -1,4 +1,3 @@
-
 #' @srrstats {G5.1} The data set is created within and used to test the package.
 #' The data set is exported so that users can confirm tests and run examples.
 #' @srrstats {G5.10} All unit tests run as part of continuous integration.

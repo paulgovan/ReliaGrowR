@@ -1,4 +1,3 @@
-
 #' @srrstats {G5.1} The function is tested with a standard data set. The data set is
 #' created within and used to test the package. The data set is exported so that users
 #' can confirm tests and run examples.
@@ -27,7 +26,7 @@
 #' @srrstats {RE7.2} Unit tests demonstrate that output objects retain aspects
 #' of input data such as case names.
 #' @srrstats {RE7.3} Unit tests demonstrate expected behavior when `duane` object
-#'is submitted to the accessor methods `print` and `plot`.
+#' is submitted to the accessor methods `print` and `plot`.
 
 set.seed(123)
 
@@ -420,7 +419,7 @@ test_that("duane() handles noiseless, exact relationships efficiently", {
   })[["elapsed"]]
 
   # Check that noiseless fit is at least as fast or faster
-  expect_lte(t_noiseless, t_noisy * 1.05)  # small tolerance for variation
+  expect_lte(t_noiseless, t_noisy * 1.05) # small tolerance for variation
 
   # Check that coefficients are nearly identical in noiseless case
   coef_noiseless <- coef(fit_noiseless$model)

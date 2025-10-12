@@ -1,4 +1,3 @@
-
 #' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
 #' @srrstats {G5.2a} Every message produced by `stop()` is unique.
 #' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.
@@ -204,8 +203,10 @@ test_that("RDT with test time input is stable to trivial noise", {
 })
 
 test_that("print.rdt works for required test time", {
-  plan <- rdt(target = 0.9, mission_time = 1000,
-              conf_level = 0.9, beta = 1, n = 10)
+  plan <- rdt(
+    target = 0.9, mission_time = 1000,
+    conf_level = 0.9, beta = 1, n = 10
+  )
 
   # Ensure output contains expected lines
   expect_output(print(plan), "Reliability Demonstration Test \\(RDT\\) Plan")
@@ -221,8 +222,10 @@ test_that("print.rdt works for required test time", {
 })
 
 test_that("print.rdt works for required sample size", {
-  plan <- rdt(target = 0.9, mission_time = 1000,
-              conf_level = 0.9, beta = 1, test_time = 2000)
+  plan <- rdt(
+    target = 0.9, mission_time = 1000,
+    conf_level = 0.9, beta = 1, test_time = 2000
+  )
 
   expect_output(print(plan), "Reliability Demonstration Test \\(RDT\\) Plan")
   expect_output(print(plan), "Distribution:")
@@ -239,4 +242,3 @@ test_that("print.rdt errors on wrong input", {
   expect_error(print.rdt(123), "'x' must be an object of class 'rdt'")
   expect_error(print.rdt(list()), "'x' must be an object of class 'rdt'")
 })
-

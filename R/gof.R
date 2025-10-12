@@ -1,4 +1,3 @@
-
 #' Q-Q Plot for RGA Objects
 #'
 #' This function creates a Q-Q plot for a fitted Reliability Growth Analysis (RGA) model
@@ -149,5 +148,3 @@ ppplot.rga <- function(x,
   # 45-degree reference line
   abline(lsfit(theo_cdf, emp_cdf))
 }
-
-

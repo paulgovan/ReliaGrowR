@@ -1,4 +1,3 @@
-
 #' @srrstats {G5.0} The function is tested with a standard data set from a published paper.
 #' @srrstats {G5.1} The function is tested with a standard data set. The data set is
 #' created within and used to test the package. The data set is exported so that users
@@ -28,7 +27,7 @@
 #' @srrstats {RE7.2} Unit tests demonstrate that output objects retain aspects
 #' of input data such as case names.
 #' @srrstats {RE7.3} Unit tests demonstrate expected behavior when `rga` object
-#'is submitted to the accessor methods `print` and `plot`.
+#' is submitted to the accessor methods `print` and `plot`.
 
 test_that("data.frame input works the same as separate vectors", {
   times <- c(100, 200, 300)
@@ -583,15 +582,14 @@ test_that("rga() fits near-noiseless data and is at least as fast as noisy data 
     fit_noisy <- rga(times = rep(1, n), failures = failures_noisy, model_type = "Crow-AMSAA")
   })[["elapsed"]]
 
-  # Require near-noiseless to be <= 1.2 * noisy (allow CI variability)
+  # Require near-noiseless to be <= 1.05 * noisy (allow CI variability)
   expect_true(
     t_near <= t_noisy * 1.05 + 0.01,
-    info = sprintf("Noiseless fit took %.3fs vs noisy %.3fs", t_noiseless, t_noisy)
+    info = sprintf("Noiseless fit took %.3fs vs noisy %.3fs", t_near, t_noisy)
   )
 })
 
 test_that("rga() fits near-noiseless data with user-supplied breaks (Piecewise NHPP) and is reasonably fast", {
-
   set.seed(101)
   n <- 400
   cum_time <- seq(1, n)
@@ -601,7 +599,7 @@ test_that("rga() fits near-noiseless data with user-supplied breaks (Piecewise N
   failures <- diff(c(0, cum_failures))
 
   # near-noiseless
-  near_noise <- rnorm(n, mean = 0, sd = 5e-3)   # changed from 1e-4 to 5e-3
+  near_noise <- rnorm(n, mean = 0, sd = 5e-3) # changed from 1e-4 to 5e-3
   cum_failures_near <- cum_failures * exp(near_noise)
   failures_near <- diff(c(0, cum_failures_near))
   failures_near <- pmax(failures_near, .Machine$double.eps)
@@ -615,17 +613,24 @@ test_that("rga() fits near-noiseless data with user-supplied breaks (Piecewise N
   break_pt <- floor(n / 2)
 
   t_near_pw <- system.time({
-    fit_near_pw <- rga(times = rep(1, n), failures = failures_near,
-                       model_type = "Piecewise NHPP", breaks = break_pt)
+    fit_near_pw <- rga(
+      times = rep(1, n), failures = failures_near,
+      model_type = "Piecewise NHPP", breaks = break_pt
+    )
   })[["elapsed"]]
 
   t_noisy_pw <- system.time({
-    fit_noisy_pw <- rga(times = rep(1, n), failures = failures_noisy,
-                        model_type = "Piecewise NHPP", breaks = break_pt)
+    fit_noisy_pw <- rga(
+      times = rep(1, n), failures = failures_noisy,
+      model_type = "Piecewise NHPP", breaks = break_pt
+    )
   })[["elapsed"]]
 
-  # Allow bigger slack because segmented fitting can vary across environments
-  expect_lte(t_near_pw, t_noisy_pw * 1.3)
+  # Require near-noiseless to be <= 1.05 * noisy (allow CI variability)
+  expect_true(
+    t_near_pw <= t_noisy_pw * 1.05 + 0.01,
+    info = sprintf("Noiseless fit took %.3fs vs noisy %.3fs", t_near_pw, t_noisy_pw)
+  )
 })
 
 test_that("rga output retains row / case names from input", {
@@ -650,4 +655,3 @@ test_that("rga output retains row / case names from input", {
   expect_equal(names(res_piecewise$times), names(times2))
   expect_equal(names(res_piecewise$failures), names(failures2))
 })
-

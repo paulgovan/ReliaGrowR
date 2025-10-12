@@ -1,4 +1,3 @@
-
 #' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
 #' @srrstats {G5.2a} Every message produced by `stop()` is unique.
 #' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.
@@ -55,17 +54,19 @@ test_that("ppplot.rga() errors on invalid inputs", {
 make_rga_numeric <- function() {
   times <- c(5, 10, 15, 20, 25)
   failures <- c(1, 2, 1, 3, 2)
-  rga(times, failures)  # assumes your rga() is available
+  rga(times, failures) # assumes your rga() is available
 }
 
 make_rga_matrix <- function() {
   fit <- make_rga_numeric()
   # Overwrite betas and lambdas to matrix/list form to cover branches
   fit$betas <- list(log_times = matrix(
-    c(0.9, 0.1), nrow = 1, dimnames = list(NULL, c("Est.", "SE"))
+    c(0.9, 0.1),
+    nrow = 1, dimnames = list(NULL, c("Est.", "SE"))
   ))
   fit$lambdas <- matrix(
-    c(0.002, 0.0005), nrow = 1, dimnames = list(NULL, c("Est.", "SE"))
+    c(0.002, 0.0005),
+    nrow = 1, dimnames = list(NULL, c("Est.", "SE"))
   )
   fit
 }
@@ -91,4 +92,3 @@ test_that("ppplot.rga runs silently on valid input (matrix/list params)", {
   fit <- make_rga_matrix()
   expect_silent(ppplot.rga(fit))
 })
-

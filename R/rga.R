@@ -1,4 +1,3 @@
-
 #' Reliability Growth Analysis.
 #'
 #' This function performs reliability growth analysis using the Crow-AMSAA model by
@@ -58,8 +57,7 @@
 #' @srrstats {G5.9a} Unit tests check that adding trivial noise to data does not meaningfully change results.
 #' @srrstats {G5.9b} Unit tests check that different random seeds do not meaningfully change results.
 #' @srrstats {G5.10} All unit tests run as part of continuous integration.
-#' @srrstats {RE1.2] Documentation includes expected format for inputting predictor variables
-#' (`times`, `failures`).
+#' @srrstats {RE1.2} Documentation includes expected format for inputting predictor variables (`times`, `failures`).
 #' @srrstats {RE1.3} Output retains all relevant aspects of input data.
 #' @srrstats {RE1.3a} Output retains all relevant aspects of input data.
 #' @srrstats {RE1.4} Documentation includes assumptions for the input data (i.e., positive, finite values).
@@ -93,7 +91,7 @@
 #' @srrstats {RE7.2} Unit tests demonstrate that output objects retain aspects
 #' of input data such as case names.
 #' @srrstats {RE7.3} Unit tests demonstrate expected behavior when `rga` object
-#'is submitted to the accessor methods `print` and `plot`.
+#' is submitted to the accessor methods `print` and `plot`.
 #'
 #' @param times Either a numeric vector of cumulative failure times or a data frame
 #' containing both failure times and failure counts. If a data frame is provided, it must
@@ -228,7 +226,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
   # Check for perfect collinearity
   cor_val <- suppressWarnings(cor(log_times, log_cum_failures))
   if (is.na(cor_val) || abs(cor_val - 1) < .Machine$double.eps^0.5 ||
-      abs(cor_val + 1) < .Machine$double.eps^0.5) {
+    abs(cor_val + 1) < .Machine$double.eps^0.5) {
     stop("Perfect collinearity detected between predictor ('log_times') and response ('log_cum_failures'). Regression cannot be performed.")
   }
 

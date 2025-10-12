@@ -1,4 +1,3 @@
-
 #' Duane Analysis
 #'
 #' This function performs a Duane analysis (1962) <doi:10.1109/TA.1964.4319640>
@@ -52,8 +51,7 @@
 #' @srrstats {G5.9a} Unit tests check that adding trivial noise to data does not meaningfully change results.
 #' @srrstats {G5.9b} Unit tests check that different random seeds do not meaningfully change results.
 #' @srrstats {G5.10} All unit tests run as part of continuous integration.
-#' @srrstats {RE1.2] Documentation includes expected format for inputting predictor variables
-#' (`times`, `failures`).
+#' @srrstats {RE1.2} Documentation includes expected format for inputting predictor variables (`times`, `failures`).
 #' @srrstats {RE1.3} Output retains all relevant aspects of input data.
 #' @srrstats {RE1.3a} Output retains all relevant aspects of input data.
 #' @srrstats {RE1.4} Documentation includes assumptions for the input data (i.e., positive, finite values).

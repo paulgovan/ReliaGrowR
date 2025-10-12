@@ -1,4 +1,3 @@
-
 #' Reliability Test Data
 #'
 #' A dataset containing example reliability test data from the military report

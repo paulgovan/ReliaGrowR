@@ -1,4 +1,3 @@
-
 #' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
 #' @srrstats {G5.2a} Every message produced by `stop()` is unique.
 #' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.

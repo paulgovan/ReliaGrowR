@@ -1,4 +1,3 @@
-
 #' Reliability Demonstration Test (RDT) Plan Calculator
 #'
 #' This function calculates the required test time or sample size for a Reliability

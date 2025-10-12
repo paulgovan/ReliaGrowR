@@ -1,4 +1,3 @@
-
 #' NA_standards
 #'
 #' @srrstatsNA {G1.4a} There are no internal (non-exported) functions.
