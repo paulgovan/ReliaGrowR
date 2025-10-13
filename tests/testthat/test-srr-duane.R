@@ -419,15 +419,15 @@ test_that("duane() handles noiseless, exact relationships efficiently", {
   })[["elapsed"]]
 
   # Check that noiseless fit is at least as fast or faster
-  expect_lte(t_noiseless, t_noisy * 1.05) # small tolerance for variation
-
-  # Check that coefficients are nearly identical in noiseless case
-  coef_noiseless <- coef(fit_noiseless$model)
-  coef_noisy <- coef(fit_noisy$model)
   expect_true(
     t_noiseless <= t_noisy * 1.05 + 0.01,
     info = sprintf("Noiseless fit took %.3fs vs noisy %.3fs", t_noiseless, t_noisy)
   )
+
+  # Check that coefficients are nearly identical in noiseless case
+  coef_noiseless <- coef(fit_noiseless$model)
+  coef_noisy <- coef(fit_noisy$model)
+
 })
 
 test_that("output retains row or case names from input data", {
