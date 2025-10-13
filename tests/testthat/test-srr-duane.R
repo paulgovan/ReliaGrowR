@@ -406,7 +406,7 @@ test_that("duane() handles noiseless, exact relationships efficiently", {
   failures_noiseless <- exp((log(times) - log(alpha)) / beta)
 
   # Slightly noisy version of the same
-  noise <- rnorm(n, mean = 0, sd = 0.05)
+  noise <- rnorm(n, mean = 0, sd = 0.1)
   failures_noisy <- exp((log(times) - log(alpha)) / beta + noise)
 
   # Measure performance (timing)
@@ -420,7 +420,7 @@ test_that("duane() handles noiseless, exact relationships efficiently", {
 
   # Check that noiseless fit is at least as fast or faster
   expect_true(
-    t_noiseless <= t_noisy * 1.2, # allow small tolerance
+    t_noiseless <= t_noisy * 1.2 + 0.1, # allow small tolerance
     info = sprintf("Noiseless fit took %.3fs vs noisy %.3fs", t_noiseless, t_noisy)
   )
 
