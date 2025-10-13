@@ -420,7 +420,7 @@ test_that("duane() handles noiseless, exact relationships efficiently", {
 
   # Check that noiseless fit is at least as fast or faster
   expect_true(
-    t_noiseless <= t_noisy * 1.05 + 0.01,
+    t_noiseless <= t_noisy * 1.2, # allow small tolerance
     info = sprintf("Noiseless fit took %.3fs vs noisy %.3fs", t_noiseless, t_noisy)
   )
 

@@ -582,9 +582,9 @@ test_that("rga() fits near-noiseless data and is at least as fast as noisy data 
     fit_noisy <- rga(times = rep(1, n), failures = failures_noisy, model_type = "Crow-AMSAA")
   })[["elapsed"]]
 
-  # Require near-noiseless to be <= 1.05 * noisy (allow CI variability)
+  # Require near-noiseless to be <= 1.2 * noisy (allow CI variability)
   expect_true(
-    t_near <= t_noisy * 1.05 + 0.01,
+    t_near <= t_noisy * 1.2,
     info = sprintf("Noiseless fit took %.3fs vs noisy %.3fs", t_near, t_noisy)
   )
 })
@@ -626,9 +626,9 @@ test_that("rga() fits near-noiseless data with user-supplied breaks (Piecewise N
     )
   })[["elapsed"]]
 
-  # Require near-noiseless to be <= 1.05 * noisy (allow CI variability)
+  # Require near-noiseless to be <= 1.2 * noisy (allow CI variability)
   expect_true(
-    t_near_pw <= t_noisy_pw * 1.05 + 0.01,
+    t_near_pw <= t_noisy_pw * 1.2,
     info = sprintf("Noiseless fit took %.3fs vs noisy %.3fs", t_near_pw, t_noisy_pw)
   )
 })
