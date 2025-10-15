@@ -1,3 +1,4 @@
+
 #' Duane Analysis
 #'
 #' This function performs a Duane analysis (1962) <doi:10.1109/TA.1964.4319640>
@@ -211,7 +212,10 @@ duane <- function(times, failures = NULL, conf.level = 0.95) {
 
   # confidence intervals on MTBF scale
   pred <- predict(fit, interval = "confidence", level = conf.level)
+  conf_intervals <- stats::predict(fit, interval = "confidence", level = conf.level)
   ci_bounds <- exp(pred)
+  lower_bounds <- exp(conf_intervals[, "lwr"])
+  upper_bounds <- exp(conf_intervals[, "upr"])
 
   result <- list(
     times = times,
@@ -227,6 +231,8 @@ duane <- function(times, failures = NULL, conf.level = 0.95) {
     Cumulative_MTBF = cum_mtbf,
     Fitted_Values = fitted_values,
     Confidence_Bounds = ci_bounds,
+    lower_bounds = lower_bounds,
+    upper_bounds = upper_bounds,
     Residuals_Log = residuals_log,
     Residuals_MTBF = residuals_mtbf
   )
