@@ -156,6 +156,9 @@
 #' @importFrom stats lm predict AIC BIC logLik cor residuals
 #' @importFrom segmented segmented slope intercept seg.control
 #' @export
+
+
+
 rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_level = 0.95) {
   if (is.data.frame(times)) {
     if (!all(c("times", "failures") %in% names(times))) {
@@ -224,7 +227,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
   log_cum_failures <- log(cum_failures)
 
   # Check for perfect collinearity
-  cor_val <- suppressWarnings(cor(log_times, log_cum_failures))
+  cor_val <- suppressWarnings(stats::cor(log_times, log_cum_failures))
   if (is.na(cor_val) || abs(cor_val - 1) < .Machine$double.eps^0.5 ||
     abs(cor_val + 1) < .Machine$double.eps^0.5) {
     stop("Perfect collinearity detected between predictor ('log_times') and response ('log_cum_failures'). Regression cannot be performed.")

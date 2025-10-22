@@ -14,8 +14,10 @@
 #' @srrstatsNA {G2.9} No information is lost in type conversions.
 #' @srrstatsNA {G2.12} list columns in `data.frame` objects are not used.
 #' @srrstatsNA {G3.0} There are no comparisons made between floating point numbers.
-#' @srrstatsNA {G3.1} There are no covariance calculations.
-#' @srrstatsNA {G3.1a} There are no covariance calculations.
+#' @srrstatsNA {G3.1} Currently, there are no covariance calculations since all models
+#' are univariate. However, this may change in future versions.
+#' @srrstatsNA {G3.1a} Currently, there are no covariance calculations since all models
+#' are univariate. However, this may change in future versions.
 #' @srrstatsNA {G4.0} There are no local file outputs at this time.
 #' @srrstatsNA {G5.3} Missing values return an error.
 #' @srrstatsNA {G5.4a} There are new implementations of existing methods but no new methods.
