@@ -67,6 +67,7 @@
 <li>Piecewise NHPP</li>
 <li>Piecewise NHPP with Change Point Detection</li>
 </ul>
+<p>RGA is an important part of reliability engineering, focused on improving reliability during development and testing of products. By analyzing failure data, RGA helps engineers and researchers identify trends, estimate reliability parameters, and track improvements over time.</p>
 <p>To learn more about RGA and this package, please view the <a href="https://paulgovan.github.io/ReliaGrowR/articles/RGA.html">vignette</a>.</p>
 </div>
 <div class="section level2">
@@ -82,15 +83,14 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>Here is a basic example of Reliability Growth Analysis:</p>
-<p>First, load the package:</p>
+<p>Here is a basic example of Reliability Growth Analysis. First, load the package.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://paulgovan.github.io/ReliaGrowR/">ReliaGrowR</a></span><span class="op">)</span></span></code></pre></div>
-<p>Next, set up some cumulative time and failure data:</p>
+<p>Next, suppose a machine has failed at the following times with the corresponding number of failures.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">300</span>, <span class="fl">400</span>, <span class="fl">500</span><span class="op">)</span></span>
 <span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p>Then run the rga and plot the results:</p>
+<p>To perform RGA, use the <code>rga</code> function and plot the results. The plot displays the cumulative failures over time along with the fitted reliability growth model.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span>, main <span class="op">=</span> <span class="st">"Reliability Growth Analysis"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span><span class="op">)</span></span></code></pre></div>
