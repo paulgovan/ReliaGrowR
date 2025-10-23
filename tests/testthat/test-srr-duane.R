@@ -427,7 +427,6 @@ test_that("duane() handles noiseless, exact relationships efficiently", {
   # Check that coefficients are nearly identical in noiseless case
   coef_noiseless <- coef(fit_noiseless$model)
   coef_noisy <- coef(fit_noisy$model)
-
 })
 
 test_that("output retains row or case names from input data", {

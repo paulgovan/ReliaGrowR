@@ -1,4 +1,3 @@
-
 #' Duane Analysis
 #'
 #' This function performs a Duane analysis (1962) <doi:10.1109/TA.1964.4319640>
