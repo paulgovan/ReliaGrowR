@@ -1,0 +1,191 @@
+
+R version 4.4.2 (2024-10-31) -- "Pile of Leaves"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "WeibullR.learnr"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('WeibullR.learnr')
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("RAMR.learnr")
+> ### * RAMR.learnr
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: RAMR.learnr
+> ### Title: Reliability, Availability, and Maintainability
+> ### Aliases: RAMR.learnr
+> 
+> ### ** Examples
+> 
+> if (interactive()) {
++   RAMR.learnr()
++ }
+> 
+> 
+> 
+> cleanEx()
+> nameEx("TestR.learnr")
+> ### * TestR.learnr
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: TestR.learnr
+> ### Title: An Interactive Introduction to Reliability Testing
+> ### Aliases: TestR.learnr
+> 
+> ### ** Examples
+> 
+> if (interactive()) {
++   TestR.learnr()
++ }
+> 
+> 
+> 
+> cleanEx()
+> nameEx("avail")
+> ### * avail
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: avail
+> ### Title: Availability.
+> ### Aliases: avail
+> 
+> ### ** Examples
+> 
+> unavail <- 100
+> total <- 1000
+> avail(unavail, total)
+[1] 0.9
+> 
+> 
+> 
+> cleanEx()
+> nameEx("fr")
+> ### * fr
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: fr
+> ### Title: Failure Rate (lambda).
+> ### Aliases: fr
+> 
+> ### ** Examples
+> 
+> fail <- 75
+> total <- 5000
+> fr(fail, total)
+[1] 0.015
+> 
+> 
+> 
+> cleanEx()
+> nameEx("mtbf")
+> ### * mtbf
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: mtbf
+> ### Title: Mean Time Between Failures (MTBF).
+> ### Aliases: mtbf
+> 
+> ### ** Examples
+> 
+> fail <- 5
+> total <- 1000
+> mtbf(fail, total)
+[1] 200
+> 
+> 
+> 
+> cleanEx()
+> nameEx("mttf")
+> ### * mttf
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: mttf
+> ### Title: Mean Time To Failure (MTTF).
+> ### Aliases: mttf
+> 
+> ### ** Examples
+> 
+> fail <- 5
+> total <- 1000
+> mttf(fail, total)
+[1] 200
+> 
+> 
+> 
+> cleanEx()
+> nameEx("rel")
+> ### * rel
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: rel
+> ### Title: Reliability.
+> ### Aliases: rel
+> 
+> ### ** Examples
+> 
+> outage <- 100
+> total <- 1000
+> rel(outage, total)
+[1] 0.9
+> 
+> 
+> 
+> cleanEx()
+> nameEx("serv")
+> ### * serv
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: serv
+> ### Title: Serviceability.
+> ### Aliases: serv
+> 
+> ### ** Examples
+> 
+> service <- 900
+> total <- 1000
+> serv(service, total)
+[1] 0.9
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> cleanEx()
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  0.257 0.027 0.285 0 0 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

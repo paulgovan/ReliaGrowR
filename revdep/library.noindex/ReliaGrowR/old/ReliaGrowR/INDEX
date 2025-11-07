@@ -1,0 +1,12 @@
+duane                   Duane Analysis
+plot.duane              Plot Method for Duane Analysis
+plot.rga                Plot Method for RGA Objects
+ppplot.rga              P-P Plot for RGA Objects
+print.duane             Print method for duane objects.
+print.rdt               Print method for rdt objects
+print.rga               Print method for rga objects.
+qqplot.rga              Q-Q Plot for RGA Objects
+rdt                     Reliability Demonstration Test (RDT) Plan
+                        Calculator
+rga                     Reliability Growth Analysis.
+weibull_to_rga          Weibull to RGA
