@@ -395,6 +395,9 @@ test_that("plot.duane input validation works", {
 })
 
 test_that("duane() handles noiseless, exact relationships efficiently", {
+  # Don't run these tests on the CRAN build servers
+  skip_on_cran()
+
   set.seed(123)
 
   # Generate synthetic data with a perfect log-log linear relationship

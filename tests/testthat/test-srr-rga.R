@@ -551,6 +551,10 @@ test_that("rga() errors on perfect (noiseless) collinearity between predictor an
 })
 
 test_that("rga() fits near-noiseless data and is at least as fast as noisy data (Crow-AMSAA)", {
+
+  # Don't run these tests on the CRAN build servers
+  skip_on_cran()
+
   set.seed(42)
   n <- 800
   cum_time <- seq(1, n)
