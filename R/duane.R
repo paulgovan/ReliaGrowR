@@ -85,9 +85,9 @@
 #' is submitted to the accessor methods `print` and `plot`.
 #'
 #' @param times Either:
-#'   - A numeric vector of cumulative failure times, or
+#'   - A numeric vector of exact failure times, or
 #'   - A data frame containing two columns: `times` and `failures`. The `times`
-#'     column contains cumulative failure times, and the `failures` column
+#'     column contains exact failure times, and the `failures` column
 #'     contains the number of failures at each corresponding time.
 #' @param failures A numeric vector of the number of failures at each corresponding
 #'   time in `times`. Ignored if `times` is a data frame. Must be the same length as
@@ -99,7 +99,7 @@
 #' @family Duane functions
 #'
 #' @return A list of class \code{"duane"} containing:
-#' \item{times}{The input cumulative failure times.}
+#' \item{times}{The input exact failure times.}
 #' \item{failures}{The input number of failures.}
 #' \item{n_obs}{The number of observations (failures).}
 #' \item{MTBF}{The cumulative mean time between failures.}

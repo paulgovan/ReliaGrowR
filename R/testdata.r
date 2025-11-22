@@ -31,5 +31,4 @@
 #' summary(testdata)
 #' str(testdata)
 #'
-#' @source <https://apps.dtic.mil/sti/tr/pdf/ADA176128.pdf>
 "testdata"

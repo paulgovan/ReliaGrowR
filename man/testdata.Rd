@@ -18,9 +18,6 @@ A data frame with 25 rows and 6 variables:
 }
 @usage data(testdata)
 }
-\source{
-\url{https://apps.dtic.mil/sti/tr/pdf/ADA176128.pdf}
-}
 \usage{
 testdata
 }

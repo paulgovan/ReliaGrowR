@@ -93,9 +93,9 @@
 #' @srrstats {RE7.3} Unit tests demonstrate expected behavior when `rga` object
 #' is submitted to the accessor methods `print` and `plot`.
 #'
-#' @param times Either a numeric vector of cumulative failure times or a data frame
+#' @param times Either a numeric vector of exact failure times or a data frame
 #' containing both failure times and failure counts. If a data frame is provided, it must
-#' contain two columns: `times` and `failures`. The `times` column contains cumulative failure times,
+#' contain two columns: `times` and `failures`. The `times` column contains exact failure times,
 #' and the `failures` column contains the number of failures at each corresponding time.
 #' @param failures A numeric vector of the number of failures at each corresponding time
 #' in times. Must be the same length as `times` if both are vectors. All values must be
@@ -106,7 +106,7 @@
 #' level is the probability that the confidence interval contains the true mean response.
 #' @family Reliability Growth Analysis
 #' @return The function returns an object of class `rga` that contains:
-#' \item{times}{The input cumulative failure times.}
+#' \item{times}{The input exact failure times.}
 #' \item{failures}{The input number of failures.}
 #' \item{n_obs}{The number of observations (failures).}
 #' \item{cum_failures}{Cumulative failures.}
