@@ -6,11 +6,14 @@
 \usage{
 grwr_api()
 }
+\value{
+Launches the ReliaGrowR API on a local server.
+}
 \description{
 This function provides an interface to the ReliaGrowR API.#' This function provides an interface to the ReliaGrowR API.
 }
 \examples{
 \dontrun{
-grwr_api()#' grwr_api()
+grwr_api()
 }
 }

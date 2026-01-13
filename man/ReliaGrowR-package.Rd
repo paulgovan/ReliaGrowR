@@ -6,7 +6,7 @@
 \alias{ReliaGrowR-package}
 \title{ReliaGrowR: Reliability Growth Analysis}
 \description{
-Modeling and plotting functions for Reliability Growth Analysis (RGA). Models include the Duane (1962) \doi{10.1109/TA.1964.4319640}, Non-Homogeneous Poisson Process (NHPP) by Crow (1975) \url{https://apps.dtic.mil/sti/citations/ADA020296}, Piecewise Weibull NHPP by Guo et al. (2010) \doi{10.1109/RAMS.2010.5448029}, and Piecewise Weibull NHPP with Change Point Detection based on the 'segmented' package by Muggeo (2024) \url{https://cran.r-project.org/package=segmented}.
+Modeling and plotting functions for Reliability Growth Analysis (RGA). Models include the Duane (1962) \doi{10.1109/TA.1964.4319640}, Non-Homogeneous Poisson Process (NHPP) by Crow (1975) (No. AMSAATR138), Piecewise Weibull NHPP by Guo et al. (2010) \doi{10.1109/RAMS.2010.5448029}, and Piecewise Weibull NHPP with Change Point Detection based on the 'segmented' package by Muggeo (2024) \url{https://cran.r-project.org/package=segmented}.
 }
 \seealso{
 Useful links:

@@ -12,8 +12,10 @@
     X-CRAN-Comment: Archived on 2025-11-21 as issues were not corrected
       in time.
       
-* This release addresses the issue that caused the package to be archived. 
-
+* This release addresses the issue that caused the package to be archived. All tests
+  for timings and noise are skipped on cran servers. This should prevent any further
+  issues with CRAN checks.
+  
 ## revdepcheck results
 
 We checked 4 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.

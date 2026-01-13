@@ -9,9 +9,9 @@ duane(times, failures = NULL, conf.level = 0.95)
 \arguments{
 \item{times}{Either:
 \itemize{
-\item A numeric vector of cumulative failure times, or
+\item A numeric vector of exact failure times, or
 \item A data frame containing two columns: \code{times} and \code{failures}. The \code{times}
-column contains cumulative failure times, and the \code{failures} column
+column contains exact failure times, and the \code{failures} column
 contains the number of failures at each corresponding time.
 }}
 
@@ -25,7 +25,7 @@ Must be between 0 and 1 (exclusive).}
 }
 \value{
 A list of class \code{"duane"} containing:
-\item{times}{The input cumulative failure times.}
+\item{times}{The input exact failure times.}
 \item{failures}{The input number of failures.}
 \item{n_obs}{The number of observations (failures).}
 \item{MTBF}{The cumulative mean time between failures.}

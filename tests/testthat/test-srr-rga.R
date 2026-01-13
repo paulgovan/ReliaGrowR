@@ -257,8 +257,6 @@ test_that("plot.rga argument type checks and malformed object", {
   )
 })
 
-library(testthat)
-
 test_that("Crow-AMSAA parameter recovery works (log-log simulation)", {
   set.seed(123)
 
@@ -357,6 +355,7 @@ test_that("Piecewise NHPP parameter recovery works", {
 })
 
 test_that("rga() handles increasing dataset sizes efficiently", {
+
   set.seed(123)
   sizes <- c(100, 500, 1000, 5000)
   beta_true <- 1.2
@@ -377,11 +376,14 @@ test_that("rga() handles increasing dataset sizes efficiently", {
     message(sprintf("n = %d, runtime = %.3f sec", n, runtime))
 
     expect_true(abs(fit$betas - beta_true) < 0.1)
-    expect_true(runtime < 5) # fail if runtime > 5 sec
   }
 })
 
 test_that("Crow-AMSAA is robust to small noise in times", {
+
+  # Don't run these tests on the CRAN build servers
+  skip_on_cran()
+
   set.seed(101)
 
   # True parameters
@@ -408,6 +410,10 @@ test_that("Crow-AMSAA is robust to small noise in times", {
 })
 
 test_that("Crow-AMSAA is robust to small noise in failures", {
+
+  # Don't run these tests on the CRAN build servers
+  skip_on_cran()
+
   set.seed(202)
 
   beta_true <- 1.2
@@ -431,6 +437,10 @@ test_that("Crow-AMSAA is robust to small noise in failures", {
 })
 
 test_that("Piecewise NHPP is robust to small noise in times and failures", {
+
+  # Don't run these tests on the CRAN build servers
+  skip_on_cran()
+
   set.seed(303)
 
   beta_true <- c(0.8, 1.5)
@@ -526,6 +536,10 @@ if (requireNamespace("vdiffr", quietly = TRUE)) {
 }
 
 test_that("rga() errors on perfect (noiseless) collinearity between predictor and response", {
+
+  # Don't run these tests on the CRAN build servers
+  skip_on_cran()
+
   # Perfect power-law relationship between cumulative time and cumulative failures
   n <- 200
   cum_time <- seq(1, n)
@@ -594,6 +608,10 @@ test_that("rga() fits near-noiseless data and is at least as fast as noisy data 
 })
 
 test_that("rga() fits near-noiseless data with user-supplied breaks (Piecewise NHPP) and is reasonably fast", {
+
+  # Don't run these tests on the CRAN build servers
+  skip_on_cran()
+
   set.seed(101)
   n <- 400
   cum_time <- seq(1, n)

@@ -1,7 +1,7 @@
 #' Reliability Growth Analysis.
 #'
 #' This function performs reliability growth analysis using the Crow-AMSAA model by
-#' Crow (1975) <https://apps.dtic.mil/sti/citations/ADA020296> or piecewise
+#' Crow (1975) (AMSAATR138) or piecewise
 #' NHPP model by Guo et al. (2010) <doi:10.1109/RAMS.2010.5448029>. It fits
 #' a log-log linear regression of cumulative failures versus cumulative time. The
 #' function accepts either two numeric vectors (`times`, `failures`) or a data frame

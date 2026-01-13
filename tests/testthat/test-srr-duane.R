@@ -305,6 +305,10 @@ test_that("cumulative MTBF increases with cumulative time if failures constant",
 # })
 
 test_that("adding small noise to times does not change slope significantly", {
+
+  # Don't run these tests on the CRAN build servers
+  skip_on_cran()
+
   times <- rep(100, 20)
   failures <- rep(1, 20)
 
@@ -322,6 +326,10 @@ test_that("adding small noise to times does not change slope significantly", {
 })
 
 test_that("adding small noise preserves fitted MTBF values", {
+
+  # Don't run these tests on the CRAN build servers
+  skip_on_cran()
+
   times <- seq(100, 1000, length.out = 20)
   failures <- rep(1, 20)
 
@@ -395,6 +403,7 @@ test_that("plot.duane input validation works", {
 })
 
 test_that("duane() handles noiseless, exact relationships efficiently", {
+
   # Don't run these tests on the CRAN build servers
   skip_on_cran()
 

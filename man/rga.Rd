@@ -13,9 +13,9 @@ rga(
 )
 }
 \arguments{
-\item{times}{Either a numeric vector of cumulative failure times or a data frame
+\item{times}{Either a numeric vector of exact failure times or a data frame
 containing both failure times and failure counts. If a data frame is provided, it must
-contain two columns: \code{times} and \code{failures}. The \code{times} column contains cumulative failure times,
+contain two columns: \code{times} and \code{failures}. The \code{times} column contains exact failure times,
 and the \code{failures} column contains the number of failures at each corresponding time.}
 
 \item{failures}{A numeric vector of the number of failures at each corresponding time
@@ -31,7 +31,7 @@ level is the probability that the confidence interval contains the true mean res
 }
 \value{
 The function returns an object of class \code{rga} that contains:
-\item{times}{The input cumulative failure times.}
+\item{times}{The input exact failure times.}
 \item{failures}{The input number of failures.}
 \item{n_obs}{The number of observations (failures).}
 \item{cum_failures}{Cumulative failures.}
@@ -54,7 +54,7 @@ with lower values indicating a better fit.}
 }
 \description{
 This function performs reliability growth analysis using the Crow-AMSAA model by
-Crow (1975) \url{https://apps.dtic.mil/sti/citations/ADA020296} or piecewise
+Crow (1975) (AMSAATR138) or piecewise
 NHPP model by Guo et al. (2010) \url{doi:10.1109/RAMS.2010.5448029}. It fits
 a log-log linear regression of cumulative failures versus cumulative time. The
 function accepts either two numeric vectors (\code{times}, \code{failures}) or a data frame

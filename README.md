@@ -58,6 +58,7 @@ package.
 
 ``` r
 library(ReliaGrowR)
+#> Warning: package 'ReliaGrowR' was built under R version 4.4.3
 ```
 
 Next, suppose a machine has failed at the following times with the

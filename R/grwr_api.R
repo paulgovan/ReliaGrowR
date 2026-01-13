@@ -2,9 +2,10 @@
 #'
 #' This function provides an interface to the ReliaGrowR API.#' This function provides an interface to the ReliaGrowR API.
 #' @import plumber
+#' @return Launches the ReliaGrowR API on a local server.
 #' @examples
 #' \dontrun{
-#' grwr_api()#' grwr_api()
+#' grwr_api()
 #' }
 #' @export
 grwr_api <- function() {
