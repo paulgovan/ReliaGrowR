@@ -18,10 +18,10 @@ duane(times, failures = NULL, conf.level = 0.95)
 
   Either:
 
-  - A numeric vector of cumulative failure times, or
+  - A numeric vector of exact failure times, or
 
   - A data frame containing two columns: `times` and `failures`. The
-    `times` column contains cumulative failure times, and the `failures`
+    `times` column contains exact failure times, and the `failures`
     column contains the number of failures at each corresponding time.
 
 - failures:
@@ -42,7 +42,7 @@ A list of class `"duane"` containing:
 
 - times:
 
-  The input cumulative failure times.
+  The input exact failure times.
 
 - failures:
 

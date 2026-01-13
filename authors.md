@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/paulgovan/ReliaGrowR/blob/v0.3.2/inst/CITATION)
+[`inst/CITATION`](https://github.com/paulgovan/ReliaGrowR/blob/main/inst/CITATION)
 
 Govan P (2026). “ReliaGrowR: Modeling and Plotting Functions for
 Reliability Growth Analysis.” In *2026 Proceedings - Annual Reliability

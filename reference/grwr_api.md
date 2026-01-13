@@ -9,10 +9,14 @@ function provides an interface to the ReliaGrowR API.
 grwr_api()
 ```
 
+## Value
+
+Launches the ReliaGrowR API on a local server.
+
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-grwr_api()#' grwr_api()
+grwr_api()
 } # }
 ```

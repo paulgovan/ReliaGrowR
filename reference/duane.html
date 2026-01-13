@@ -13,7 +13,7 @@ two numeric vectors (times, failures) or a data frame containing both."></head><
 
     <a class="navbar-brand me-2" href="../index.html">ReliaGrowR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,7 @@ two numeric vectors (times, failures) or a data frame containing both."></head><
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Duane Analysis</h1>
-      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/v0.3.2/R/duane.R" class="external-link"><code>R/duane.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/main/R/duane.R" class="external-link"><code>R/duane.R</code></a></small>
       <div class="d-none name"><code>duane.Rd</code></div>
     </div>
 
@@ -61,9 +61,9 @@ two numeric vectors (<code>times</code>, <code>failures</code>) or a data frame 
 
 
 <dl><dt id="arg-times">times<a class="anchor" aria-label="anchor" href="#arg-times"></a></dt>
-<dd><p>Either:</p><ul><li><p>A numeric vector of cumulative failure times, or</p></li>
+<dd><p>Either:</p><ul><li><p>A numeric vector of exact failure times, or</p></li>
 <li><p>A data frame containing two columns: <code>times</code> and <code>failures</code>. The <code>times</code>
-column contains cumulative failure times, and the <code>failures</code> column
+column contains exact failure times, and the <code>failures</code> column
 contains the number of failures at each corresponding time.</p></li>
 </ul></dd>
 
@@ -84,7 +84,7 @@ Must be between 0 and 1 (exclusive).</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list of class <code>"duane"</code> containing:</p>
 <dl><dt>times</dt>
-<dd><p>The input cumulative failure times.</p></dd>
+<dd><p>The input exact failure times.</p></dd>
 
 <dt>failures</dt>
 <dd><p>The input number of failures.</p></dd>

@@ -1,13 +1,12 @@
 # Reliability Growth Analysis.
 
 This function performs reliability growth analysis using the Crow-AMSAA
-model by Crow (1975) <https://apps.dtic.mil/sti/citations/ADA020296> or
-piecewise NHPP model by Guo et al. (2010)
-<doi:10.1109/RAMS.2010.5448029>. It fits a log-log linear regression of
-cumulative failures versus cumulative time. The function accepts either
-two numeric vectors (`times`, `failures`) or a data frame containing
-both. The `Piecewise NHPP` model can automatically detect change points
-or use user-specified breakpoints.
+model by Crow (1975) (AMSAATR138) or piecewise NHPP model by Guo et al.
+(2010) <doi:10.1109/RAMS.2010.5448029>. It fits a log-log linear
+regression of cumulative failures versus cumulative time. The function
+accepts either two numeric vectors (`times`, `failures`) or a data frame
+containing both. The `Piecewise NHPP` model can automatically detect
+change points or use user-specified breakpoints.
 
 ## Usage
 
@@ -25,11 +24,11 @@ rga(
 
 - times:
 
-  Either a numeric vector of cumulative failure times or a data frame
+  Either a numeric vector of exact failure times or a data frame
   containing both failure times and failure counts. If a data frame is
   provided, it must contain two columns: `times` and `failures`. The
-  `times` column contains cumulative failure times, and the `failures`
-  column contains the number of failures at each corresponding time.
+  `times` column contains exact failure times, and the `failures` column
+  contains the number of failures at each corresponding time.
 
 - failures:
 
@@ -59,7 +58,7 @@ The function returns an object of class `rga` that contains:
 
 - times:
 
-  The input cumulative failure times.
+  The input exact failure times.
 
 - failures:
 

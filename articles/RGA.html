@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ReliaGrowR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,7 @@
       <h1>Reliability Growth Analysis</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/v0.3.2/vignettes/RGA.Rmd" class="external-link"><code>vignettes/RGA.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/main/vignettes/RGA.Rmd" class="external-link"><code>vignettes/RGA.Rmd</code></a></small>
       <div class="d-none name"><code>RGA.Rmd</code></div>
     </div>
 
@@ -134,7 +134,7 @@ time with the fitted model.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span>, main <span class="op">=</span> <span class="st">"Crow-AMSAA Model"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="RGA_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="700"></p>
+<p><img src="RGA_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="700"></p>
 <p>The plot shows the cumulative failures on the y-axis and cumulative
 time on the x-axis, with a fitted curve indicating the reliability
 growth trend.</p>
@@ -183,7 +183,7 @@ time and failure data and specify a breakpoint:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span>, model_type <span class="op">=</span> <span class="st">"Piecewise NHPP"</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">breaks</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span>, main <span class="op">=</span> <span class="st">"Piecewise NHPP Model"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="RGA_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="700"></p>
+<p><img src="RGA_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 </div>
 <div class="section level2">
@@ -212,7 +212,7 @@ time and failure data:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span>, model_type <span class="op">=</span> <span class="st">"Piecewise NHPP"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span>, main <span class="op">=</span> <span class="st">"Piecewise NHPP with Change Point Detection"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="RGA_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" width="700"></p>
+<p><img src="RGA_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 </div>
 <div class="section level2">
@@ -247,7 +247,7 @@ cumulative time.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/duane.html">duane</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="st">"Duane Plot"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative MTBF"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="RGA_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" width="700"></p>
+<p><img src="RGA_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="700"></p>
 <p>The plot shows the cumulative MTBF on the y-axis and cumulative time
 on the x-axis, with a fitted line indicating the reliability growth
 trend.</p>
@@ -265,7 +265,7 @@ rga object as input.</p>
 <span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">8</span><span class="op">)</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/qqplot.rga.html">qqplot.rga</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
-<p><img src="RGA_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" width="700"></p>
+<p><img src="RGA_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="700"></p>
 <p>The <code>qqplot.rga</code> function produces a Q-Q plot that
 compares the quantiles of the observed data with those of the fitted
 model. A good fit is indicated when the points closely follow the
@@ -273,7 +273,7 @@ model. A good fit is indicated when the points closely follow the
 <p>Similarly, a P-P plot can be created with:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ppplot.rga.html">ppplot.rga</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
-<p><img src="RGA_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" width="700"></p>
+<p><img src="RGA_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="700"></p>
 <p>The <code>ppplot.rga</code> function compares the cumulative
 probabilities of the observed data with those of the fitted model. As
 with the Q-Q plot, a good fit is indicated when the points closely
@@ -306,7 +306,7 @@ function for reliability growth analysis.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">CumulativeTime</span>, <span class="va">result</span><span class="op">$</span><span class="va">Failures</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="st">"RGA from Converted Data"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="RGA_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" width="700"></p>
+<p><img src="RGA_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>

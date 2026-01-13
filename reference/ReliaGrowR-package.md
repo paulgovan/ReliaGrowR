@@ -3,9 +3,8 @@
 Modeling and plotting functions for Reliability Growth Analysis (RGA).
 Models include the Duane (1962)
 [doi:10.1109/TA.1964.4319640](https://doi.org/10.1109/TA.1964.4319640) ,
-Non-Homogeneous Poisson Process (NHPP) by Crow (1975)
-<https://apps.dtic.mil/sti/citations/ADA020296>, Piecewise Weibull NHPP
-by Guo et al. (2010)
+Non-Homogeneous Poisson Process (NHPP) by Crow (1975) (No. AMSAATR138),
+Piecewise Weibull NHPP by Guo et al. (2010)
 [doi:10.1109/RAMS.2010.5448029](https://doi.org/10.1109/RAMS.2010.5448029)
 , and Piecewise Weibull NHPP with Change Point Detection based on the
 'segmented' package by Muggeo (2024)
