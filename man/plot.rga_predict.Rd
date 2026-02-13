@@ -28,8 +28,8 @@ with optional confidence bounds for an \code{rga_predict} object.
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 fit <- rga(times, failures)
-fc <- predict_rga(fit, times = c(600, 800, 1000))
-plot(fc)
+fc <- predict_rga(fit, times = c(1500, 2000))
+plot(fc, main = "RGA Forecast", xlab = "Cumulative Time", ylab = "Cumulative Failures")
 }
 \seealso{
 Other Reliability Growth Analysis: 

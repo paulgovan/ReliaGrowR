@@ -625,7 +625,7 @@ plot.rga <- function(x,
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
 #' fit <- rga(times, failures)
-#' fc <- predict_rga(fit, times = c(600, 800, 1000))
+#' fc <- predict_rga(fit, times = c(1500, 2000))
 #' print(fc)
 #' @export
 predict_rga <- function(object, times, conf_level = 0.95) {
@@ -701,7 +701,7 @@ predict_rga <- function(object, times, conf_level = 0.95) {
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
 #' fit <- rga(times, failures)
-#' fc <- predict_rga(fit, times = c(600, 800, 1000))
+#' fc <- predict_rga(fit, times = c(1500, 2000))
 #' print(fc)
 #' @export
 print.rga_predict <- function(x, ...) {
@@ -751,8 +751,8 @@ print.rga_predict <- function(x, ...) {
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
 #' fit <- rga(times, failures)
-#' fc <- predict_rga(fit, times = c(600, 800, 1000))
-#' plot(fc)
+#' fc <- predict_rga(fit, times = c(1500, 2000))
+#' plot(fc, main = "RGA Forecast", xlab = "Cumulative Time", ylab = "Cumulative Failures")
 #' @export
 plot.rga_predict <- function(x,
                              conf_bounds = TRUE,
