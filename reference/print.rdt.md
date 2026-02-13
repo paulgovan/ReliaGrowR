@@ -33,6 +33,7 @@ print(plan)
 #> -----------------------------------------
 #> Distribution:  Exponential 
 #> Weibull Shape Parameter (Beta):  1 
+#> Allowed Failures (f):  0 
 #> Target Reliability:  0.9 
 #> Mission Time:  1000 
 #> Input Sample Size (n):  10 
