@@ -63,6 +63,7 @@
 #' # Example 2: Calculate required sample size
 #' plan2 <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, test_time = 2000)
 #' print(plan2)
+#' @importFrom stats qchisq
 #' @export
 rdt <- function(target, mission_time, conf_level,
                 beta = 1, f = 0, n = NULL, test_time = NULL) {

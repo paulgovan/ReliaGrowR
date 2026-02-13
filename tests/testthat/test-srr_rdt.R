@@ -268,17 +268,20 @@ test_that("rdt() validates f parameter", {
 
 test_that("rdt() f=0 is backward compatible with default", {
   plan_default <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, n = 10)
-  plan_f0      <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, f = 0, n = 10)
+  plan_f0 <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, f = 0, n = 10)
   expect_equal(plan_default$Required_Test_Time, plan_f0$Required_Test_Time)
   expect_equal(plan_f0$Allowed_Failures, 0)
 
   plan_default2 <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, test_time = 2000)
-  plan_f0_2     <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, f = 0, test_time = 2000)
+  plan_f0_2 <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, f = 0, test_time = 2000)
   expect_equal(plan_default2$Required_Sample_Size, plan_f0_2$Required_Sample_Size)
 })
 
 test_that("rdt() f>0 correctness against chi-squared formula", {
-  target <- 0.9; mt <- 1000; cl <- 0.9; f <- 2
+  target <- 0.9
+  mt <- 1000
+  cl <- 0.9
+  f <- 2
   eta0 <- mt / (-log(target))
 
   # Solve for test time
@@ -308,7 +311,12 @@ test_that("rdt() allowing more failures increases required test time and sample 
 
 test_that("RDT with f>0 and sample size input is stable to trivial noise", {
   set.seed(789)
-  target <- 0.9; mission_time <- 1000; conf_level <- 0.9; beta <- 1; f <- 2; n <- 10
+  target <- 0.9
+  mission_time <- 1000
+  conf_level <- 0.9
+  beta <- 1
+  f <- 2
+  n <- 10
 
   base_result <- rdt(target, mission_time, conf_level, beta, f = f, n = n)
 

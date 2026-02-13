@@ -9,7 +9,6 @@
 #' }
 #' @export
 grwr_api <- function() {
-
   # Run the API
   root <- plumber::pr("inst/plumber/plumber.R")
   root %>% plumber::pr_run()

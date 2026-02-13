@@ -11,3 +11,4 @@
 ^CRAN-SUBMISSION$
 ^codemeta\.json$
 ^data-raw$
+^CLAUDE\.md$

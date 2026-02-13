@@ -4,7 +4,15 @@
 \alias{rdt}
 \title{Reliability Demonstration Test (RDT) Plan Calculator}
 \usage{
-rdt(target, mission_time, conf_level, beta = 1, n = NULL, test_time = NULL)
+rdt(
+  target,
+  mission_time,
+  conf_level,
+  beta = 1,
+  f = 0,
+  n = NULL,
+  test_time = NULL
+)
 }
 \arguments{
 \item{target}{Required reliability at mission time (0 < target < 1).}
@@ -17,6 +25,10 @@ confidence level must be between 0 and 1 (exclusive).}
 \item{beta}{Weibull shape parameter (beta=1 corresponds to exponential distribution).
 Must be greater than 0. Default is 1.}
 
+\item{f}{Number of allowable failures during the test (non-negative integer). Default is 0
+(zero-failure test plan). Increasing \code{f} reduces the required test time or sample size at
+the cost of accepting more observed failures.}
+
 \item{n}{Sample size (optional, supply if solving for test_time). Must be a positive integer.}
 
 \item{test_time}{Test time per unit (optional, supply if solving for n). Must be greater than 0.}
@@ -25,6 +37,7 @@ Must be greater than 0. Default is 1.}
 The function returns an object of class \code{rdt} that contains:
 \item{Distribution}{Type of distribution used (Exponential or Weibull).}
 \item{Beta}{Weibull shape parameter.}
+\item{Allowed_Failures}{Number of allowable failures during the test.}
 \item{Target_Reliability}{Specified target reliability.}
 \item{Mission_Time}{Specified mission time.}
 \item{Required_Test_Time}{Calculated required test time (if n is provided).}

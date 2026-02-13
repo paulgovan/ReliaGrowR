@@ -91,6 +91,9 @@ print(result4)
 \seealso{
 Other Reliability Growth Analysis: 
 \code{\link{plot.rga}()},
-\code{\link{print.rga}()}
+\code{\link{plot.rga_predict}()},
+\code{\link{predict_rga}()},
+\code{\link{print.rga}()},
+\code{\link{print.rga_predict}()}
 }
 \concept{Reliability Growth Analysis}

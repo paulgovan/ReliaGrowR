@@ -43,7 +43,10 @@ plot(result,
 }
 \seealso{
 Other Reliability Growth Analysis: 
+\code{\link{plot.rga_predict}()},
+\code{\link{predict_rga}()},
 \code{\link{print.rga}()},
+\code{\link{print.rga_predict}()},
 \code{\link{rga}()}
 }
 \concept{Reliability Growth Analysis}

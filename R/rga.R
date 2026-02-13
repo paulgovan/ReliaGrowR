@@ -156,9 +156,6 @@
 #' @importFrom stats lm predict AIC BIC logLik cor residuals
 #' @importFrom segmented segmented slope intercept seg.control
 #' @export
-
-
-
 rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_level = 0.95) {
   if (is.data.frame(times)) {
     if (!all(c("times", "failures") %in% names(times))) {
@@ -569,6 +566,267 @@ plot.rga <- function(x,
       pch = legend_items$pch,
       lty = legend_items$lty,
       bty = "n"
+    )
+  }
+
+  invisible(NULL)
+}
+
+#' Forecast Cumulative Failures from a Reliability Growth Model
+#'
+#' Takes a fitted \code{rga} object and a vector of cumulative times, returning
+#' predicted cumulative failures with confidence bounds as an \code{rga_predict}
+#' S3 object.
+#'
+#' @srrstats {G1.4} \code{roxygen2} documentation is used to document all functions.
+#' @srrstats {G2.0} Inputs are validated for length.
+#' @srrstats {G2.1} Inputs are validated for type.
+#' @srrstats {G2.6} One-dimensional inputs are appropriately pre-processed.
+#' @srrstats {G2.8} Sub-functions \code{print.rga_predict} and
+#'   \code{plot.rga_predict} are provided for the \code{rga_predict} class.
+#' @srrstats {G2.13} The function checks for missing data and errors if any is found.
+#' @srrstats {G2.14a} Missing data results in an error.
+#' @srrstats {G2.14b} Missing data results in an error.
+#' @srrstats {G2.14c} Missing data results in an error.
+#' @srrstats {G2.15} The function checks for missing data and errors if any is found.
+#' @srrstats {G5.2} Unit tests demonstrate error messages and compare results
+#'   with expected values.
+#' @srrstats {G5.2a} Every message produced by \code{stop()} is unique.
+#' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results
+#'   with expected values.
+#' @srrstats {G5.4} Unit tests include correctness tests to test that statistical
+#'   algorithms produce expected results to fixed test data sets.
+#' @srrstats {G5.8a} Unit tests include checks for zero-length data.
+#' @srrstats {G5.8b} Unit tests include checks for unsupported data types.
+#' @srrstats {G5.8c} Unit tests include checks for data with 'NA' fields.
+#' @srrstats {G5.8d} Unit tests include checks for data outside the scope of
+#'   the algorithm.
+#' @srrstats {G5.9} Unit tests include noise susceptibility tests for expected
+#'   stochastic behavior.
+#' @srrstats {G5.9a} Unit tests check that adding trivial noise to data does
+#'   not meaningfully change results.
+#'
+#' @param object An object of class \code{rga} returned by \code{rga()}.
+#' @param times A numeric vector of cumulative times at which to forecast.
+#'   All values must be finite and > 0. A warning is issued if any value is
+#'   at or below the maximum observed cumulative time (hindcasting).
+#' @param conf_level The desired confidence level (default \code{0.95}). Must
+#'   be a single finite numeric in (0, 1).
+#' @family Reliability Growth Analysis
+#' @return An object of class \code{rga_predict} containing:
+#' \item{times}{The forecast cumulative times.}
+#' \item{cum_failures}{Predicted cumulative failures.}
+#' \item{lower_bounds}{Lower confidence bounds.}
+#' \item{upper_bounds}{Upper confidence bounds.}
+#' \item{conf_level}{The confidence level used.}
+#' \item{model_type}{Either \code{"Crow-AMSAA"} or \code{"Piecewise NHPP"}.}
+#' \item{rga_object}{The original \code{rga} object (used by the plot method).}
+#' @examples
+#' times <- c(100, 200, 300, 400, 500)
+#' failures <- c(1, 2, 1, 3, 2)
+#' fit <- rga(times, failures)
+#' fc <- predict_rga(fit, times = c(600, 800, 1000))
+#' print(fc)
+#' @export
+predict_rga <- function(object, times, conf_level = 0.95) {
+  if (!inherits(object, "rga")) {
+    stop("'object' must be an object of class 'rga'.")
+  }
+  if (!is.numeric(times) || !is.vector(times)) {
+    stop("'times' must be a numeric vector.")
+  }
+  if (length(times) == 0) {
+    stop("'times' cannot be empty.")
+  }
+  if (any(is.na(times)) || any(is.nan(times))) {
+    stop("'times' contains missing (NA) or NaN values.")
+  }
+  if (any(!is.finite(times)) || any(times <= 0)) {
+    stop("All values in 'times' must be finite and > 0.")
+  }
+  if (!is.numeric(conf_level) || length(conf_level) != 1) {
+    stop("'conf_level' must be a single numeric value.")
+  }
+  if (!is.finite(conf_level) || conf_level <= 0 || conf_level >= 1) {
+    stop("'conf_level' must be between 0 and 1 (exclusive).")
+  }
+
+  max_obs_time <- max(exp(object$model$model$log_times))
+  if (any(times <= max_obs_time)) {
+    warning(
+      "Some 'times' values are <= the maximum observed cumulative time. ",
+      "Hindcasting is allowed but may not be meaningful."
+    )
+  }
+
+  model_type <- if (is.null(object$breakpoints)) "Crow-AMSAA" else "Piecewise NHPP"
+
+  newdata <- data.frame(log_times = log(times))
+  pred <- stats::predict(object$model,
+    newdata = newdata,
+    interval = "confidence", level = conf_level
+  )
+  cum_failures <- exp(pred[, "fit"])
+  lower_bounds <- exp(pred[, "lwr"])
+  upper_bounds <- exp(pred[, "upr"])
+
+  result <- list(
+    times        = times,
+    cum_failures = cum_failures,
+    lower_bounds = lower_bounds,
+    upper_bounds = upper_bounds,
+    conf_level   = conf_level,
+    model_type   = model_type,
+    rga_object   = object
+  )
+  class(result) <- "rga_predict"
+  result
+}
+
+#' Print Method for rga_predict Objects
+#'
+#' Prints a formatted table of forecast cumulative failures with confidence
+#' bounds for an \code{rga_predict} object.
+#'
+#' @srrstats {G1.4} \code{roxygen2} documentation is used to document all functions.
+#' @srrstats {G2.8} This method is provided for the \code{rga_predict} class.
+#' @srrstats {G5.2} Unit tests demonstrate output content.
+#' @srrstats {G5.2b} Unit tests compare output with expected values.
+#'
+#' @param x An object of class \code{rga_predict}.
+#' @param ... Additional arguments (not used).
+#' @family Reliability Growth Analysis
+#' @return Invisibly returns the input object.
+#' @examples
+#' times <- c(100, 200, 300, 400, 500)
+#' failures <- c(1, 2, 1, 3, 2)
+#' fit <- rga(times, failures)
+#' fc <- predict_rga(fit, times = c(600, 800, 1000))
+#' print(fc)
+#' @export
+print.rga_predict <- function(x, ...) {
+  if (!inherits(x, "rga_predict")) {
+    stop("'x' must be an object of class 'rga_predict'.")
+  }
+
+  pct <- round(x$conf_level * 100)
+  header <- sprintf("Reliability Growth Forecast (%s)", x$model_type)
+  cat(header, "\n")
+  cat(paste(rep("-", nchar(header) + 1), collapse = ""), "\n")
+
+  df <- data.frame(
+    Time           = x$times,
+    Cum.Failures   = round(x$cum_failures, 1),
+    Lower          = round(x$lower_bounds, 1),
+    Upper          = round(x$upper_bounds, 1),
+    check.names    = FALSE
+  )
+  names(df)[3] <- sprintf("Lower (%d%%)", pct)
+  names(df)[4] <- sprintf("Upper (%d%%)", pct)
+
+  print(df, row.names = FALSE)
+
+  invisible(x)
+}
+
+#' Plot Method for rga_predict Objects
+#'
+#' Plots observed data, the fitted reliability growth curve, and the forecast
+#' with optional confidence bounds for an \code{rga_predict} object.
+#'
+#' @srrstats {G1.4} \code{roxygen2} documentation is used to document all functions.
+#' @srrstats {G2.0} Inputs are validated for length.
+#' @srrstats {G2.1} Inputs are validated for type.
+#' @srrstats {G2.8} This method is provided for the \code{rga_predict} class.
+#' @srrstats {G5.2} Unit tests include smoke tests for this method.
+#'
+#' @param x An object of class \code{rga_predict}.
+#' @param conf_bounds Logical; include confidence bounds (default: \code{TRUE}).
+#' @param legend Logical; show the legend (default: \code{TRUE}).
+#' @param legend_pos Position of the legend (default: \code{"bottomright"}).
+#' @param ... Additional arguments passed to \code{plot()}.
+#' @family Reliability Growth Analysis
+#' @return Invisibly returns \code{NULL}.
+#' @examples
+#' times <- c(100, 200, 300, 400, 500)
+#' failures <- c(1, 2, 1, 3, 2)
+#' fit <- rga(times, failures)
+#' fc <- predict_rga(fit, times = c(600, 800, 1000))
+#' plot(fc)
+#' @export
+plot.rga_predict <- function(x,
+                             conf_bounds = TRUE,
+                             legend = TRUE,
+                             legend_pos = "bottomright",
+                             ...) {
+  if (!inherits(x, "rga_predict")) {
+    stop("'x' must be an object of class 'rga_predict'.")
+  }
+  if (!is.logical(conf_bounds) || length(conf_bounds) != 1) {
+    stop("'conf_bounds' must be a single logical value.")
+  }
+  if (!is.logical(legend) || length(legend) != 1) {
+    stop("'legend' must be a single logical value.")
+  }
+  if (!is.character(legend_pos) || length(legend_pos) != 1) {
+    stop("'legend_pos' must be a single character string.")
+  }
+
+  rga_obj <- x$rga_object
+  obs_times <- exp(rga_obj$model$model$log_times)
+  obs_cum_failures <- exp(rga_obj$model$model$log_cum_failures)
+
+  all_y <- c(obs_cum_failures, rga_obj$fitted_values, x$cum_failures)
+  if (conf_bounds) {
+    all_y <- c(
+      all_y, rga_obj$lower_bounds, rga_obj$upper_bounds,
+      x$lower_bounds, x$upper_bounds
+    )
+  }
+  xlim <- range(c(obs_times, x$times))
+  ylim <- range(all_y)
+
+  graphics::plot(obs_times, obs_cum_failures,
+    xlim = xlim, ylim = ylim, pch = 16, ...
+  )
+
+  graphics::lines(obs_times, rga_obj$fitted_values)
+
+  if (conf_bounds) {
+    graphics::lines(obs_times, rga_obj$lower_bounds, lty = 3)
+    graphics::lines(obs_times, rga_obj$upper_bounds, lty = 3)
+  }
+
+  max_obs_time <- max(obs_times)
+  graphics::abline(v = max_obs_time, lty = 2, col = "gray")
+
+  graphics::lines(x$times, x$cum_failures, lty = 2)
+
+  if (conf_bounds) {
+    graphics::lines(x$times, x$lower_bounds, lty = 3)
+    graphics::lines(x$times, x$upper_bounds, lty = 3)
+  }
+
+  if (legend) {
+    pct <- round(x$conf_level * 100)
+    legend_labels <- c("Observed", "Fitted", "Forecast")
+    legend_pch <- c(16, NA, NA)
+    legend_lty <- c(NA, 1, 2)
+    legend_cols <- c("black", "black", "black")
+
+    if (conf_bounds) {
+      legend_labels <- c(legend_labels, sprintf("Conf. Bounds (%d%%)", pct))
+      legend_pch <- c(legend_pch, NA)
+      legend_lty <- c(legend_lty, 3)
+      legend_cols <- c(legend_cols, "black")
+    }
+
+    graphics::legend(legend_pos,
+      legend = legend_labels,
+      pch    = legend_pch,
+      lty    = legend_lty,
+      col    = legend_cols,
+      bty    = "n"
     )
   }
 

@@ -355,7 +355,6 @@ test_that("Piecewise NHPP parameter recovery works", {
 })
 
 test_that("rga() handles increasing dataset sizes efficiently", {
-
   set.seed(123)
   sizes <- c(100, 500, 1000, 5000)
   beta_true <- 1.2
@@ -380,7 +379,6 @@ test_that("rga() handles increasing dataset sizes efficiently", {
 })
 
 test_that("Crow-AMSAA is robust to small noise in times", {
-
   # Don't run these tests on the CRAN build servers
   skip_on_cran()
 
@@ -410,7 +408,6 @@ test_that("Crow-AMSAA is robust to small noise in times", {
 })
 
 test_that("Crow-AMSAA is robust to small noise in failures", {
-
   # Don't run these tests on the CRAN build servers
   skip_on_cran()
 
@@ -437,7 +434,6 @@ test_that("Crow-AMSAA is robust to small noise in failures", {
 })
 
 test_that("Piecewise NHPP is robust to small noise in times and failures", {
-
   # Don't run these tests on the CRAN build servers
   skip_on_cran()
 
@@ -536,7 +532,6 @@ if (requireNamespace("vdiffr", quietly = TRUE)) {
 }
 
 test_that("rga() errors on perfect (noiseless) collinearity between predictor and response", {
-
   # Don't run these tests on the CRAN build servers
   skip_on_cran()
 
@@ -565,7 +560,6 @@ test_that("rga() errors on perfect (noiseless) collinearity between predictor an
 })
 
 test_that("rga() fits near-noiseless data and is at least as fast as noisy data (Crow-AMSAA)", {
-
   # Don't run these tests on the CRAN build servers
   skip_on_cran()
 
@@ -608,7 +602,6 @@ test_that("rga() fits near-noiseless data and is at least as fast as noisy data 
 })
 
 test_that("rga() fits near-noiseless data with user-supplied breaks (Piecewise NHPP) and is reasonably fast", {
-
   # Don't run these tests on the CRAN build servers
   skip_on_cran()
 
@@ -654,6 +647,179 @@ test_that("rga() fits near-noiseless data with user-supplied breaks (Piecewise N
     info = sprintf("Noiseless fit took %.3fs vs noisy %.3fs", t_near_pw, t_noisy_pw)
   )
 })
+
+# --------------------------------------------------------------------------- #
+# predict_rga() tests                                                        #
+# --------------------------------------------------------------------------- #
+
+# Shared fixture for forecast tests
+fc_times <- c(100, 200, 300, 400, 500)
+fc_failures <- c(1, 2, 1, 3, 2)
+fc_fit <- rga(fc_times, fc_failures)
+
+test_that("predict_rga: input validation — wrong class", {
+  expect_error(predict_rga(list()), "'object' must be an object of class 'rga'.",
+    fixed = TRUE
+  )
+})
+
+test_that("predict_rga: input validation — non-numeric times", {
+  expect_error(predict_rga(fc_fit, times = "600"),
+    "'times' must be a numeric vector.",
+    fixed = TRUE
+  )
+  expect_error(predict_rga(fc_fit, times = list(600)),
+    "'times' must be a numeric vector.",
+    fixed = TRUE
+  )
+})
+
+test_that("predict_rga: input validation — empty times", {
+  expect_error(predict_rga(fc_fit, times = numeric(0)),
+    "'times' cannot be empty.",
+    fixed = TRUE
+  )
+})
+
+test_that("predict_rga: input validation — NA / NaN in times", {
+  expect_error(predict_rga(fc_fit, times = c(600, NA)),
+    "'times' contains missing (NA) or NaN values.",
+    fixed = TRUE
+  )
+  expect_error(predict_rga(fc_fit, times = c(600, NaN)),
+    "'times' contains missing (NA) or NaN values.",
+    fixed = TRUE
+  )
+})
+
+test_that("predict_rga: input validation — non-finite / non-positive times", {
+  expect_error(predict_rga(fc_fit, times = c(600, Inf)),
+    "All values in 'times' must be finite and > 0.",
+    fixed = TRUE
+  )
+  expect_error(predict_rga(fc_fit, times = c(600, -1)),
+    "All values in 'times' must be finite and > 0.",
+    fixed = TRUE
+  )
+  expect_error(predict_rga(fc_fit, times = c(600, 0)),
+    "All values in 'times' must be finite and > 0.",
+    fixed = TRUE
+  )
+})
+
+test_that("predict_rga: input validation — bad conf_level", {
+  expect_error(predict_rga(fc_fit, times = c(600), conf_level = c(0.9, 0.95)),
+    "'conf_level' must be a single numeric value.",
+    fixed = TRUE
+  )
+  expect_error(predict_rga(fc_fit, times = c(600), conf_level = 0),
+    "'conf_level' must be between 0 and 1 (exclusive).",
+    fixed = TRUE
+  )
+  expect_error(predict_rga(fc_fit, times = c(600), conf_level = 1),
+    "'conf_level' must be between 0 and 1 (exclusive).",
+    fixed = TRUE
+  )
+  expect_error(predict_rga(fc_fit, times = c(600), conf_level = Inf),
+    "'conf_level' must be between 0 and 1 (exclusive).",
+    fixed = TRUE
+  )
+})
+
+test_that("predict_rga: hindcast warning when times <= max observed", {
+  max_obs <- sum(fc_times) # cumulative time of last observation = 1500
+  expect_warning(
+    predict_rga(fc_fit, times = c(max_obs - 1, max_obs)),
+    "Hindcasting is allowed but may not be meaningful."
+  )
+})
+
+test_that("predict_rga: Crow-AMSAA cum_failures == lambda * T^beta", {
+  fc <- predict_rga(fc_fit, times = c(2000, 3000, 4000))
+  expected <- fc_fit$lambdas * c(2000, 3000, 4000)^fc_fit$betas
+  expect_equal(fc$cum_failures, expected, tolerance = 1e-6, ignore_attr = TRUE)
+
+  # Bounds ordering: lower <= fit <= upper
+  expect_true(all(fc$lower_bounds <= fc$cum_failures))
+  expect_true(all(fc$cum_failures <= fc$upper_bounds))
+})
+
+test_that("predict_rga: Piecewise NHPP forecast is numeric beyond last breakpoint", {
+  fit_pw <- suppressWarnings(
+    rga(fc_times, fc_failures, model_type = "Piecewise NHPP", breaks = c(450))
+  )
+  fc_pw <- predict_rga(fit_pw, times = c(2000, 3000))
+
+  expect_s3_class(fc_pw, "rga_predict")
+  expect_equal(fc_pw$model_type, "Piecewise NHPP")
+  expect_true(is.numeric(fc_pw$cum_failures))
+  expect_length(fc_pw$cum_failures, 2)
+  expect_true(all(is.finite(fc_pw$cum_failures)))
+})
+
+test_that("predict_rga: monotonicity — larger times yield larger cum_failures", {
+  fc <- predict_rga(fc_fit, times = c(2000, 3000, 4000, 5000))
+  expect_true(all(diff(fc$cum_failures) > 0))
+})
+
+test_that("predict_rga: wider conf_level produces wider bounds", {
+  fc90 <- predict_rga(fc_fit, times = c(2000, 3000), conf_level = 0.90)
+  fc99 <- predict_rga(fc_fit, times = c(2000, 3000), conf_level = 0.99)
+
+  width90 <- fc90$upper_bounds - fc90$lower_bounds
+  width99 <- fc99$upper_bounds - fc99$lower_bounds
+  expect_true(all(width99 > width90))
+})
+
+test_that("print.rga_predict: smoke test and invisibility", {
+  fc <- predict_rga(fc_fit, times = c(2000, 3000, 4000))
+  expect_output(print(fc), "Reliability Growth Forecast")
+  expect_output(print(fc), "Crow-AMSAA")
+  expect_output(print(fc), "Cum.Failures")
+  expect_invisible(print(fc))
+})
+
+test_that("print.rga_predict: errors on wrong class", {
+  expect_error(print.rga_predict(list()),
+    "'x' must be an object of class 'rga_predict'.",
+    fixed = TRUE
+  )
+})
+
+test_that("plot.rga_predict: smoke test — no error with default args", {
+  fc <- predict_rga(fc_fit, times = c(2000, 3000, 4000))
+  expect_silent(plot(fc))
+  expect_silent(plot(fc, conf_bounds = FALSE))
+  expect_silent(plot(fc, legend = FALSE))
+  expect_silent(plot(fc, legend_pos = "topright"))
+})
+
+test_that("plot.rga_predict: invisibly returns NULL", {
+  fc <- predict_rga(fc_fit, times = c(2000, 3000))
+  expect_invisible(plot(fc))
+})
+
+test_that("plot.rga_predict: argument validation", {
+  fc <- predict_rga(fc_fit, times = c(2000, 3000))
+  expect_error(plot.rga_predict(list()),
+    "'x' must be an object of class 'rga_predict'.",
+    fixed = TRUE
+  )
+  expect_error(plot(fc, conf_bounds = "yes"),
+    "'conf_bounds' must be a single logical value.",
+    fixed = TRUE
+  )
+  expect_error(plot(fc, legend = "yes"),
+    "'legend' must be a single logical value.",
+    fixed = TRUE
+  )
+  expect_error(plot(fc, legend_pos = 1),
+    "'legend_pos' must be a single character string.",
+    fixed = TRUE
+  )
+})
+
+# --------------------------------------------------------------------------- #
 
 test_that("rga output retains row / case names from input", {
   # Case 1: Named numeric vectors
