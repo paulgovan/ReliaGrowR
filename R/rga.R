@@ -822,11 +822,14 @@ plot.rga_predict <- function(x,
     }
 
     graphics::legend(legend_pos,
-      legend = legend_labels,
-      pch    = legend_pch,
-      lty    = legend_lty,
-      col    = legend_cols,
-      bty    = "n"
+      legend   = legend_labels,
+      pch      = legend_pch,
+      lty      = legend_lty,
+      col      = legend_cols,
+      bty      = "n",
+      cex      = 0.85,
+      y.intersp = 1.3,
+      x.intersp = 0.8
     )
   }
 
