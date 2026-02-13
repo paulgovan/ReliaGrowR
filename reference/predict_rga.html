@@ -112,15 +112,14 @@ be a single finite numeric in (0, 1).</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">300</span>, <span class="fl">400</span>, <span class="fl">500</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fc</span> <span class="op">&lt;-</span> <span class="fu">predict_rga</span><span class="op">(</span><span class="va">fit</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">600</span>, <span class="fl">800</span>, <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fc</span> <span class="op">&lt;-</span> <span class="fu">predict_rga</span><span class="op">(</span><span class="va">fit</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1500</span>, <span class="fl">2000</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Some 'times' values are &lt;= the maximum observed cumulative time. Hindcasting is allowed but may not be meaningful.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fc</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reliability Growth Forecast (Crow-AMSAA) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ----------------------------------------- </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Time Cum.Failures Lower (95%) Upper (95%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   600          4.5         3.7         5.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   800          5.6         4.6         6.8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1000          6.7         5.4         8.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1500          9.3         7.1        12.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2000         11.7         8.6        15.8</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

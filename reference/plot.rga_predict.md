@@ -52,7 +52,7 @@ Other Reliability Growth Analysis:
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 fit <- rga(times, failures)
-fc <- predict_rga(fit, times = c(600, 800, 1000))
+fc <- predict_rga(fit, times = c(1500, 2000))
 #> Warning: Some 'times' values are <= the maximum observed cumulative time. Hindcasting is allowed but may not be meaningful.
-plot(fc)
+plot(fc, main = "RGA Forecast", xlab = "Cumulative Time", ylab = "Cumulative Failures")
 ```

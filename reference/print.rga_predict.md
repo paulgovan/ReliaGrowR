@@ -39,13 +39,12 @@ Other Reliability Growth Analysis:
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 fit <- rga(times, failures)
-fc <- predict_rga(fit, times = c(600, 800, 1000))
+fc <- predict_rga(fit, times = c(1500, 2000))
 #> Warning: Some 'times' values are <= the maximum observed cumulative time. Hindcasting is allowed but may not be meaningful.
 print(fc)
 #> Reliability Growth Forecast (Crow-AMSAA) 
 #> ----------------------------------------- 
 #>  Time Cum.Failures Lower (95%) Upper (95%)
-#>   600          4.5         3.7         5.3
-#>   800          5.6         4.6         6.8
-#>  1000          6.7         5.4         8.3
+#>  1500          9.3         7.1        12.1
+#>  2000         11.7         8.6        15.8
 ```
