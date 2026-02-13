@@ -81,14 +81,20 @@ By contributing to this project, you agree to abide by its terms.
   : Plot Method for Duane Analysis
 - [`plot(`*`<rga>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga.md)
   : Plot Method for RGA Objects
+- [`plot(`*`<rga_predict>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga_predict.md)
+  : Plot Method for rga_predict Objects
 - [`ppplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/ppplot.rga.md)
   : P-P Plot for RGA Objects
+- [`predict_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.md)
+  : Forecast Cumulative Failures from a Reliability Growth Model
 - [`print(`*`<duane>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane.md)
   : Print method for duane objects.
 - [`print(`*`<rdt>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.rdt.md)
   : Print method for rdt objects
 - [`print(`*`<rga>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga.md)
   : Print method for rga objects.
+- [`print(`*`<rga_predict>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga_predict.md)
+  : Print Method for rga_predict Objects
 - [`qqplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/qqplot.rga.md)
   : Q-Q Plot for RGA Objects
 - [`rdt()`](https://paulgovan.github.io/ReliaGrowR/reference/rdt.md) :

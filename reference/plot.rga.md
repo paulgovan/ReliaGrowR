@@ -51,7 +51,10 @@ Invisibly returns `NULL`.
 ## See also
 
 Other Reliability Growth Analysis:
+[`plot.rga_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga_predict.md),
+[`predict_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.md),
 [`print.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga.md),
+[`print.rga_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga_predict.md),
 [`rga()`](https://paulgovan.github.io/ReliaGrowR/reference/rga.md)
 
 ## Examples

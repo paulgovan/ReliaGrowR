@@ -146,7 +146,10 @@ poor initial values, it may take more iterations.
 
 Other Reliability Growth Analysis:
 [`plot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga.md),
-[`print.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga.md)
+[`plot.rga_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga_predict.md),
+[`predict_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.md),
+[`print.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga.md),
+[`print.rga_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga_predict.md)
 
 ## Examples
 

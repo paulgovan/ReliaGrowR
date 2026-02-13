@@ -29,6 +29,9 @@ Invisibly returns the input object.
 
 Other Reliability Growth Analysis:
 [`plot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga.md),
+[`plot.rga_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga_predict.md),
+[`predict_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.md),
+[`print.rga_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga_predict.md),
 [`rga()`](https://paulgovan.github.io/ReliaGrowR/reference/rga.md)
 
 ## Examples

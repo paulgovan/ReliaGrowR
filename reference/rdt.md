@@ -7,7 +7,15 @@ mission time, confidence level, and Weibull shape parameter.
 ## Usage
 
 ``` r
-rdt(target, mission_time, conf_level, beta = 1, n = NULL, test_time = NULL)
+rdt(
+  target,
+  mission_time,
+  conf_level,
+  beta = 1,
+  f = 0,
+  n = NULL,
+  test_time = NULL
+)
 ```
 
 ## Arguments
@@ -30,6 +38,13 @@ rdt(target, mission_time, conf_level, beta = 1, n = NULL, test_time = NULL)
   Weibull shape parameter (beta=1 corresponds to exponential
   distribution). Must be greater than 0. Default is 1.
 
+- f:
+
+  Number of allowable failures during the test (non-negative integer).
+  Default is 0 (zero-failure test plan). Increasing `f` reduces the
+  required test time or sample size at the cost of accepting more
+  observed failures.
+
 - n:
 
   Sample size (optional, supply if solving for test_time). Must be a
@@ -51,6 +66,10 @@ The function returns an object of class `rdt` that contains:
 - Beta:
 
   Weibull shape parameter.
+
+- Allowed_Failures:
+
+  Number of allowable failures during the test.
 
 - Target_Reliability:
 
