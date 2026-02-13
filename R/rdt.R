@@ -40,11 +40,15 @@
 #' confidence level must be between 0 and 1 (exclusive).
 #' @param beta Weibull shape parameter (beta=1 corresponds to exponential distribution).
 #' Must be greater than 0. Default is 1.
+#' @param f Number of allowable failures during the test (non-negative integer). Default is 0
+#' (zero-failure test plan). Increasing `f` reduces the required test time or sample size at
+#' the cost of accepting more observed failures.
 #' @param n Sample size (optional, supply if solving for test_time). Must be a positive integer.
 #' @param test_time Test time per unit (optional, supply if solving for n). Must be greater than 0.
 #' @return The function returns an object of class `rdt` that contains:
 #' \item{Distribution}{Type of distribution used (Exponential or Weibull).}
 #' \item{Beta}{Weibull shape parameter.}
+#' \item{Allowed_Failures}{Number of allowable failures during the test.}
 #' \item{Target_Reliability}{Specified target reliability.}
 #' \item{Mission_Time}{Specified mission time.}
 #' \item{Required_Test_Time}{Calculated required test time (if n is provided).}
@@ -61,7 +65,7 @@
 #' print(plan2)
 #' @export
 rdt <- function(target, mission_time, conf_level,
-                beta = 1, n = NULL, test_time = NULL) {
+                beta = 1, f = 0, n = NULL, test_time = NULL) {
   # Input validation
   if (!is.numeric(target) || length(target) != 1 || !is.finite(target)) {
     stop("'target' must be a single finite numeric value.")
@@ -89,6 +93,13 @@ rdt <- function(target, mission_time, conf_level,
   }
   if (beta <= 0) {
     stop("'beta' must be greater than 0.")
+  }
+
+  if (!is.numeric(f) || length(f) != 1 || !is.finite(f)) {
+    stop("'f' must be a single finite numeric value.")
+  }
+  if (f < 0 || f != floor(f)) {
+    stop("'f' must be a non-negative integer.")
   }
 
   if (!is.null(n) && !is.null(test_time)) {
@@ -119,12 +130,17 @@ rdt <- function(target, mission_time, conf_level,
   # Scale parameter under H0 (Weibull with specified beta)
   eta0 <- mission_time / (-log(target))^(1 / beta)
 
+  # Chi-squared critical value for f allowed failures; df=2*(f+1) reduces to
+  # -log(1-conf_level) when f=0, preserving backward compatibility.
+  chi2_val <- qchisq(conf_level, df = 2 * (f + 1))
+
   if (!is.null(n) & is.null(test_time)) {
     # Solve for required test time
-    T_req <- eta0 * ((-log(1 - conf_level)) / n)^(1 / beta)
+    T_req <- eta0 * (chi2_val / (2 * n))^(1 / beta)
     result <- list(
       Distribution = ifelse(beta == 1, "Exponential", "Weibull"),
       Beta = beta,
+      Allowed_Failures = f,
       Target_Reliability = target,
       Mission_Time = mission_time,
       Required_Test_Time = T_req,
@@ -132,10 +148,11 @@ rdt <- function(target, mission_time, conf_level,
     )
   } else if (is.null(n) & !is.null(test_time)) {
     # Solve for required sample size
-    n_req <- ceiling((-log(1 - conf_level)) / ((test_time / eta0)^beta))
+    n_req <- ceiling(chi2_val / (2 * (test_time / eta0)^beta))
     result <- list(
       Distribution = ifelse(beta == 1, "Exponential", "Weibull"),
       Beta = beta,
+      Allowed_Failures = f,
       Target_Reliability = target,
       Mission_Time = mission_time,
       Required_Sample_Size = n_req,
@@ -200,6 +217,7 @@ print.rdt <- function(x, ...) {
   cat("-----------------------------------------\n")
   cat("Distribution: ", x$Distribution, "\n")
   cat("Weibull Shape Parameter (Beta): ", x$Beta, "\n")
+  cat("Allowed Failures (f): ", x$Allowed_Failures, "\n")
   cat("Target Reliability: ", x$Target_Reliability, "\n")
   cat("Mission Time: ", x$Mission_Time, "\n")
 

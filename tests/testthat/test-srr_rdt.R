@@ -242,3 +242,89 @@ test_that("print.rdt errors on wrong input", {
   expect_error(print.rdt(123), "'x' must be an object of class 'rdt'")
   expect_error(print.rdt(list()), "'x' must be an object of class 'rdt'")
 })
+
+test_that("rdt() validates f parameter", {
+  expect_error(
+    rdt(0.9, 100, 0.9, f = "a", n = 10),
+    "'f' must be a single finite numeric value."
+  )
+  expect_error(
+    rdt(0.9, 100, 0.9, f = c(0, 1), n = 10),
+    "'f' must be a single finite numeric value."
+  )
+  expect_error(
+    rdt(0.9, 100, 0.9, f = Inf, n = 10),
+    "'f' must be a single finite numeric value."
+  )
+  expect_error(
+    rdt(0.9, 100, 0.9, f = -1, n = 10),
+    "'f' must be a non-negative integer."
+  )
+  expect_error(
+    rdt(0.9, 100, 0.9, f = 1.5, n = 10),
+    "'f' must be a non-negative integer."
+  )
+})
+
+test_that("rdt() f=0 is backward compatible with default", {
+  plan_default <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, n = 10)
+  plan_f0      <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, f = 0, n = 10)
+  expect_equal(plan_default$Required_Test_Time, plan_f0$Required_Test_Time)
+  expect_equal(plan_f0$Allowed_Failures, 0)
+
+  plan_default2 <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, test_time = 2000)
+  plan_f0_2     <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, f = 0, test_time = 2000)
+  expect_equal(plan_default2$Required_Sample_Size, plan_f0_2$Required_Sample_Size)
+})
+
+test_that("rdt() f>0 correctness against chi-squared formula", {
+  target <- 0.9; mt <- 1000; cl <- 0.9; f <- 2
+  eta0 <- mt / (-log(target))
+
+  # Solve for test time
+  expected_T <- eta0 * qchisq(cl, df = 2 * (f + 1)) / (2 * 10)
+  plan <- rdt(target = target, mission_time = mt, conf_level = cl, beta = 1, f = f, n = 10)
+  expect_equal(plan$Required_Test_Time, expected_T, tolerance = 1e-10)
+  expect_equal(plan$Allowed_Failures, f)
+
+  # Solve for sample size
+  expected_n <- ceiling(qchisq(cl, df = 2 * (f + 1)) / (2 * (2000 / eta0)))
+  plan2 <- rdt(target = target, mission_time = mt, conf_level = cl, beta = 1, f = f, test_time = 2000)
+  expect_equal(plan2$Required_Sample_Size, expected_n)
+  expect_equal(plan2$Allowed_Failures, f)
+})
+
+test_that("rdt() allowing more failures increases required test time and sample size", {
+  # With fixed n, higher f requires longer per-unit test time (more total evidence needed)
+  plan0 <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, f = 0, n = 10)
+  plan2 <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, f = 2, n = 10)
+  expect_gt(plan2$Required_Test_Time, plan0$Required_Test_Time)
+
+  # With fixed test_time, higher f requires more units
+  plan0_tt <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, f = 0, test_time = 2000)
+  plan2_tt <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, f = 2, test_time = 2000)
+  expect_gt(plan2_tt$Required_Sample_Size, plan0_tt$Required_Sample_Size)
+})
+
+test_that("RDT with f>0 and sample size input is stable to trivial noise", {
+  set.seed(789)
+  target <- 0.9; mission_time <- 1000; conf_level <- 0.9; beta <- 1; f <- 2; n <- 10
+
+  base_result <- rdt(target, mission_time, conf_level, beta, f = f, n = n)
+
+  noise <- function(x) x + rnorm(1, 0, 1e-8)
+  noisy_result <- rdt(noise(target), noise(mission_time), noise(conf_level), noise(beta),
+    f = f, n = n
+  )
+
+  expect_equal(base_result$Input_Sample_Size, noisy_result$Input_Sample_Size)
+  expect_equal(base_result$Required_Test_Time, noisy_result$Required_Test_Time, tolerance = 1e-6)
+})
+
+test_that("print.rdt shows Allowed Failures line", {
+  plan <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, f = 2, n = 10)
+  expect_output(print(plan), "Allowed Failures")
+
+  plan2 <- rdt(target = 0.9, mission_time = 1000, conf_level = 0.9, beta = 1, f = 2, test_time = 2000)
+  expect_output(print(plan2), "Allowed Failures")
+})
