@@ -6,43 +6,47 @@
 # Returns a named list of estimates, standard errors, fitted values, CIs,
 # residuals, and information criteria.
 .fit_mle_crow <- function(cum_time, failures, conf_level) {
-  N     <- sum(failures)
+  N <- sum(failures)
   T_max <- max(cum_time)
   n_obs <- length(failures)
   t_prev <- c(0, cum_time[-n_obs])
 
   neg_loglik <- function(par) {
-    beta   <- par[1]
+    beta <- par[1]
     lambda <- par[2]
-    if (beta <= 0 || lambda <= 0) return(Inf)
+    if (beta <= 0 || lambda <= 0) {
+      return(Inf)
+    }
     delta_t <- cum_time^beta - t_prev^beta
-    if (any(delta_t <= 0)) return(Inf)
+    if (any(delta_t <= 0)) {
+      return(Inf)
+    }
     ll <- N * log(lambda) + sum(failures * log(delta_t)) - lambda * T_max^beta
     -ll
   }
 
   opt <- stats::optim(
-    par    = c(1, N / T_max),
-    fn     = neg_loglik,
+    par = c(1, N / T_max),
+    fn = neg_loglik,
     method = "L-BFGS-B",
-    lower  = c(1e-6, 1e-10),
+    lower = c(1e-6, 1e-10),
     hessian = TRUE
   )
 
-  beta_hat   <- opt$par[1]
+  beta_hat <- opt$par[1]
   lambda_hat <- opt$par[2]
-  loglik     <- -opt$value
+  loglik <- -opt$value
 
   vcov_mat <- tryCatch(solve(opt$hessian), error = function(e) matrix(NA_real_, 2, 2))
-  beta_se  <- if (!anyNA(vcov_mat)) sqrt(max(vcov_mat[1, 1], 0)) else NA_real_
+  beta_se <- if (!anyNA(vcov_mat)) sqrt(max(vcov_mat[1, 1], 0)) else NA_real_
 
   fitted_values <- lambda_hat * cum_time^beta_hat
 
-  z_val     <- stats::qnorm(1 - (1 - conf_level) / 2)
-  log_fit   <- log(fitted_values)
-  grad_mat  <- cbind(log(cum_time), 1 / lambda_hat)
-  var_lf    <- rowSums((grad_mat %*% vcov_mat) * grad_mat)
-  hw        <- z_val * sqrt(pmax(var_lf, 0))
+  z_val <- stats::qnorm(1 - (1 - conf_level) / 2)
+  log_fit <- log(fitted_values)
+  grad_mat <- cbind(log(cum_time), 1 / lambda_hat)
+  var_lf <- rowSums((grad_mat %*% vcov_mat) * grad_mat)
+  hw <- z_val * sqrt(pmax(var_lf, 0))
 
   list(
     beta          = beta_hat,
@@ -609,13 +613,13 @@ plot.rga <- function(x,
   }
 
   if (!is.null(x$method) && x$method == "MLE") {
-    times        <- cumsum(x$times)
+    times <- cumsum(x$times)
     cum_failures <- cumsum(x$failures)
   } else {
     if (!all(c("log_times", "log_cum_failures") %in% names(x$model$model))) {
       stop("The 'rga' object appears malformed or missing model data.")
     }
-    times        <- exp(x$model$model$log_times)
+    times <- exp(x$model$model$log_times)
     cum_failures <- exp(x$model$model$log_cum_failures)
   }
 
@@ -774,11 +778,11 @@ predict_rga <- function(object, times, conf_level = 0.95) {
 
   if (!is.null(object$method) && object$method == "MLE") {
     cum_failures <- object$lambdas * times^object$betas
-    log_fitted   <- log(cum_failures)
-    z_val        <- stats::qnorm(1 - (1 - conf_level) / 2)
-    grad_mat     <- cbind(log(times), 1 / object$lambdas)
-    var_lf       <- rowSums((grad_mat %*% object$vcov) * grad_mat)
-    hw           <- z_val * sqrt(pmax(var_lf, 0))
+    log_fitted <- log(cum_failures)
+    z_val <- stats::qnorm(1 - (1 - conf_level) / 2)
+    grad_mat <- cbind(log(times), 1 / object$lambdas)
+    var_lf <- rowSums((grad_mat %*% object$vcov) * grad_mat)
+    hw <- z_val * sqrt(pmax(var_lf, 0))
     lower_bounds <- exp(log_fitted - hw)
     upper_bounds <- exp(log_fitted + hw)
   } else {
@@ -896,10 +900,10 @@ plot.rga_predict <- function(x,
 
   rga_obj <- x$rga_object
   if (!is.null(rga_obj$method) && rga_obj$method == "MLE") {
-    obs_times        <- cumsum(rga_obj$times)
+    obs_times <- cumsum(rga_obj$times)
     obs_cum_failures <- cumsum(rga_obj$failures)
   } else {
-    obs_times        <- exp(rga_obj$model$model$log_times)
+    obs_times <- exp(rga_obj$model$model$log_times)
     obs_cum_failures <- exp(rga_obj$model$model$log_cum_failures)
   }
 
@@ -949,12 +953,12 @@ plot.rga_predict <- function(x,
     }
 
     graphics::legend(legend_pos,
-      legend   = legend_labels,
-      pch      = legend_pch,
-      lty      = legend_lty,
-      col      = legend_cols,
-      bty      = "n",
-      cex      = 0.85,
+      legend = legend_labels,
+      pch = legend_pch,
+      lty = legend_lty,
+      col = legend_cols,
+      bty = "n",
+      cex = 0.85,
       y.intersp = 1.3,
       x.intersp = 0.8
     )

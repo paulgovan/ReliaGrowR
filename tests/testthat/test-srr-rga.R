@@ -849,7 +849,7 @@ test_that("rga output retains row / case names from input", {
 # --------------------------------------------------------------------------- #
 
 test_that("MLE + Piecewise NHPP errors with 'is not supported'", {
-  times    <- c(100, 200, 300, 400, 500)
+  times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
   expect_error(
     rga(times, failures, model_type = "Piecewise NHPP", method = "MLE"),
@@ -858,7 +858,7 @@ test_that("MLE + Piecewise NHPP errors with 'is not supported'", {
 })
 
 test_that("invalid method value errors via match.arg", {
-  times    <- c(100, 200, 300, 400, 500)
+  times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
   expect_error(
     rga(times, failures, method = "OLS"),
@@ -867,7 +867,7 @@ test_that("invalid method value errors via match.arg", {
 })
 
 test_that("MLE returns correct class and fields", {
-  times    <- c(100, 200, 300, 400, 500)
+  times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
   fit <- rga(times, failures, method = "MLE")
 
@@ -881,7 +881,7 @@ test_that("MLE returns correct class and fields", {
 })
 
 test_that("LS still has method='LS' and vcov=NULL", {
-  times    <- c(100, 200, 300, 400, 500)
+  times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
   fit <- rga(times, failures)
 
@@ -890,7 +890,7 @@ test_that("LS still has method='LS' and vcov=NULL", {
 })
 
 test_that("MLE logLik/AIC/BIC are finite and AIC == -2*logLik + 4", {
-  times    <- c(100, 200, 300, 400, 500)
+  times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
   fit <- rga(times, failures, method = "MLE")
 
@@ -901,13 +901,13 @@ test_that("MLE logLik/AIC/BIC are finite and AIC == -2*logLik + 4", {
 })
 
 test_that("print.rga shows Estimation Method for MLE and LS", {
-  times    <- c(100, 200, 300, 400, 500)
+  times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
   fit_mle <- rga(times, failures, method = "MLE")
-  fit_ls  <- rga(times, failures, method = "LS")
+  fit_ls <- rga(times, failures, method = "LS")
 
   expect_output(print(fit_mle), "Estimation Method: MLE")
-  expect_output(print(fit_ls),  "Estimation Method: LS")
+  expect_output(print(fit_ls), "Estimation Method: LS")
 })
 
 test_that("MLE parameter recovery (n=10 wide-interval NHPP simulation)", {
@@ -918,26 +918,28 @@ test_that("MLE parameter recovery (n=10 wide-interval NHPP simulation)", {
   # Wide intervals ensure >> 100 expected failures per interval, so:
   # (a) pmax(rpois, 1) floor never triggers (no bias), and
   # (b) each interval is highly informative, giving tight MLE estimates.
-  beta_true   <- 0.8
+  beta_true <- 0.8
   lambda_true <- 5.0
-  t_obs       <- seq(200, 2000, by = 200)     # 10 intervals, each 200 units wide
-  mu          <- lambda_true * t_obs^beta_true
-  failures    <- as.integer(pmax(rpois(length(t_obs), diff(c(0, mu))), 1))
-  times       <- c(t_obs[1], diff(t_obs))
+  t_obs <- seq(200, 2000, by = 200) # 10 intervals, each 200 units wide
+  mu <- lambda_true * t_obs^beta_true
+  failures <- as.integer(pmax(rpois(length(t_obs), diff(c(0, mu))), 1))
+  times <- c(t_obs[1], diff(t_obs))
 
   fit <- rga(times, failures, method = "MLE")
 
   expect_true(abs(fit$betas - beta_true) < 0.10,
-    info = paste("beta estimate:", fit$betas))
+    info = paste("beta estimate:", fit$betas)
+  )
   expect_true(abs(fit$lambdas - lambda_true) < 0.50,
-    info = paste("lambda estimate:", fit$lambdas))
+    info = paste("lambda estimate:", fit$lambdas)
+  )
 })
 
 test_that("predict_rga with MLE: finite, positive, monotone", {
-  times    <- c(100, 200, 300, 400, 500)
+  times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
   fit <- rga(times, failures, method = "MLE")
-  fc  <- predict_rga(fit, times = c(2000, 3000, 4000))
+  fc <- predict_rga(fit, times = c(2000, 3000, 4000))
 
   expect_true(all(is.finite(fc$cum_failures)))
   expect_true(all(fc$cum_failures > 0))
@@ -945,19 +947,19 @@ test_that("predict_rga with MLE: finite, positive, monotone", {
 })
 
 test_that("predict_rga MLE formula: lambda * T^beta", {
-  times    <- c(100, 200, 300, 400, 500)
+  times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
   fit <- rga(times, failures, method = "MLE")
-  fc  <- predict_rga(fit, times = c(2000, 3000, 4000))
+  fc <- predict_rga(fit, times = c(2000, 3000, 4000))
 
   expected <- fit$lambdas * c(2000, 3000, 4000)^fit$betas
   expect_equal(fc$cum_failures, expected, tolerance = 1e-6, ignore_attr = TRUE)
 })
 
 test_that("predict_rga MLE wider conf_level yields wider bounds", {
-  times    <- c(100, 200, 300, 400, 500)
+  times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
-  fit  <- rga(times, failures, method = "MLE")
+  fit <- rga(times, failures, method = "MLE")
   fc90 <- predict_rga(fit, times = c(2000, 3000), conf_level = 0.90)
   fc99 <- predict_rga(fit, times = c(2000, 3000), conf_level = 0.99)
 
@@ -967,10 +969,10 @@ test_that("predict_rga MLE wider conf_level yields wider bounds", {
 })
 
 test_that("plot.rga and plot.rga_predict with MLE: no error", {
-  times    <- c(100, 200, 300, 400, 500)
+  times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
   fit <- rga(times, failures, method = "MLE")
-  fc  <- predict_rga(fit, times = c(2000, 3000, 4000))
+  fc <- predict_rga(fit, times = c(2000, 3000, 4000))
 
   expect_silent(plot(fit))
   expect_silent(plot(fc))
