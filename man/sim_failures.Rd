@@ -4,7 +4,7 @@
 \alias{sim_failures}
 \title{Simulate Failures via PPS Sampling}
 \usage{
-sim_failures(n, runtimes, replace = FALSE)
+sim_failures(n, runtimes, replace = FALSE, window = NULL)
 }
 \arguments{
 \item{n}{Positive integer. Number of failures to simulate.}
@@ -14,22 +14,38 @@ runtime of each unit in the non-failed population.}
 
 \item{replace}{Logical scalar. If \code{TRUE}, sampling is done with replacement
 (a unit may be selected more than once). Default is \code{FALSE}.}
+
+\item{window}{\code{NULL} or a single positive numeric. The width of the
+observation window. When \code{NULL} (default), event times equal current
+runtimes. When provided, failure times are
+\code{runtime + Uniform(0, window)} and suspension times are
+\code{runtime + window}.}
 }
 \value{
-A data frame with \code{n} rows sorted by \code{runtime}, containing:
-\item{index}{Integer index of the selected unit in \code{runtimes}.}
-\item{runtime}{Runtime of the selected unit (reported failure time).}
+A data frame with \code{length(runtimes)} rows sorted ascending by
+\code{runtime}, containing:
+\item{index}{Integer index of the unit in \code{runtimes}.}
+\item{runtime}{Simulated event time.}
+\item{type}{Character; \code{"Failure"} for selected units, \code{"Suspension"} for
+the rest.}
 }
 \description{
 Simulates which units in a non-failed population fail next using probability
 proportional to size (PPS) sampling based on unit runtimes. Units with
 longer runtimes have a proportionally higher probability of being selected.
+The full fleet is returned: selected units are labelled \code{"Failure"} and the
+remaining units are labelled \code{"Suspension"}.
 }
 \examples{
 set.seed(42)
 runtimes <- c(100, 500, 200, 800, 300)
 result <- sim_failures(2, runtimes)
 print(result)
+
+# With an observation window
+set.seed(42)
+result_w <- sim_failures(2, runtimes, window = 50)
+print(result_w)
 }
 \seealso{
 Other data preparation: 
