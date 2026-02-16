@@ -62,6 +62,11 @@ The data frame contains two columns:
 The function approximates interval-censored failures by placing them at
 the midpoint of the interval.
 
+## See also
+
+Other data preparation:
+[`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md)
+
 ## Examples
 
 ``` r
