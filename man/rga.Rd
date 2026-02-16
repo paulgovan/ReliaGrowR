@@ -9,7 +9,8 @@ rga(
   failures,
   model_type = "Crow-AMSAA",
   breaks = NULL,
-  conf_level = 0.95
+  conf_level = 0.95,
+  method = c("LS", "MLE")
 )
 }
 \arguments{
@@ -28,6 +29,11 @@ positive and finite. Ignored if \code{times} is a data frame.}
 
 \item{conf_level}{The desired confidence level, which defaults to 95\%. The confidence
 level is the probability that the confidence interval contains the true mean response.}
+
+\item{method}{Estimation method: \code{"LS"} (default) for least-squares
+log-log regression, or \code{"MLE"} for maximum likelihood estimation of
+the Crow-AMSAA model. \code{"MLE"} is not supported for
+\code{model_type = "Piecewise NHPP"}.}
 }
 \value{
 The function returns an object of class \code{rga} that contains:

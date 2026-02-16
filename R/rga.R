@@ -1,3 +1,64 @@
+# Internal MLE helper for Crow-AMSAA (NHPP power-law) grouped-data likelihood.
+# Arguments:
+#   cum_time   : numeric vector of cumulative times (cumsum of interval times)
+#   failures   : numeric vector of failure counts per interval
+#   conf_level : numeric scalar in (0,1)
+# Returns a named list of estimates, standard errors, fitted values, CIs,
+# residuals, and information criteria.
+.fit_mle_crow <- function(cum_time, failures, conf_level) {
+  N     <- sum(failures)
+  T_max <- max(cum_time)
+  n_obs <- length(failures)
+  t_prev <- c(0, cum_time[-n_obs])
+
+  neg_loglik <- function(par) {
+    beta   <- par[1]
+    lambda <- par[2]
+    if (beta <= 0 || lambda <= 0) return(Inf)
+    delta_t <- cum_time^beta - t_prev^beta
+    if (any(delta_t <= 0)) return(Inf)
+    ll <- N * log(lambda) + sum(failures * log(delta_t)) - lambda * T_max^beta
+    -ll
+  }
+
+  opt <- stats::optim(
+    par    = c(1, N / T_max),
+    fn     = neg_loglik,
+    method = "L-BFGS-B",
+    lower  = c(1e-6, 1e-10),
+    hessian = TRUE
+  )
+
+  beta_hat   <- opt$par[1]
+  lambda_hat <- opt$par[2]
+  loglik     <- -opt$value
+
+  vcov_mat <- tryCatch(solve(opt$hessian), error = function(e) matrix(NA_real_, 2, 2))
+  beta_se  <- if (!anyNA(vcov_mat)) sqrt(max(vcov_mat[1, 1], 0)) else NA_real_
+
+  fitted_values <- lambda_hat * cum_time^beta_hat
+
+  z_val     <- stats::qnorm(1 - (1 - conf_level) / 2)
+  log_fit   <- log(fitted_values)
+  grad_mat  <- cbind(log(cum_time), 1 / lambda_hat)
+  var_lf    <- rowSums((grad_mat %*% vcov_mat) * grad_mat)
+  hw        <- z_val * sqrt(pmax(var_lf, 0))
+
+  list(
+    beta          = beta_hat,
+    lambda        = lambda_hat,
+    betas_se      = beta_se,
+    vcov          = vcov_mat,
+    fitted_values = fitted_values,
+    lower_bounds  = exp(log_fit - hw),
+    upper_bounds  = exp(log_fit + hw),
+    loglik        = loglik,
+    residuals     = cumsum(failures) - fitted_values,
+    aic           = -2 * loglik + 4,
+    bic           = -2 * loglik + 2 * log(n_obs)
+  )
+}
+
 #' Reliability Growth Analysis.
 #'
 #' This function performs reliability growth analysis using the Crow-AMSAA model by
@@ -153,10 +214,15 @@
 #'
 #' result4 <- rga(times, failures, model_type = "Piecewise NHPP", breaks = c(450))
 #' print(result4)
-#' @importFrom stats lm predict AIC BIC logLik cor residuals
+#' @param method Estimation method: \code{"LS"} (default) for least-squares
+#'   log-log regression, or \code{"MLE"} for maximum likelihood estimation of
+#'   the Crow-AMSAA model. \code{"MLE"} is not supported for
+#'   \code{model_type = "Piecewise NHPP"}.
+#' @importFrom stats lm predict AIC BIC logLik cor residuals optim qnorm
 #' @importFrom segmented segmented slope intercept seg.control
 #' @export
-rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_level = 0.95) {
+rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL,
+                conf_level = 0.95, method = c("LS", "MLE")) {
   if (is.data.frame(times)) {
     if (!all(c("times", "failures") %in% names(times))) {
       stop("If a data frame is provided, it must contain columns 'times' and 'failures'.")
@@ -217,6 +283,11 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
     stop("'conf_level' must be between 0 and 1 (exclusive).")
   }
 
+  method <- match.arg(method)
+  if (method == "MLE" && valid_model == "piecewise nhpp") {
+    stop("'method = \"MLE\"' is not supported for model_type = \"Piecewise NHPP\". Use method = \"LS\".")
+  }
+
   # Data prep
   cum_failures <- cumsum(failures)
   cum_time <- cumsum(times)
@@ -228,6 +299,34 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
   if (is.na(cor_val) || abs(cor_val - 1) < .Machine$double.eps^0.5 ||
     abs(cor_val + 1) < .Machine$double.eps^0.5) {
     stop("Perfect collinearity detected between predictor ('log_times') and response ('log_cum_failures'). Regression cannot be performed.")
+  }
+
+  # MLE early return
+  if (method == "MLE") {
+    mle <- .fit_mle_crow(cum_time, failures, conf_level)
+    result <- list(
+      times         = times,
+      failures      = failures,
+      n_obs         = length(failures),
+      cum_failures  = cum_failures,
+      model         = NULL,
+      residuals     = mle$residuals,
+      logLik        = mle$loglik,
+      AIC           = mle$aic,
+      BIC           = mle$bic,
+      breakpoints   = NULL,
+      fitted_values = mle$fitted_values,
+      lower_bounds  = mle$lower_bounds,
+      upper_bounds  = mle$upper_bounds,
+      growth_rate   = 1 - mle$beta,
+      betas         = mle$beta,
+      betas_se      = mle$betas_se,
+      lambdas       = mle$lambda,
+      method        = "MLE",
+      vcov          = mle$vcov
+    )
+    class(result) <- "rga"
+    return(result)
   }
 
   # Fit initial Crow-AMSAA model
@@ -294,7 +393,9 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL, conf_
     growth_rate = growth_rates,
     betas = betas,
     betas_se = beta_se,
-    lambdas = lambdas
+    lambdas = lambdas,
+    method = "LS",
+    vcov = NULL
   )
   class(result) <- "rga"
   return(result)
@@ -375,7 +476,9 @@ print.rga <- function(x, ...) {
   cat("---------------------------------\n")
 
   model_type <- if (is.null(x$breakpoints)) "Crow-AMSAA" else "Piecewise NHPP"
-  cat("Model Type:", model_type, "\n\n")
+  cat("Model Type:", model_type, "\n")
+  est_method <- if (!is.null(x$method)) x$method else "LS"
+  cat("Estimation Method:", est_method, "\n\n")
 
   if (!is.null(x$breakpoints)) {
     cat("Breakpoints (original scale):\n")
@@ -505,12 +608,16 @@ plot.rga <- function(x,
     stop("'legend_pos' must be a single character string.")
   }
 
-  if (!all(c("log_times", "log_cum_failures") %in% names(x$model$model))) {
-    stop("The 'rga' object appears malformed or missing model data.")
+  if (!is.null(x$method) && x$method == "MLE") {
+    times        <- cumsum(x$times)
+    cum_failures <- cumsum(x$failures)
+  } else {
+    if (!all(c("log_times", "log_cum_failures") %in% names(x$model$model))) {
+      stop("The 'rga' object appears malformed or missing model data.")
+    }
+    times        <- exp(x$model$model$log_times)
+    cum_failures <- exp(x$model$model$log_cum_failures)
   }
-
-  times <- exp(x$model$model$log_times)
-  cum_failures <- exp(x$model$model$log_cum_failures)
 
   # Base plot
   plot_args <- list(
@@ -651,7 +758,11 @@ predict_rga <- function(object, times, conf_level = 0.95) {
     stop("'conf_level' must be between 0 and 1 (exclusive).")
   }
 
-  max_obs_time <- max(exp(object$model$model$log_times))
+  if (!is.null(object$model)) {
+    max_obs_time <- max(exp(object$model$model$log_times))
+  } else {
+    max_obs_time <- max(cumsum(object$times))
+  }
   if (any(times <= max_obs_time)) {
     warning(
       "Some 'times' values are <= the maximum observed cumulative time. ",
@@ -661,14 +772,25 @@ predict_rga <- function(object, times, conf_level = 0.95) {
 
   model_type <- if (is.null(object$breakpoints)) "Crow-AMSAA" else "Piecewise NHPP"
 
-  newdata <- data.frame(log_times = log(times))
-  pred <- stats::predict(object$model,
-    newdata = newdata,
-    interval = "confidence", level = conf_level
-  )
-  cum_failures <- exp(pred[, "fit"])
-  lower_bounds <- exp(pred[, "lwr"])
-  upper_bounds <- exp(pred[, "upr"])
+  if (!is.null(object$method) && object$method == "MLE") {
+    cum_failures <- object$lambdas * times^object$betas
+    log_fitted   <- log(cum_failures)
+    z_val        <- stats::qnorm(1 - (1 - conf_level) / 2)
+    grad_mat     <- cbind(log(times), 1 / object$lambdas)
+    var_lf       <- rowSums((grad_mat %*% object$vcov) * grad_mat)
+    hw           <- z_val * sqrt(pmax(var_lf, 0))
+    lower_bounds <- exp(log_fitted - hw)
+    upper_bounds <- exp(log_fitted + hw)
+  } else {
+    newdata <- data.frame(log_times = log(times))
+    pred <- stats::predict(object$model,
+      newdata = newdata,
+      interval = "confidence", level = conf_level
+    )
+    cum_failures <- exp(pred[, "fit"])
+    lower_bounds <- exp(pred[, "lwr"])
+    upper_bounds <- exp(pred[, "upr"])
+  }
 
   result <- list(
     times        = times,
@@ -773,8 +895,13 @@ plot.rga_predict <- function(x,
   }
 
   rga_obj <- x$rga_object
-  obs_times <- exp(rga_obj$model$model$log_times)
-  obs_cum_failures <- exp(rga_obj$model$model$log_cum_failures)
+  if (!is.null(rga_obj$method) && rga_obj$method == "MLE") {
+    obs_times        <- cumsum(rga_obj$times)
+    obs_cum_failures <- cumsum(rga_obj$failures)
+  } else {
+    obs_times        <- exp(rga_obj$model$model$log_times)
+    obs_cum_failures <- exp(rga_obj$model$model$log_cum_failures)
+  }
 
   all_y <- c(obs_cum_failures, rga_obj$fitted_values, x$cum_failures)
   if (conf_bounds) {
