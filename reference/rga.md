@@ -16,7 +16,8 @@ rga(
   failures,
   model_type = "Crow-AMSAA",
   breaks = NULL,
-  conf_level = 0.95
+  conf_level = 0.95,
+  method = c("LS", "MLE")
 )
 ```
 
@@ -51,6 +52,13 @@ rga(
   The desired confidence level, which defaults to 95%. The confidence
   level is the probability that the confidence interval contains the
   true mean response.
+
+- method:
+
+  Estimation method: `"LS"` (default) for least-squares log-log
+  regression, or `"MLE"` for maximum likelihood estimation of the
+  Crow-AMSAA model. `"MLE"` is not supported for
+  `model_type = "Piecewise NHPP"`.
 
 ## Value
 
@@ -161,6 +169,7 @@ print(result1)
 #> Reliability Growth Analysis (RGA)
 #> ---------------------------------
 #> Model Type: Crow-AMSAA 
+#> Estimation Method: LS 
 #> 
 #> 
 #> Number of observations (failures): 5
@@ -180,6 +189,7 @@ print(result2)
 #> Reliability Growth Analysis (RGA)
 #> ---------------------------------
 #> Model Type: Crow-AMSAA 
+#> Estimation Method: LS 
 #> 
 #> 
 #> Number of observations (failures): 5
@@ -199,6 +209,7 @@ print(result3)
 #> Reliability Growth Analysis (RGA)
 #> ---------------------------------
 #> Model Type: Piecewise NHPP 
+#> Estimation Method: LS 
 #> 
 #> Breakpoints (original scale):
 #> 300.03 
@@ -222,6 +233,7 @@ print(result4)
 #> Reliability Growth Analysis (RGA)
 #> ---------------------------------
 #> Model Type: Piecewise NHPP 
+#> Estimation Method: LS 
 #> 
 #> Breakpoints (original scale):
 #> 450 

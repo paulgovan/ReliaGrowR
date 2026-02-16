@@ -44,6 +44,7 @@ print(result)
 #> Reliability Growth Analysis (RGA)
 #> ---------------------------------
 #> Model Type: Crow-AMSAA 
+#> Estimation Method: LS 
 #> 
 #> 
 #> Number of observations (failures): 5
