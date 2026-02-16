@@ -50,4 +50,8 @@ interval_ends <- c(180, 320)
 result <- weibull_to_rga(failures, suspensions, interval_starts, interval_ends)
 print(result)
 }
+\seealso{
+Other data preparation: 
+\code{\link{sim_failures}()}
+}
 \concept{data preparation}
