@@ -4,7 +4,8 @@ pkgdown_sha: ~
 articles:
   data: data.html
   RGA: RGA.html
-last_built: 2026-02-16T21:04Z
+  RGF: RGF.html
+last_built: 2026-03-12T02:42Z
 urls:
   reference: https://paulgovan.github.io/ReliaGrowR/reference
   article: https://paulgovan.github.io/ReliaGrowR/articles

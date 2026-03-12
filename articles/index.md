@@ -6,3 +6,5 @@
   Management](https://paulgovan.github.io/ReliaGrowR/articles/data.md):
 - [Reliability Growth
   Analysis](https://paulgovan.github.io/ReliaGrowR/articles/RGA.md):
+- [Reliability Growth
+  Forecasting](https://paulgovan.github.io/ReliaGrowR/articles/RGF.md):
