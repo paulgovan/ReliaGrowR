@@ -115,7 +115,7 @@ test_that("sim_failures type labels: correct counts of Failure and Suspension", 
   n <- 2
   result <- sim_failures(n, runtimes, replace = FALSE)
 
-  n_failures    <- sum(result$type == "Failure")
+  n_failures <- sum(result$type == "Failure")
   n_suspensions <- sum(result$type == "Suspension")
 
   # With replace = FALSE and n unique draws, exactly n failures and rest suspensions

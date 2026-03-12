@@ -6,8 +6,76 @@
 \alias{ReliaGrowR-package}
 \title{ReliaGrowR: Reliability Growth Analysis}
 \description{
-Modeling and plotting functions for Reliability Growth Analysis (RGA). Models include the Duane (1962) \doi{10.1109/TA.1964.4319640}, Non-Homogeneous Poisson Process (NHPP) by Crow (1975) (No. AMSAATR138), Piecewise Weibull NHPP by Guo et al. (2010) \doi{10.1109/RAMS.2010.5448029}, and Piecewise Weibull NHPP with Change Point Detection based on the 'segmented' package by Muggeo (2024) \url{https://cran.r-project.org/package=segmented}.
+Modeling and plotting functions for Reliability Growth Analysis (RGA).
+The package implements three families of models and provides a REST API
+interface via \link[plumber:deprecated_r6]{plumber}.
 }
+\section{Reliability Growth Models}{
+
+
+\strong{Crow-AMSAA (NHPP power-law)}
+
+The core model fits a Non-Homogeneous Poisson Process (NHPP) with a
+Weibull intensity function to cumulative failure data. Parameters are
+estimated by least-squares log-log regression (default) or maximum
+likelihood.  A growth rate > 0 indicates reliability improvement.
+
+\strong{Piecewise NHPP}
+
+Extends Crow-AMSAA by fitting separate NHPP segments separated by
+change points.  Change points can be detected automatically via the
+\link[segmented:segmented]{segmented} package or supplied by the user.
+
+\strong{Duane}
+
+Log-log regression of cumulative MTBF versus cumulative time, providing
+a graphical and analytical representation of reliability growth.
+}
+
+\section{Main Functions}{
+\tabular{ll}{
+   Function \tab Description \cr
+   \code{\link[=rga]{rga()}} \tab Fit Crow-AMSAA or Piecewise NHPP model \cr
+   \code{\link[=predict_rga]{predict_rga()}} \tab Forecast cumulative failures from a fitted model \cr
+   \code{\link[=duane]{duane()}} \tab Fit Duane model \cr
+   \code{\link[=rdt]{rdt()}} \tab Reliability Demonstration Test plan calculator \cr
+   \code{\link[=weibull_to_rga]{weibull_to_rga()}} \tab Convert Weibull data to RGA format \cr
+   \code{\link[=sim_failures]{sim_failures()}} \tab Simulate failures via PPS sampling \cr
+   \code{\link[=qqplot.rga]{qqplot.rga()}} \tab Q-Q goodness-of-fit plot for an \code{rga} object \cr
+   \code{\link[=ppplot.rga]{ppplot.rga()}} \tab P-P goodness-of-fit plot for an \code{rga} object \cr
+   \code{\link[=grwr_api]{grwr_api()}} \tab Launch the plumber REST API \cr
+}
+}
+
+\section{S3 Classes and Methods}{
+\tabular{ll}{
+   Class \tab Methods \cr
+   \code{rga} \tab \code{\link[=print.rga]{print.rga()}}, \code{\link[=plot.rga]{plot.rga()}} \cr
+   \code{rga_predict} \tab \code{\link[=print.rga_predict]{print.rga_predict()}}, \code{\link[=plot.rga_predict]{plot.rga_predict()}} \cr
+   \code{duane} \tab \code{\link[=print.duane]{print.duane()}}, \code{\link[=plot.duane]{plot.duane()}} \cr
+   \code{rdt} \tab \code{\link[=print.rdt]{print.rdt()}} \cr
+}
+}
+
+\section{References}{
+
+Crow, L. H. (1975). \emph{Reliability Analysis for Complex Repairable Systems.}
+AMSAA Technical Report No. 138. US Army Materiel Systems Analysis Activity.
+
+Duane, J. T. (1964). Learning curve approach to reliability monitoring.
+\emph{IEEE Transactions on Aerospace}, 2(2), 563–566.
+\doi{10.1109/TA.1964.4319640}
+
+Guo, H., Mettas, A., Sarakakis, G., & Niu, P. (2010). Piecewise NHPP
+models with maximum likelihood estimation for repairable systems. In
+\emph{Proceedings of the 2010 Annual Reliability and Maintainability Symposium}
+(pp. 1–6). IEEE. \doi{10.1109/RAMS.2010.5448029}
+
+Muggeo, V. M. R. (2024). \emph{segmented: Regression Models with Break-Points /
+Change-Points Estimation.} R package.
+\url{https://cran.r-project.org/package=segmented}
+}
+
 \seealso{
 Useful links:
 \itemize{

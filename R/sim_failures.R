@@ -45,6 +45,7 @@
 #' set.seed(42)
 #' result_w <- sim_failures(2, runtimes, window = 50)
 #' print(result_w)
+#' @importFrom stats runif
 #' @export
 sim_failures <- function(n, runtimes, replace = FALSE, window = NULL) {
   # Validate n
@@ -97,7 +98,7 @@ sim_failures <- function(n, runtimes, replace = FALSE, window = NULL) {
 
   # PPS sampling
   prob <- runtimes / sum(runtimes)
-  idx  <- sample(seq_along(runtimes), size = n, replace = replace, prob = prob)
+  idx <- sample(seq_along(runtimes), size = n, replace = replace, prob = prob)
 
   fail_idx <- unique(idx)
   susp_idx <- setdiff(seq_along(runtimes), fail_idx)
@@ -112,10 +113,12 @@ sim_failures <- function(n, runtimes, replace = FALSE, window = NULL) {
   }
 
   result <- data.frame(
-    index   = c(fail_idx,       susp_idx),
-    runtime = c(fail_times,     susp_times),
-    type    = c(rep("Failure",    length(fail_idx)),
-                rep("Suspension", length(susp_idx)))
+    index = c(fail_idx, susp_idx),
+    runtime = c(fail_times, susp_times),
+    type = c(
+      rep("Failure", length(fail_idx)),
+      rep("Suspension", length(susp_idx))
+    )
   )
   result <- result[order(result$runtime), ]
   rownames(result) <- NULL
