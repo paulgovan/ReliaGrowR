@@ -15,6 +15,7 @@ Roxygen: list (markdown = TRUE, roclets = c ("namespace", "rd", "srr::srr_stats_
 Suggests: 
     ellmer,
     knitr,
+    pkgload,
     rmarkdown,
     spelling,
     testthat (>= 3.0.0),

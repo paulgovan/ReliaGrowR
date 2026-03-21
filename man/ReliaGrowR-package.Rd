@@ -40,7 +40,7 @@ a graphical and analytical representation of reliability growth.
    \code{\link[=duane]{duane()}} \tab Fit Duane model \cr
    \code{\link[=rdt]{rdt()}} \tab Reliability Demonstration Test plan calculator \cr
    \code{\link[=weibull_to_rga]{weibull_to_rga()}} \tab Convert Weibull data to RGA format \cr
-   \code{\link[=sim_failures]{sim_failures()}} \tab Simulate failures via PPS sampling \cr
+   \code{\link[=sim_failures]{sim_failures()}} \tab Simulate failures from a conditional Weibull model \cr
    \code{\link[=qqplot.rga]{qqplot.rga()}} \tab Q-Q goodness-of-fit plot for an \code{rga} object \cr
    \code{\link[=ppplot.rga]{ppplot.rga()}} \tab P-P goodness-of-fit plot for an \code{rga} object \cr
    \code{\link[=grwr_api]{grwr_api()}} \tab Launch the plumber REST API \cr

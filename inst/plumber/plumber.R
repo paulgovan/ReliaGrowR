@@ -311,7 +311,7 @@ function(failures, suspensions = NULL, interval_starts = NULL,
 # sim_failures
 # ---------------------------------------------------------------------------
 
-#* Simulate Failures via PPS Sampling from a Non-Failed Population
+#* Simulate Failures from a Conditional Weibull Model
 #* @param n Number of failures to simulate (positive integer)
 #* @param runtimes Current runtimes for each unit (comma separated)
 #* @param replace:boolean Sampling with replacement (default: FALSE)

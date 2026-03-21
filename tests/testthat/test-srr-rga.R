@@ -201,6 +201,55 @@ test_that("conf_level validation", {
   )
 })
 
+test_that("cumulative_failure_times input reproduces the default fit", {
+  interval_times <- c(100, 200, 300, 400, 500)
+  cumulative_times <- cumsum(interval_times)
+  failures <- c(1, 2, 1, 3, 2)
+
+  fit_interval <- rga(interval_times, failures)
+  fit_cumulative <- rga(
+    cumulative_times, failures,
+    times_type = "cumulative_failure_times"
+  )
+
+  expect_equal(fit_cumulative$times, cumulative_times)
+  expect_equal(fit_cumulative$cum_times, cumulative_times)
+  expect_equal(fit_cumulative$times_type, "cumulative_failure_times")
+  expect_equal(fit_cumulative$betas, fit_interval$betas)
+  expect_equal(fit_cumulative$lambdas, fit_interval$lambdas)
+  expect_equal(fit_cumulative$fitted_values, fit_interval$fitted_values)
+  expect_equal(fit_cumulative$cum_failures, fit_interval$cum_failures)
+})
+
+test_that("cumulative_failure_times input must be strictly increasing", {
+  expect_error(
+    rga(
+      c(100, 200, 200),
+      c(1, 2, 1),
+      times_type = "cumulative_failure_times"
+    ),
+    "must be strictly increasing"
+  )
+})
+
+test_that("MLE supports cumulative_failure_times input", {
+  interval_times <- c(100, 200, 300, 400, 500)
+  cumulative_times <- cumsum(interval_times)
+  failures <- c(1, 2, 1, 3, 2)
+
+  fit_interval <- rga(interval_times, failures, method = "MLE")
+  fit_cumulative <- rga(
+    cumulative_times, failures,
+    times_type = "cumulative_failure_times",
+    method = "MLE"
+  )
+
+  expect_equal(fit_cumulative$cum_times, cumulative_times)
+  expect_equal(fit_cumulative$times_type, "cumulative_failure_times")
+  expect_equal(fit_cumulative$betas, fit_interval$betas)
+  expect_equal(fit_cumulative$lambdas, fit_interval$lambdas)
+})
+
 test_that("print.rga errors when input is not rga", {
   expect_error(print.rga(list()),
     "'x' must be an object of class 'rga'.",
@@ -734,6 +783,18 @@ test_that("predict_rga: hindcast warning when times <= max observed", {
   )
 })
 
+test_that("predict_rga uses stored cumulative times for cumulative_failure_times input", {
+  fit_cumulative <- rga(
+    cumsum(fc_times), fc_failures,
+    times_type = "cumulative_failure_times"
+  )
+
+  expect_warning(
+    predict_rga(fit_cumulative, times = c(max(fit_cumulative$cum_times))),
+    "Hindcasting is allowed but may not be meaningful."
+  )
+})
+
 test_that("predict_rga: Crow-AMSAA cum_failures == lambda * T^beta", {
   fc <- predict_rga(fc_fit, times = c(2000, 3000, 4000))
   expected <- fc_fit$lambdas * c(2000, 3000, 4000)^fc_fit$betas
@@ -830,6 +891,7 @@ test_that("rga output retains row / case names from input", {
 
   # input names preserved in stored inputs
   expect_equal(names(res_named$times), names(times))
+  expect_equal(names(res_named$cum_times), names(times))
   expect_equal(names(res_named$failures), names(failures))
 
   # Case 2: Piecewise NHPP

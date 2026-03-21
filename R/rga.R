@@ -63,6 +63,20 @@
   )
 }
 
+.compute_rga_cum_times <- function(times, times_type) {
+  if (identical(times_type, "failure_times")) {
+    return(cumsum(times))
+  }
+
+  if (any(diff(times) <= 0)) {
+    stop(
+      "When 'times_type = \"cumulative_failure_times\"', 'times' must be strictly increasing."
+    )
+  }
+
+  times
+}
+
 #' Reliability Growth Analysis.
 #'
 #' This function performs reliability growth analysis using the Crow-AMSAA model by
@@ -158,20 +172,29 @@
 #' @srrstats {RE7.3} Unit tests demonstrate expected behavior when `rga` object
 #' is submitted to the accessor methods `print` and `plot`.
 #'
-#' @param times Either a numeric vector of exact failure times or a data frame
-#' containing both failure times and failure counts. If a data frame is provided, it must
-#' contain two columns: `times` and `failures`. The `times` column contains exact failure times,
-#' and the `failures` column contains the number of failures at each corresponding time.
+#' @param times Either a numeric vector of failure-time inputs or a data frame
+#' containing both time inputs and failure counts. If `times_type = "failure_times"`
+#' (default), `times` is treated exactly as in previous versions of the function
+#' and is cumulatively summed inside `rga()`. If
+#' `times_type = "cumulative_failure_times"`, `times` is treated as already
+#' cumulative and is used directly without applying `cumsum()`. If a data frame
+#' is provided, it must contain two columns: `times` and `failures`.
 #' @param failures A numeric vector of the number of failures at each corresponding time
 #' in times. Must be the same length as `times` if both are vectors. All values must be
 #' positive and finite. Ignored if `times` is a data frame.
+#' @param times_type Character scalar indicating how to interpret `times`.
+#'   `"failure_times"` (default) preserves the current behavior and cumulatively
+#'   sums `times` inside `rga()`. `"cumulative_failure_times"` treats `times`
+#'   as already cumulative and skips that internal `cumsum()`.
 #' @param model_type The model type. Either `Crow-AMSAA` (default) or `Piecewise NHPP` with change point detection.
 #' @param breaks An optional vector of breakpoints for the `Piecewise NHPP` model.
 #' @param conf_level The desired confidence level, which defaults to 95%. The confidence
 #' level is the probability that the confidence interval contains the true mean response.
 #' @family Reliability Growth Analysis
 #' @return The function returns an object of class `rga` that contains:
-#' \item{times}{The input exact failure times.}
+#' \item{times}{The input time vector, stored exactly as supplied.}
+#' \item{cum_times}{The cumulative time vector used for fitting.}
+#' \item{times_type}{How `times` was interpreted: `"failure_times"` or `"cumulative_failure_times"`.}
 #' \item{failures}{The input number of failures.}
 #' \item{n_obs}{The number of observations (failures).}
 #' \item{cum_failures}{Cumulative failures.}
@@ -213,6 +236,10 @@
 #' result2 <- rga(df)
 #' print(result2)
 #'
+#' cum_times <- cumsum(times)
+#' result2b <- rga(cum_times, failures, times_type = "cumulative_failure_times")
+#' print(result2b)
+#'
 #' result3 <- rga(times, failures, model_type = "Piecewise NHPP")
 #' print(result3)
 #'
@@ -225,7 +252,8 @@
 #' @importFrom stats lm predict AIC BIC logLik cor residuals optim qnorm
 #' @importFrom segmented segmented slope intercept seg.control
 #' @export
-rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL,
+rga <- function(times, failures, times_type = c("failure_times", "cumulative_failure_times"),
+                model_type = "Crow-AMSAA", breaks = NULL,
                 conf_level = 0.95, method = c("LS", "MLE")) {
   if (is.data.frame(times)) {
     if (!all(c("times", "failures") %in% names(times))) {
@@ -259,6 +287,8 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL,
   if (any(!is.finite(failures)) || any(failures <= 0)) {
     stop("All values in 'failures' must be finite and > 0.")
   }
+
+  times_type <- match.arg(times_type)
 
   if (!is.character(model_type) || length(model_type) != 1) {
     stop("'model_type' must be a single character string.")
@@ -294,7 +324,7 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL,
 
   # Data prep
   cum_failures <- cumsum(failures)
-  cum_time <- cumsum(times)
+  cum_time <- .compute_rga_cum_times(times, times_type)
   log_times <- log(cum_time)
   log_cum_failures <- log(cum_failures)
 
@@ -310,6 +340,8 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL,
     mle <- .fit_mle_crow(cum_time, failures, conf_level)
     result <- list(
       times         = times,
+      cum_times     = cum_time,
+      times_type    = times_type,
       failures      = failures,
       n_obs         = length(failures),
       cum_failures  = cum_failures,
@@ -382,6 +414,8 @@ rga <- function(times, failures, model_type = "Crow-AMSAA", breaks = NULL,
   # Return object
   result <- list(
     times = times,
+    cum_times = cum_time,
+    times_type = times_type,
     failures = failures,
     n_obs = length(failures),
     cum_failures = cum_failures,
@@ -612,7 +646,10 @@ plot.rga <- function(x,
     stop("'legend_pos' must be a single character string.")
   }
 
-  if (!is.null(x$method) && x$method == "MLE") {
+  if (!is.null(x$cum_times) && !is.null(x$cum_failures)) {
+    times <- x$cum_times
+    cum_failures <- x$cum_failures
+  } else if (!is.null(x$method) && x$method == "MLE") {
     times <- cumsum(x$times)
     cum_failures <- cumsum(x$failures)
   } else {
@@ -762,7 +799,9 @@ predict_rga <- function(object, times, conf_level = 0.95) {
     stop("'conf_level' must be between 0 and 1 (exclusive).")
   }
 
-  if (!is.null(object$model)) {
+  if (!is.null(object$cum_times)) {
+    max_obs_time <- max(object$cum_times)
+  } else if (!is.null(object$model)) {
     max_obs_time <- max(exp(object$model$model$log_times))
   } else {
     max_obs_time <- max(cumsum(object$times))
@@ -899,7 +938,10 @@ plot.rga_predict <- function(x,
   }
 
   rga_obj <- x$rga_object
-  if (!is.null(rga_obj$method) && rga_obj$method == "MLE") {
+  if (!is.null(rga_obj$cum_times) && !is.null(rga_obj$cum_failures)) {
+    obs_times <- rga_obj$cum_times
+    obs_cum_failures <- rga_obj$cum_failures
+  } else if (!is.null(rga_obj$method) && rga_obj$method == "MLE") {
     obs_times <- cumsum(rga_obj$times)
     obs_cum_failures <- cumsum(rga_obj$failures)
   } else {

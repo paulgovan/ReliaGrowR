@@ -34,7 +34,7 @@
 #' | [duane()] | Fit Duane model |
 #' | [rdt()] | Reliability Demonstration Test plan calculator |
 #' | [weibull_to_rga()] | Convert Weibull data to RGA format |
-#' | [sim_failures()] | Simulate failures via PPS sampling |
+#' | [sim_failures()] | Simulate failures from a conditional Weibull model |
 #' | [qqplot.rga()] | Q-Q goodness-of-fit plot for an `rga` object |
 #' | [ppplot.rga()] | P-P goodness-of-fit plot for an `rga` object |
 #' | [grwr_api()] | Launch the plumber REST API |

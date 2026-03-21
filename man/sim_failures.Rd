@@ -2,9 +2,9 @@
 % Please edit documentation in R/sim_failures.R
 \name{sim_failures}
 \alias{sim_failures}
-\title{Simulate Failures via PPS Sampling}
+\title{Simulate Failures from a Conditional Weibull Model}
 \usage{
-sim_failures(n, runtimes, replace = FALSE, window = NULL)
+sim_failures(n, runtimes, replace = FALSE, window = NULL, beta = 1, eta = NULL)
 }
 \arguments{
 \item{n}{Positive integer. Number of failures to simulate.}
@@ -17,9 +17,18 @@ runtime of each unit in the non-failed population.}
 
 \item{window}{\code{NULL} or a single positive numeric. The width of the
 observation window. When \code{NULL} (default), event times equal current
-runtimes. When provided, failure times are
-\code{runtime + Uniform(0, window)} and suspension times are
-\code{runtime + window}.}
+runtimes. When provided, failure times are sampled from the conditional
+Weibull distribution over \verb{(runtime, runtime + window]}, and suspension
+times are \code{runtime + window}.}
+
+\item{beta}{Positive numeric scalar. Weibull shape parameter used to model
+the age-dependent hazard. Defaults to \code{1}, corresponding to an
+exponential-process assumption.}
+
+\item{eta}{\code{NULL} or a single positive numeric. Weibull scale parameter.
+When \code{NULL} and \code{window} is supplied, the scale is calibrated so that the
+expected number of failures across the fleet during the window matches
+\code{n}.}
 }
 \value{
 A data frame with \code{length(runtimes)} rows sorted ascending by
@@ -28,23 +37,34 @@ A data frame with \code{length(runtimes)} rows sorted ascending by
 \item{runtime}{Simulated event time.}
 \item{type}{Character; \code{"Failure"} for selected units, \code{"Suspension"} for
 the rest.}
+The returned object also carries attributes \code{weibull_beta} and
+\code{weibull_eta} describing the Weibull parameters used for the simulation.
 }
 \description{
-Simulates which units in a non-failed population fail next using probability
-proportional to size (PPS) sampling based on unit runtimes. Units with
-longer runtimes have a proportionally higher probability of being selected.
-The full fleet is returned: selected units are labelled \code{"Failure"} and the
-remaining units are labelled \code{"Suspension"}.
+Simulates which units in a non-failed population fail next by using a
+Weibull life model conditional on each unit's current runtime. When a
+positive \code{window} is supplied, the function calibrates a Weibull scale
+parameter (unless provided directly) so that the expected number of failures
+within the window matches \code{n}. Units are then sampled with probability
+proportional to their conditional Weibull failure probability over the
+window, and failure times are drawn from the truncated conditional Weibull
+distribution. The full fleet is returned: selected units are labelled
+\code{"Failure"} and the remaining units are labelled \code{"Suspension"}.
+}
+\details{
+When \code{window = NULL}, the function returns the current fleet state at the
+supplied runtimes. In this case, failing units are selected using relative
+Weibull hazard weights implied by \code{beta}.
 }
 \examples{
 set.seed(42)
 runtimes <- c(100, 500, 200, 800, 300)
-result <- sim_failures(2, runtimes)
+result <- sim_failures(2, runtimes, beta = 1.5)
 print(result)
 
 # With an observation window
 set.seed(42)
-result_w <- sim_failures(2, runtimes, window = 50)
+result_w <- sim_failures(2, runtimes, window = 50, beta = 1.5)
 print(result_w)
 }
 \seealso{

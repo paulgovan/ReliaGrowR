@@ -7,6 +7,7 @@
 rga(
   times,
   failures,
+  times_type = c("failure_times", "cumulative_failure_times"),
   model_type = "Crow-AMSAA",
   breaks = NULL,
   conf_level = 0.95,
@@ -14,14 +15,22 @@ rga(
 )
 }
 \arguments{
-\item{times}{Either a numeric vector of exact failure times or a data frame
-containing both failure times and failure counts. If a data frame is provided, it must
-contain two columns: \code{times} and \code{failures}. The \code{times} column contains exact failure times,
-and the \code{failures} column contains the number of failures at each corresponding time.}
+\item{times}{Either a numeric vector of failure-time inputs or a data frame
+containing both time inputs and failure counts. If \code{times_type = "failure_times"}
+(default), \code{times} is treated exactly as in previous versions of the function
+and is cumulatively summed inside \code{rga()}. If
+\code{times_type = "cumulative_failure_times"}, \code{times} is treated as already
+cumulative and is used directly without applying \code{cumsum()}. If a data frame
+is provided, it must contain two columns: \code{times} and \code{failures}.}
 
 \item{failures}{A numeric vector of the number of failures at each corresponding time
 in times. Must be the same length as \code{times} if both are vectors. All values must be
 positive and finite. Ignored if \code{times} is a data frame.}
+
+\item{times_type}{Character scalar indicating how to interpret \code{times}.
+\code{"failure_times"} (default) preserves the current behavior and cumulatively
+sums \code{times} inside \code{rga()}. \code{"cumulative_failure_times"} treats \code{times}
+as already cumulative and skips that internal \code{cumsum()}.}
 
 \item{model_type}{The model type. Either \code{Crow-AMSAA} (default) or \verb{Piecewise NHPP} with change point detection.}
 
@@ -37,7 +46,9 @@ the Crow-AMSAA model. \code{"MLE"} is not supported for
 }
 \value{
 The function returns an object of class \code{rga} that contains:
-\item{times}{The input exact failure times.}
+\item{times}{The input time vector, stored exactly as supplied.}
+\item{cum_times}{The cumulative time vector used for fitting.}
+\item{times_type}{How \code{times} was interpreted: \code{"failure_times"} or \code{"cumulative_failure_times"}.}
 \item{failures}{The input number of failures.}
 \item{n_obs}{The number of observations (failures).}
 \item{cum_failures}{Cumulative failures.}
@@ -87,6 +98,10 @@ print(result1)
 df <- data.frame(times = times, failures = failures)
 result2 <- rga(df)
 print(result2)
+
+cum_times <- cumsum(times)
+result2b <- rga(cum_times, failures, times_type = "cumulative_failure_times")
+print(result2b)
 
 result3 <- rga(times, failures, model_type = "Piecewise NHPP")
 print(result3)
