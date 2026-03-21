@@ -14,6 +14,7 @@ change points or use user-specified breakpoints.
 rga(
   times,
   failures,
+  times_type = c("failure_times", "cumulative_failure_times"),
   model_type = "Crow-AMSAA",
   breaks = NULL,
   conf_level = 0.95,
@@ -25,11 +26,14 @@ rga(
 
 - times:
 
-  Either a numeric vector of exact failure times or a data frame
-  containing both failure times and failure counts. If a data frame is
-  provided, it must contain two columns: `times` and `failures`. The
-  `times` column contains exact failure times, and the `failures` column
-  contains the number of failures at each corresponding time.
+  Either a numeric vector of failure-time inputs or a data frame
+  containing both time inputs and failure counts. If
+  `times_type = "failure_times"` (default), `times` is treated exactly
+  as in previous versions of the function and is cumulatively summed
+  inside `rga()`. If `times_type = "cumulative_failure_times"`, `times`
+  is treated as already cumulative and is used directly without applying
+  [`cumsum()`](https://rdrr.io/r/base/cumsum.html). If a data frame is
+  provided, it must contain two columns: `times` and `failures`.
 
 - failures:
 
@@ -37,6 +41,14 @@ rga(
   in times. Must be the same length as `times` if both are vectors. All
   values must be positive and finite. Ignored if `times` is a data
   frame.
+
+- times_type:
+
+  Character scalar indicating how to interpret `times`.
+  `"failure_times"` (default) preserves the current behavior and
+  cumulatively sums `times` inside `rga()`. `"cumulative_failure_times"`
+  treats `times` as already cumulative and skips that internal
+  [`cumsum()`](https://rdrr.io/r/base/cumsum.html).
 
 - model_type:
 
@@ -66,7 +78,16 @@ The function returns an object of class `rga` that contains:
 
 - times:
 
-  The input exact failure times.
+  The input time vector, stored exactly as supplied.
+
+- cum_times:
+
+  The cumulative time vector used for fitting.
+
+- times_type:
+
+  How `times` was interpreted: `"failure_times"` or
+  `"cumulative_failure_times"`.
 
 - failures:
 
@@ -186,6 +207,26 @@ print(result1)
 df <- data.frame(times = times, failures = failures)
 result2 <- rga(df)
 print(result2)
+#> Reliability Growth Analysis (RGA)
+#> ---------------------------------
+#> Model Type: Crow-AMSAA 
+#> Estimation Method: LS 
+#> 
+#> 
+#> Number of observations (failures): 5
+#> Parameters (per segment):
+#>   Growth Rate: 0.2013
+#>   Beta: 0.7987 (SE = 0.0562)
+#>   Lambda: 0.0269
+#> 
+#> Goodness of Fit:
+#>   Log-likelihood: 4.78
+#>   AIC: -3.55
+#>   BIC: -4.72
+
+cum_times <- cumsum(times)
+result2b <- rga(cum_times, failures, times_type = "cumulative_failure_times")
+print(result2b)
 #> Reliability Growth Analysis (RGA)
 #> ---------------------------------
 #> Model Type: Crow-AMSAA 

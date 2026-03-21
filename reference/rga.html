@@ -66,6 +66,7 @@ or use user-specified breakpoints.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">rga</span><span class="op">(</span></span>
 <span>  <span class="va">times</span>,</span>
 <span>  <span class="va">failures</span>,</span>
+<span>  times_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"failure_times"</span>, <span class="st">"cumulative_failure_times"</span><span class="op">)</span>,</span>
 <span>  model_type <span class="op">=</span> <span class="st">"Crow-AMSAA"</span>,</span>
 <span>  breaks <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
@@ -78,16 +79,26 @@ or use user-specified breakpoints.</p>
 
 
 <dl><dt id="arg-times">times<a class="anchor" aria-label="anchor" href="#arg-times"></a></dt>
-<dd><p>Either a numeric vector of exact failure times or a data frame
-containing both failure times and failure counts. If a data frame is provided, it must
-contain two columns: <code>times</code> and <code>failures</code>. The <code>times</code> column contains exact failure times,
-and the <code>failures</code> column contains the number of failures at each corresponding time.</p></dd>
+<dd><p>Either a numeric vector of failure-time inputs or a data frame
+containing both time inputs and failure counts. If <code>times_type = "failure_times"</code>
+(default), <code>times</code> is treated exactly as in previous versions of the function
+and is cumulatively summed inside <code>rga()</code>. If
+<code>times_type = "cumulative_failure_times"</code>, <code>times</code> is treated as already
+cumulative and is used directly without applying <code><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum()</a></code>. If a data frame
+is provided, it must contain two columns: <code>times</code> and <code>failures</code>.</p></dd>
 
 
 <dt id="arg-failures">failures<a class="anchor" aria-label="anchor" href="#arg-failures"></a></dt>
 <dd><p>A numeric vector of the number of failures at each corresponding time
 in times. Must be the same length as <code>times</code> if both are vectors. All values must be
 positive and finite. Ignored if <code>times</code> is a data frame.</p></dd>
+
+
+<dt id="arg-times-type">times_type<a class="anchor" aria-label="anchor" href="#arg-times-type"></a></dt>
+<dd><p>Character scalar indicating how to interpret <code>times</code>.
+<code>"failure_times"</code> (default) preserves the current behavior and cumulatively
+sums <code>times</code> inside <code>rga()</code>. <code>"cumulative_failure_times"</code> treats <code>times</code>
+as already cumulative and skips that internal <code><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum()</a></code>.</p></dd>
 
 
 <dt id="arg-model-type">model_type<a class="anchor" aria-label="anchor" href="#arg-model-type"></a></dt>
@@ -114,7 +125,13 @@ the Crow-AMSAA model. <code>"MLE"</code> is not supported for
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The function returns an object of class <code>rga</code> that contains:</p>
 <dl><dt>times</dt>
-<dd><p>The input exact failure times.</p></dd>
+<dd><p>The input time vector, stored exactly as supplied.</p></dd>
+
+<dt>cum_times</dt>
+<dd><p>The cumulative time vector used for fitting.</p></dd>
+
+<dt>times_type</dt>
+<dd><p>How <code>times</code> was interpreted: <code>"failure_times"</code> or <code>"cumulative_failure_times"</code>.</p></dd>
 
 <dt>failures</dt>
 <dd><p>The input number of failures.</p></dd>
@@ -216,6 +233,26 @@ it may take more iterations.</p>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>times <span class="op">=</span> <span class="va">times</span>, failures <span class="op">=</span> <span class="va">failures</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">result2</span> <span class="op">&lt;-</span> <span class="fu">rga</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Reliability Growth Analysis (RGA)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Model Type: Crow-AMSAA </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Estimation Method: LS </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of observations (failures): 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Parameters (per segment):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Growth Rate: 0.2013</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Beta: 0.7987 (SE = 0.0562)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Lambda: 0.0269</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Goodness of Fit:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Log-likelihood: 4.78</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AIC: -3.55</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   BIC: -4.72</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">cum_times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">result2b</span> <span class="op">&lt;-</span> <span class="fu">rga</span><span class="op">(</span><span class="va">cum_times</span>, <span class="va">failures</span>, times_type <span class="op">=</span> <span class="st">"cumulative_failure_times"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result2b</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reliability Growth Analysis (RGA)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Type: Crow-AMSAA </span>

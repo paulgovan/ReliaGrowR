@@ -1,46 +1,151 @@
 # Reliability Growth Forecasting
 
 ``` r
-library(ReliaGrowR)
+# Prefer the local source checkout when knitting from the package repo.
+pkg_root <- NULL
+if (requireNamespace("pkgload", quietly = TRUE)) {
+  candidate_roots <- c(".", "..")
+  for (path in candidate_roots) {
+    desc_path <- file.path(path, "DESCRIPTION")
+    if (!file.exists(desc_path)) {
+      next
+    }
+
+    pkg_name <- tryCatch(
+      as.character(read.dcf(desc_path, fields = "Package")[1, 1]),
+      error = function(e) ""
+    )
+    if (identical(pkg_name, "ReliaGrowR")) {
+      pkg_root <- normalizePath(path, winslash = "/", mustWork = TRUE)
+      break
+    }
+  }
+}
+
+if (!is.null(pkg_root)) {
+  pkgload::load_all(
+    pkg_root,
+    export_all = FALSE,
+    helpers = FALSE,
+    attach_testthat = FALSE,
+    quiet = TRUE
+  )
+} else {
+  library(ReliaGrowR)
+}
+
 library(WeibullR)
 ```
 
 ## Introduction
 
-Reliability Growth Analysis (RGA) tracks how a system’s failure rate
-improves over development and testing. Fitting a model to historical
-interval data allows extrapolation of the trend forward, forecasting the
-number of additional failures expected in a future operating window.
-Combined with a fleet of units currently at risk, the forecast drives a
-simulation of *which* units fail and *when*, producing a dataset
-suitable for life distribution estimation.
+Reliability Growth Analysis (RGA) tracks the improvement (or
+degradation) of system reliability over a test campaign as changes are
+made. However, translating an observed growth trend into a fleet-level
+life distribution forecast requires several additional steps that are
+often performed separately, leading to potential inconsistencies, loss
+of fidelity in reliability projections, and an incomplete picture of
+future system performance. This study introduces a novel integrated
+workflow that systematically connects RGA to Weibull life estimation
+through stochastic simulation, providing a robust framework to propagate
+observed reliability growth into predictive fleet-level life
+distributions. The RGA forecast determines the cumulative time over
+which a target number of additional failures is expected, sim_failures()
+generates conditional failure times for the surviving units over that
+horizon, and the simulated failures are combined with observed test data
+to fit a growth-adjusted Weibull distribution, offering a dynamic and
+data-driven representation of reliability that evolves with observed
+improvements. This integration provides a more comprehensive and
+realistic fleet-level life distribution forecast by explicitly
+accounting for reliability improvements, thereby avoiding
+underestimation of future reliability or misallocation of resources
+often associated with fragmented analyses. A parallel Weibull fit to the
+test data alone (without growth) provides a baseline for the comparison.
+Monte Carlo replication quantifies the variability introduced by the
+simulation, and sensitivity analyses examine how the results depend on
+the number of test failures and the strength of the reliability growth
+trend.
+
+## Life Data Analysis
+
+Suppose a reliability test is conducted on 100 units over a 1000
+time-unit campaign, during which 20 failures occur. The failure
+mechanism is wear-out ($\beta$\>1), so the hazard rate increases with
+age. During the test, design improvements were introduced to mitigate
+the wear-out mechanism, producing a reliability growth trend in the
+system-level failure intensity. Eighty surviving units remained at risk
+during the forecast period. The failure and suspension times were as
+follows:
+
+``` r
+failures <- c(
+  500, 600, 650, 700, 730, 760, 790, 810, 830, 845,
+  860, 875, 890, 905, 920, 935, 945, 960, 975, 990
+)
+suspensions <- rep(1000, 80)
+
+n_test_failures <- length(failures)
+n_surviving <- length(suspensions)
+```
+
+The `WeibullR` package is used to fit a Weibull distribution to the
+failure and suspension data. The
+[`wblr()`](https://rdrr.io/pkg/WeibullR/man/wblr.html) function creates
+a Weibull object, and
+[`wblr.fit()`](https://rdrr.io/pkg/WeibullR/man/wblr.fit.html) fits the
+model:
+
+``` r
+obj <- wblr(failures, suspensions,
+  col = "steelblue", label = "Test Data", is.plot.cb = FALSE
+)
+obj <- wblr.fit(obj)
+sim_beta <- obj$fit[[1]]$beta
+eta_orig <- obj$fit[[1]]$eta
+plot(obj,
+  main = "Weibull Fit to Test Data",
+  xlab = "Operating Time", ylab = "Unreliability"
+)
+```
+
+![](RGF_files/figure-html/unnamed-chunk-3-1.png)
+
+The estimated shape parameter $\beta$ is 5.135 and the scale parameter
+$\eta$ is 1321.4. A shape parameter greater than one confirms the
+wear-out failure mode.
 
 ## Reliability Growth Analysis
 
-The Crow-AMSAA model assumes the cumulative failure count follows a
-power-law process: $N(t) = \lambda t^{\beta}$. A growth parameter
-$\beta < 1$ indicates that failures are becoming less frequent over time
-(reliability improvement).
-
-The analysis begins by defining the interval end-times and the number of
-failures observed in each interval. A ten-interval test spanning 2000
-cumulative operating units shows a clear downward trend in failures per
-interval:
+The Weibull life data are converted into the cumulative-time and
+failure-count format required for reliability growth analysis with
+[`weibull_to_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/weibull_to_rga.md).
+The function handles the exact failure times and right-censored
+suspensions, producing a data frame with cumulative time and failure
+counts that can be used to fit a Crow-AMSAA model.
 
 ``` r
-times <- rep(200, 10)
-failures <- c(25, 13, 7, 4, 2, 1, 1, 1, 2, 2)
+rga_data <- weibull_to_rga(failures, suspensions)
+rga_input <- data.frame(
+  times = rga_data$CumulativeTime,
+  failures = rga_data$Failures
+)
 ```
 
-The model is fitted with
-[`rga()`](https://paulgovan.github.io/ReliaGrowR/reference/rga.md):
+The Crow-AMSAA model is fitted with
+[`rga()`](https://paulgovan.github.io/ReliaGrowR/reference/rga.md). The
+growth parameter $\beta_{\text{growth}}$ governs the system-level
+failure intensity trend and is distinct from the Weibull shape parameter
+$\beta$ estimated above: the Crow-AMSAA $\beta_{\text{growth}}$
+describes whether the rate of failure accumulation is increasing or
+decreasing over cumulative operating time, whereas the Weibull $\beta$
+describes the unit-level hazard function.
 
 ``` r
-fit <- rga(times, failures, model_type = "Piecewise NHPP")
+test_end_cum_time <- max(rga_input$times)
+fit <- rga(rga_input, times_type = "cumulative_failure_times")
+growth_beta <- fit$betas
+growth_lambda <- fit$lambdas
 ```
-
-The fitted reliability growth model is plotted against the observed
-data:
 
 ``` r
 plot(fit,
@@ -49,418 +154,230 @@ plot(fit,
 )
 ```
 
-![](RGF_files/figure-html/unnamed-chunk-4-1.png)
+![](RGF_files/figure-html/unnamed-chunk-6-1.png)
+
+The cumulative operating time at test end is 16,470 units. The fitted
+growth parameter $\beta_{\text{growth}}$ is 0.854. A value less than one
+indicates reliability improvement over the test campaign.
+
+## Reliability Growth Forecast
+
+The Crow-AMSAA model provides an intensity function that can be
+extrapolated to forecast future failures. The cumulative failure
+function is $N(t) = \lambda\, t^{\beta_{\text{growth}}}$, and solving
+for the cumulative time $t_{f}$ at which a target number of total
+failures is reached gives:
+
+$$t_{f} = \left( \frac{N_{\text{target}}}{\lambda} \right)^{1/\beta_{\text{growth}}}$$
+
+The forecast targets 60 additional failures beyond the 20 observed
+during the test, for a total of 80 cumulative failures. This represents
+75% of the surviving fleet, leaving 20 units as right-censored
+suspensions in the combined dataset.
 
 ``` r
-cat("The estimated growth parameter (beta):", round(fit$betas$log_times[2,1], 3), "\n")
+n_forecast <- 60
+n_target <- n_test_failures + n_forecast
+
+t_forecast <- (n_target / growth_lambda)^(1 / growth_beta)
+delta_cum_time <- t_forecast - test_end_cum_time
+effective_fleet <- n_surviving - n_forecast / 2
+per_unit_time <- delta_cum_time / effective_fleet
 ```
 
-The estimated growth parameter (beta): 0.188
-
-The cumulative operating time at the end of the test is 2000 units. The
-total number of observed failures is `sum(failures)` = 58. The fitted
-$\beta < 1$ confirms reliability is improving over the course of the
-test.
-
-## Reliability Growth Forecasting
-
-The
-[`predict_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.md)
-function extrapolates the fitted model beyond the test data. The
-following forecast covers three consecutive 500-unit periods immediately
-following the test end at $t = 2000$:
-
-| Period | Cumulative time span |
-|:-------|:---------------------|
-| 1      | 2000 – 2500          |
-| 2      | 2500 – 3000          |
-| 3      | 3000 – 3500          |
-
-Equal-width periods allow direct comparison: if reliability is growing,
-each successive period is expected to yield fewer failures. The
-cumulative time boundaries for the forecast periods are defined and the
-cumulative failure forecast is generated at those boundaries:
+The forecasted cumulative time to 80 total failures is 82,705 units,
+requiring an additional 66,235 cumulative time units beyond the test
+end. Because units that fail during the forecast period stop
+accumulating operating time, a simple division by 80 would underestimate
+the per-unit horizon. An attrition-adjusted effective fleet size of 50
+accounts for this by assuming that, on average, each failing unit
+contributes roughly half a window of operating time. The resulting
+per-unit simulation horizon is 1324.7 additional operating time units.
 
 ``` r
-boundaries <- c(2000, 2500, 3000, 3500)
-fc <- predict_rga(fit, boundaries)
+forecast_times <- seq(test_end_cum_time, t_forecast, length.out = 50)
+fc <- predict_rga(fit, forecast_times)
+#> Warning in predict_rga(fit, forecast_times): Some 'times' values are <= the
+#> maximum observed cumulative time. Hindcasting is allowed but may not be
+#> meaningful.
 plot(fc,
   main = "Reliability Growth Forecast",
   xlab = "Cumulative Time", ylab = "Cumulative Failures"
 )
 ```
 
-![](RGF_files/figure-html/unnamed-chunk-5-1.png)
+![](RGF_files/figure-html/unnamed-chunk-8-1.png)
 
-The incremental failures expected in each period are obtained by taking
-the difference between the cumulative forecast at successive boundaries:
+## Simulating Remaining Failures
 
-``` r
-n_p1 <- round(fc$cum_failures[2] - fc$cum_failures[1])
-n_p2 <- round(fc$cum_failures[3] - fc$cum_failures[2])
-n_p3 <- round(fc$cum_failures[4] - fc$cum_failures[3])
-cat(
-  "Predicted failures — Period 1:", n_p1,
-  " Period 2:", n_p2,
-  " Period 3:", n_p3, "\n"
-)
-```
-
-Predicted failures — Period 1: 2 Period 2: 2 Period 3: 2
-
-Each predicted count indicates how many new failures to inject into the
-fleet simulation for that period. The predicted interval failure counts
-serve as the injection rate for the fleet simulation below.
-
-## Stochastic Fleet Simulation
-
-The forecasted failure counts drive a stochastic simulation of
-individual unit failures. The
+The
 [`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md)
-function implements a stochastic assignment process that mimics field
-failure occurrence. Units are selected for failure using probability
-proportional to size (PPS) sampling: units with longer accumulated
-runtimes have a proportionally higher probability of being chosen.
-Failure event times are drawn from `runtime + Uniform(0, window)` and
-surviving units are right-censored at `runtime + window`.
-
-Suppose a fleet of 40 units is currently in service, with accumulated
-runtimes spanning roughly 500 to 2000 operating units, which forms the
-at-risk population:
+function generates conditional Weibull failure times for the surviving
+units. Each unit has already accumulated 1000 operating time units, and
+the simulation draws failure times from the conditional Weibull
+distribution over the forecast horizon derived above. The function
+internally calibrates the Weibull scale parameter $\eta$ so that the
+expected number of conditional failures over the horizon matches the
+target count of 60.
 
 ``` r
-set.seed(42)
-runtimes <- sort(sample(500:2000, 40, replace = FALSE))
-```
-
-### Period 1 Simulation
-
-The Period 1 simulation injects `n_p1` failures into the 40-unit fleet
-over a 500-unit observation window:
-
-``` r
-result_p1 <- sim_failures(n_p1, runtimes, window = 500)
-knitr::kable(head(result_p1), caption = "Simulated failures and suspensions for Period 1")
-```
-
-| index |  runtime | type       |
-|------:|---------:|:-----------|
-|     1 | 1023.000 | Suspension |
-|     2 | 1048.000 | Suspension |
-|     3 | 1145.000 | Suspension |
-|     4 | 1164.000 | Suspension |
-|    16 | 1185.632 | Failure    |
-|     5 | 1196.000 | Suspension |
-
-Simulated failures and suspensions for Period 1
-
-### Period 2 Simulation
-
-For Period 2, surviving units from Period 1 each accumulate an
-additional 500 units of operating time. Each failed unit is replaced by
-a new unit (starting runtime = 1), keeping the at-risk population
-roughly constant. The replacement units contribute suspension
-observations at the end of the window if they do not fail, anchoring the
-left tail of the life distribution estimate:
-
-``` r
-survivors_p1 <- result_p1$index[result_p1$type == "Suspension"]
-n_fail_p1   <- sum(result_p1$type == "Failure")
-runtimes_p2 <- c(runtimes[survivors_p1] + 500, rep(1, n_fail_p1))
-result_p2 <- sim_failures(n_p2, runtimes_p2, window = 500)
-```
-
-### Period 3 Simulation
-
-The same runtime-advance and replacement logic applies after Period 2:
-
-``` r
-survivors_p2 <- result_p2$index[result_p2$type == "Suspension"]
-n_fail_p2   <- sum(result_p2$type == "Failure")
-runtimes_p3 <- c(runtimes_p2[survivors_p2] + 500, rep(1, n_fail_p2))
-result_p3 <- sim_failures(n_p3, runtimes_p3, window = 500)
-```
-
-## Parametric Life Distribution Estimation
-
-A Weibull distribution is fitted to the combined failure and suspension
-data from each period. To supplement the stochastic simulation results,
-approximate individual failure times are generated from the historical
-interval failure counts, and the fleet runtimes are included as
-right-censored observations. The combined dataset includes historical
-test failures, fleet runtimes, and simulated events. Each Weibull fit is
-a cumulative update: Period 2 incorporates all failure events observed
-through Period 1 plus the new Period 2 failures, with right-censoring at
-the end of the current window. This approach mirrors standard practice,
-updating the life distribution estimate as new data arrive over time.
-
-``` r
-# Generate approximate failure times from interval counts
-interval_ends <- cumsum(times)
-interval_starts <- c(0, interval_ends[-length(interval_ends)])
-hist_fail_times <- sort(unlist(mapply(function(start, end, n) {
-  if (n > 0) runif(n, start, end) else numeric(0)
-}, interval_starts, interval_ends, failures)))
-
-# Extract events by type from each period
-fail_p1 <- result_p1$runtime[result_p1$type == "Failure"]
-susp_p1 <- result_p1$runtime[result_p1$type == "Suspension"]
-
-fail_p2 <- result_p2$runtime[result_p2$type == "Failure"]
-susp_p2 <- result_p2$runtime[result_p2$type == "Suspension"]
-
-fail_p3 <- result_p3$runtime[result_p3$type == "Failure"]
-susp_p3 <- result_p3$runtime[result_p3$type == "Suspension"]
-
-# Period 1: historical + simulated failures; fleet runtimes + simulated suspensions
-obj_p1 <- wblr(c(hist_fail_times, fail_p1), c(runtimes, susp_p1),
-  col = "steelblue", label = "Period 1", is.plot.cb = FALSE
+set.seed(123)
+sim_result <- sim_failures(
+  n = n_forecast,
+  runtimes = rep(1000, n_surviving),
+  window = per_unit_time,
+  beta = sim_beta
 )
-obj_p1 <- wblr.fit(obj_p1)
-
-# Period 2: cumulative failures through P2; fleet runtimes + P2 suspensions
-obj_p2 <- wblr(c(hist_fail_times, fail_p1, fail_p2), c(runtimes, susp_p2),
-  col = "tomato", label = "Period 2", is.plot.cb = FALSE
-)
-obj_p2 <- wblr.fit(obj_p2)
-
-# Period 3: cumulative failures through P3; fleet runtimes + P3 suspensions
-obj_p3 <- wblr(c(hist_fail_times, fail_p1, fail_p2, fail_p3), c(runtimes, susp_p3),
-  col = "forestgreen", label = "Period 3", is.plot.cb = FALSE
-)
-obj_p3 <- wblr.fit(obj_p3)
+sim_eta <- attr(sim_result, "weibull_eta")
 ```
 
-All three fitted lines are overlaid on a single Weibull probability
-plot. As reliability grows, the fitted line shifts rightward, indicating
-a longer characteristic life:
+The calibrated scale parameter is $\eta$ = 2175.8, compared to the
+original test-data estimate of $\eta$ = 1321.4. The increase in $\eta$
+reflects the reliability growth: the growth-adjusted failure rate is
+lower, so a larger characteristic life is needed to match the forecasted
+failure count. Of the 80 surviving units, 60 receive simulated failure
+times and 20 are right-censored at the end of the forecast horizon.
+
+The simulated failures are combined with the 20 test failures:
 
 ``` r
-plot.wblr(list(obj_p1, obj_p2, obj_p3),
-  main = "Cumulative Weibull Fits Across Forecast Periods",
-  is.plot.legend = FALSE
+sim_fail_times <- sim_result$runtime[sim_result$type == "Failure"]
+sim_susp_times <- sim_result$runtime[sim_result$type == "Suspension"]
+combined_failures <- c(failures, sim_fail_times)
+combined_suspensions <- sim_susp_times
+```
+
+## Weibull Comparison
+
+Two Weibull models are fitted to contrast the effect of reliability
+growth:
+
+- **Without growth**: fitted to the original test data (20 failures, 80
+  suspensions at $t = 1000$). This represents the life distribution
+  implied by the test alone, without projecting the growth trend
+  forward.
+- **With growth**: fitted to the combined dataset (20 test failures + 60
+  simulated failures + 20 suspensions). This represents the life
+  distribution when growth-adjusted failure times are included.
+
+``` r
+obj_growth <- wblr(combined_failures, combined_suspensions,
+  col = "tomato", label = "With Growth", is.plot.cb = FALSE
+)
+obj_growth <- wblr.fit(obj_growth)
+
+obj_nogrowth <- wblr(failures, suspensions,
+  col = "grey40", label = "Without Growth", is.plot.cb = FALSE
+)
+obj_nogrowth <- wblr.fit(obj_nogrowth)
+
+plot.wblr(list(obj_nogrowth, obj_growth),
+  main = "Weibull Comparison: With vs. Without Reliability Growth",
+  is.plot.legend = TRUE
 )
 ```
 
-![](RGF_files/figure-html/unnamed-chunk-12-1.png)
-
-## Summary: Weibull Parameters Across Periods
-
-The estimated shape ($\beta$) and scale ($\eta$) parameters from each
-fitted object are compiled into a summary table:
+![](RGF_files/figure-html/unnamed-chunk-11-1.png)
 
 ``` r
-cum_failures <- cumsum(lengths(list(fail_p1, fail_p2, fail_p3)))
+growth_wb_beta <- obj_growth$fit[[1]]$beta
+growth_wb_eta <- obj_growth$fit[[1]]$eta
+nogrowth_wb_beta <- obj_nogrowth$fit[[1]]$beta
+nogrowth_wb_eta <- obj_nogrowth$fit[[1]]$eta
 
 params <- data.frame(
-  Period = c("Period 1", "Period 2", "Period 3"),
-  Cumul_Failures = cum_failures,
-  Beta = round(c(
-    obj_p1$fit[[1]]$beta,
-    obj_p2$fit[[1]]$beta,
-    obj_p3$fit[[1]]$beta
-  ), 3),
-  Eta = round(c(
-    obj_p1$fit[[1]]$eta,
-    obj_p2$fit[[1]]$eta,
-    obj_p3$fit[[1]]$eta
-  ), 1)
+  Scenario = c("Without Growth", "With Growth"),
+  Beta = round(c(nogrowth_wb_beta, growth_wb_beta), 3),
+  Eta = round(c(nogrowth_wb_eta, growth_wb_eta), 1)
 )
 
 knitr::kable(params,
-  caption = "Cumulative Weibull parameters by forecast period",
-  col.names = c("Period", "Cumul. Failures", "Shape (\u03b2)", "Scale (\u03b7)"),
+  caption = "Weibull parameters: with vs. without reliability growth",
+  col.names = c("Scenario", "\u03b2", "\u03b7"),
   row.names = FALSE
 )
 ```
 
-| Period   | Cumul. Failures | Shape (β) | Scale (η) |
-|:---------|----------------:|----------:|----------:|
-| Period 1 |               2 |     0.616 |    3022.1 |
-| Period 2 |               4 |     0.609 |    3241.2 |
-| Period 3 |               6 |     0.603 |    3451.4 |
+| Scenario       |     β |      η |
+|:---------------|------:|-------:|
+| Without Growth | 5.135 | 1321.4 |
+| With Growth    | 2.895 | 2071.9 |
 
-Cumulative Weibull parameters by forecast period
+Weibull parameters: with vs. without reliability growth
 
-With each update, the estimate is based on more failure events, reducing
-uncertainty. The rightward shift of scale $\eta$ across periods reflects
-the reduced failure intensity predicted by the growth model, units are
-lasting longer as the system matures.
+Under reliability growth, the combined dataset includes simulated
+failure times that extend beyond the original test horizon, producing a
+larger estimated $\eta$ (rightward shift in the life distribution). Both
+$\beta$ and $\eta$ are freely estimated in each fit.
 
-### Reliability Metrics
-
-The Weibull parameters translate into two common reliability metrics:
-the mean time between failures (MTBF) and the reliability at a fixed
-mission time. MTBF for a Weibull distribution is
-$\eta \cdot \Gamma(1 + 1/\beta)$, and reliability at time $t$ is
-$R(t) = \exp\left\lbrack - (t/\eta)^{\beta} \right\rbrack$.
-
-``` r
-weibull_metrics <- function(obj, t) {
-  b <- obj$fit[[1]]$beta
-  e <- obj$fit[[1]]$eta
-  mtbf <- e * gamma(1 + 1 / b)
-  rt <- exp(-(t / e)^b)
-  c(MTBF = round(mtbf, 1), Reliability = round(rt, 3))
-}
-
-t_mission <- 1500 # target mission time (operating units)
-
-metrics <- data.frame(
-  Period = c("Period 1", "Period 2", "Period 3"),
-  t(sapply(list(obj_p1, obj_p2, obj_p3), weibull_metrics, t = t_mission))
-)
-
-knitr::kable(metrics,
-  caption = paste0(
-    "MTBF and reliability at t = ", t_mission,
-    " operating units by forecast period"
-  ),
-  col.names = c("Period", "MTBF", paste0("R(", t_mission, ")")),
-  row.names = FALSE
-)
-```
-
-| Period   |   MTBF | R(1500) |
-|:---------|-------:|--------:|
-| Period 1 | 4400.7 |   0.522 |
-| Period 2 | 4785.0 |   0.535 |
-| Period 3 | 5154.2 |   0.546 |
-
-MTBF and reliability at t = 1500 operating units by forecast period
-
-A rising MTBF and reliability across periods confirms that the
-reliability growth signal detected in testing carries through to the
-fleet simulation.
+Because the combined dataset merges test-era failures (generated under
+the original failure distribution) with simulated post-growth failures
+(generated under a larger $\eta$), the data do not follow a single
+Weibull distribution exactly. On a Weibull probability plot the two
+populations produce a concave pattern, which pulls the fitted $\beta$
+downward. The $\eta$ comparison remains the primary indicator of the
+growth effect; the $\beta$ change should be interpreted as a mixture
+artifact rather than a shift in the underlying failure mechanism.
 
 ## Monte Carlo Uncertainty Analysis
 
-A single run of
+A single call to
 [`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md)
-represents one realization of the stochastic assignment process.
-Uncertainty in $\widehat{\beta}$ and $\widehat{\eta}$ attributable to
-randomness in failure assignment is quantified by repeating all three
-simulation periods from the same initial fleet state, yielding a
-collection of Weibull parameter estimates whose spread measures sampling
-variability.
+produces one realization of the 60 simulated failure times. Different
+random draws yield different combined datasets and therefore different
+Weibull parameter estimates. The Monte Carlo analysis repeats the
+simulation 500 times to characterize this variability.
 
 ### Run the Monte Carlo Loop
 
-Each iteration re-simulates all three periods and fits a cumulative
-Weibull model for each period. The historical failure times and fleet
-runtimes are included alongside the simulation data in each fit.
-Parameters are stored in a long-format data frame. Iterations yielding
-fewer than two failures in a given period are excluded from that
-period’s fit by design; errors are suppressed via `tryCatch`.
+Each iteration draws a new set of 60 simulated failure times, combines
+them with the 20 test failures, and fits a Weibull distribution. Both
+$\beta$ and $\eta$ are freely estimated in every iteration.
 
 ``` r
 set.seed(99)
-n_sim <- 200
-mc_list <- vector("list", n_sim)
+n_mc <- 500
+mc_results <- vector("list", n_mc)
 
-for (i in seq_len(n_sim)) {
+for (i in seq_len(n_mc)) {
   tryCatch(
     {
-      # Period 1
-      r1 <- sim_failures(n_p1, runtimes, window = 500)
-      f1 <- r1$runtime[r1$type == "Failure"]
-      s1 <- r1$runtime[r1$type == "Suspension"]
-
-      # Period 2 — survivors advance; failed units replaced by new units (runtime = 1)
-      surv1 <- r1$index[r1$type == "Suspension"]
-      rt2 <- c(runtimes[surv1] + 500, rep(1, sum(r1$type == "Failure")))
-      r2 <- sim_failures(n_p2, rt2, window = 500)
-      f2 <- r2$runtime[r2$type == "Failure"]
-      s2 <- r2$runtime[r2$type == "Suspension"]
-
-      # Period 3 — survivors advance; failed units replaced by new units (runtime = 1)
-      surv2 <- r2$index[r2$type == "Suspension"]
-      rt3 <- c(rt2[surv2] + 500, rep(1, sum(r2$type == "Failure")))
-      r3 <- sim_failures(n_p3, rt3, window = 500)
-      f3 <- r3$runtime[r3$type == "Failure"]
-      s3 <- r3$runtime[r3$type == "Suspension"]
-
-      # Cumulative failure and suspension sets including historical + fleet data
-      cum_fail <- list(
-        c(hist_fail_times, f1),
-        c(hist_fail_times, f1, f2),
-        c(hist_fail_times, f1, f2, f3)
+      mc_results[[i]] <- sim_and_fit(
+        failures, n_forecast, rep(1000, n_surviving), per_unit_time, sim_beta
       )
-      susp_set <- list(
-        c(runtimes, s1),
-        c(runtimes, s2),
-        c(runtimes, s3)
-      )
-
-      rows <- lapply(1:3, function(p) {
-        if (length(cum_fail[[p]]) < 2) {
-          return(NULL)
-        }
-        obj <- wblr(cum_fail[[p]], susp_set[[p]], is.plot.cb = FALSE)
-        obj <- wblr.fit(obj)
-        data.frame(
-          sim = i,
-          period = paste0("Period ", p),
-          beta = obj$fit[[1]]$beta,
-          eta = obj$fit[[1]]$eta
-        )
-      })
-
-      mc_list[[i]] <- do.call(rbind, Filter(Negate(is.null), rows))
     },
     error = function(e) NULL
   )
 }
 
-mc_df <- do.call(rbind, Filter(Negate(is.null), mc_list))
+mc_df <- do.call(rbind, Filter(Negate(is.null), mc_results))
 ```
 
 ### Visualize the Parameter Distributions
 
-Histograms of $\widehat{\beta}$ (shape) and $\widehat{\eta}$ (scale) for
-each period show how the fitted parameters vary across simulations. The
-dashed vertical line marks the median; the solid vertical line marks the
-single-run point estimate from the previous section. A density curve is
-overlaid to highlight the distributional shape.
+Histograms of the fitted $\widehat{\beta}$ and $\widehat{\eta}$ across
+all valid iterations show the spread introduced by the stochastic
+simulation. The dashed line marks the Monte Carlo median, and the dotted
+grey line marks the no-growth baseline.
 
 ``` r
-# Single-run point estimates for reference
-single_beta <- c(obj_p1$fit[[1]]$beta, obj_p2$fit[[1]]$beta, obj_p3$fit[[1]]$beta)
-single_eta <- c(obj_p1$fit[[1]]$eta, obj_p2$fit[[1]]$eta, obj_p3$fit[[1]]$eta)
+par(mfrow = c(1, 2), mar = c(4, 4, 3, 1))
 
-cols <- c("steelblue", "tomato", "forestgreen")
-par(mfrow = c(2, 3), mar = c(4, 4, 3, 1))
+hist(mc_df$beta,
+  breaks = "Sturges", col = "steelblue", border = "white",
+  main = "MC Distribution of \u03b2",
+  xlab = expression(hat(beta)), ylab = "Count", freq = TRUE
+)
+abline(v = median(mc_df$beta), lty = 2, lwd = 2)
+abline(v = nogrowth_wb_beta, lty = 3, lwd = 2, col = "grey40")
 
-for (p in 1:3) {
-  sub <- mc_df[mc_df$period == paste0("Period ", p), ]
-  b <- sub$beta[!is.na(sub$beta)]
-  h <- hist(b,
-    breaks = "Sturges", col = cols[p], border = "white",
-    main = paste0("Period ", p, " \u2014 Shape (\u03b2)"),
-    xlab = expression(hat(beta)), ylab = "Count", freq = TRUE
-  )
-  # density scaled to count axis
-  dens <- density(b)
-  scale_factor <- length(b) * diff(h$breaks[1:2])
-  lines(dens$x, dens$y * scale_factor, lwd = 2)
-  abline(v = median(b), lty = 2, lwd = 2)
-  abline(v = single_beta[p], lty = 1, lwd = 2, col = "black")
-}
-
-for (p in 1:3) {
-  sub <- mc_df[mc_df$period == paste0("Period ", p), ]
-  e <- sub$eta[!is.na(sub$eta)]
-  h <- hist(e,
-    breaks = "Sturges", col = cols[p], border = "white",
-    main = paste0("Period ", p, " \u2014 Scale (\u03b7)"),
-    xlab = expression(hat(eta)), ylab = "Count", freq = TRUE
-  )
-  dens <- density(e)
-  scale_factor <- length(e) * diff(h$breaks[1:2])
-  lines(dens$x, dens$y * scale_factor, lwd = 2)
-  abline(v = median(e), lty = 2, lwd = 2)
-  abline(v = single_eta[p], lty = 1, lwd = 2, col = "black")
-}
+hist(mc_df$eta,
+  breaks = "Sturges", col = "tomato", border = "white",
+  main = "MC Distribution of \u03b7",
+  xlab = expression(hat(eta)), ylab = "Count", freq = TRUE
+)
+abline(v = median(mc_df$eta), lty = 2, lwd = 2)
+abline(v = nogrowth_wb_eta, lty = 3, lwd = 2, col = "grey40")
 ```
 
 ![](RGF_files/figure-html/mc-histograms-1.png)
@@ -470,538 +387,386 @@ for (p in 1:3) {
 par(mfrow = c(1, 1))
 ```
 
-The solid line (single-run estimate) and dashed line (MC median) are
-expected to align closely. Any gap reflects sampling variability in that
-single realization.
-
-### Monte Carlo Summary Table
-
-Median, mean, and 95% central intervals across all valid simulations are
-presented below. Skewed parameter distributions show a mean that differs
-noticeably from the median.
+### Monte Carlo Summary
 
 ``` r
-mc_summary <- do.call(rbind, lapply(1:3, function(p) {
-  sub <- mc_df[mc_df$period == paste0("Period ", p), ]
-  b <- sub$beta[!is.na(sub$beta)]
-  e <- sub$eta[!is.na(sub$eta)]
-  data.frame(
-    Period    = paste0("Period ", p),
-    Valid     = length(b),
-    Pct_valid = paste0(round(100 * length(b) / n_sim), "%"),
-    Beta_mean = round(mean(b), 3),
-    Beta_med  = round(median(b), 3),
-    Beta_lo   = round(quantile(b, 0.025), 3),
-    Beta_hi   = round(quantile(b, 0.975), 3),
-    Eta_mean  = round(mean(e), 1),
-    Eta_med   = round(median(e), 1),
-    Eta_lo    = round(quantile(e, 0.025), 1),
-    Eta_hi    = round(quantile(e, 0.975), 1)
-  )
-}))
+mc_summary <- data.frame(
+  Parameter = c("\u03b2", "\u03b7"),
+  NoGrowth = round(c(nogrowth_wb_beta, nogrowth_wb_eta), 3),
+  Median = round(c(median(mc_df$beta), median(mc_df$eta)), 3),
+  Mean = round(c(mean(mc_df$beta), mean(mc_df$eta)), 3),
+  CI_lo = round(c(
+    quantile(mc_df$beta, 0.025),
+    quantile(mc_df$eta, 0.025)
+  ), 3),
+  CI_hi = round(c(
+    quantile(mc_df$beta, 0.975),
+    quantile(mc_df$eta, 0.975)
+  ), 3)
+)
 
 knitr::kable(mc_summary,
-  caption = "Monte Carlo summary: mean, median and 95% central interval (200 simulations)",
+  caption = paste0(
+    "Monte Carlo summary of Weibull parameters (",
+    nrow(mc_df), " valid iterations)"
+  ),
   col.names = c(
-    "Period", "Valid", "%",
-    "Mean \u03b2", "Med. \u03b2", "2.5% \u03b2", "97.5% \u03b2",
-    "Mean \u03b7", "Med. \u03b7", "2.5% \u03b7", "97.5% \u03b7"
+    "Parameter", "No Growth", "Median", "Mean", "2.5%", "97.5%"
   ),
   row.names = FALSE
 )
 ```
 
-| Period   | Valid | %    | Mean β | Med. β | 2.5% β | 97.5% β | Mean η | Med. η | 2.5% η | 97.5% η |
-|:---------|------:|:-----|-------:|-------:|-------:|--------:|-------:|-------:|-------:|--------:|
-| Period 1 |   200 | 100% |  0.616 |  0.616 |  0.615 |   0.619 | 3016.4 | 3025.0 | 2955.9 |  3042.3 |
-| Period 2 |   200 | 100% |  0.610 |  0.610 |  0.608 |   0.615 | 3211.8 | 3222.3 | 3088.2 |  3264.2 |
-| Period 3 |   200 | 100% |  0.604 |  0.604 |  0.601 |   0.609 | 3432.0 | 3435.1 | 3313.1 |  3508.8 |
+| Parameter | No Growth |   Median |     Mean |     2.5% |    97.5% |
+|:----------|----------:|---------:|---------:|---------:|---------:|
+| β         |     5.135 |    2.898 |    2.901 |    2.819 |    3.009 |
+| η         |  1321.367 | 2045.918 | 2047.058 | 1951.069 | 2132.474 |
 
-Monte Carlo summary: mean, median and 95% central interval (200
-simulations)
+Monte Carlo summary of Weibull parameters (500 valid iterations)
 
-Wider intervals in Period 1 reflect the small number of simulated
-failures; as failures accumulate across periods, the estimates stabilize
-and the intervals narrow. A rightward shift in the median
-$\widehat{\eta}$ across periods is the Monte Carlo analogue of the
-point-estimate shift seen in the single-run summary, now expressed as a
-full distribution rather than a scalar. Iterations with fewer than two
-failures in a period are excluded from that period’s fit. The “%” column
-shows how often a valid fit was obtained.
+The Monte Carlo distributions quantify how much the Weibull parameter
+estimates vary due to the randomness in the simulated failure times. The
+no-growth baseline falls outside the Monte Carlo distribution when the
+growth trend produces a meaningfully different life distribution.
 
 ## Sensitivity Analysis
 
-The preceding Monte Carlo analysis fixes the growth model parameters.
-This section varies the growth model forecast in two ways: by scaling
-the predicted failure counts and by adjusting the growth parameter
-$\beta$. The resulting Weibull fits reveal how the life distribution
-estimate responds to changes in the growth model forecast.
+The preceding Monte Carlo analysis held the RGA forecast and Weibull
+input shape parameter fixed while varying the simulated failure draws.
+This section examines how two key inputs affect the growth-adjusted
+Weibull: (a) the number of test failures observed during the campaign,
+and (b) the Crow-AMSAA growth parameter.
+
+### Effect of Number of Test Failures
+
+The number of failures observed during the test affects both the Weibull
+fit to the test data and the RGA model. More test failures provide more
+information about the failure distribution but also change the number of
+remaining units to forecast. Four scenarios are examined: 10, 20, 30,
+and 40 test failures out of 100 units.
 
 ``` r
-# Helper: run all three periods in one call; failed units are replaced by new
-# units (runtime = 1), keeping the at-risk population roughly constant.
-run_three_periods <- function(n_vec, runtimes, window = 500) {
-  r1 <- sim_failures(n_vec[1], runtimes, window = window)
-  surv1 <- r1$index[r1$type == "Suspension"]
-  n_fail1 <- sum(r1$type == "Failure")
-  rt2 <- c(runtimes[surv1] + window, rep(1, n_fail1))
-  if (length(rt2) < 2) stop("insufficient units after Period 1")
-  r2 <- sim_failures(min(n_vec[2], length(rt2) - 1), rt2, window = window)
-  surv2 <- r2$index[r2$type == "Suspension"]
-  n_fail2 <- sum(r2$type == "Failure")
-  rt3 <- c(rt2[surv2] + window, rep(1, n_fail2))
-  if (length(rt3) < 2) stop("insufficient units after Period 2")
-  r3 <- sim_failures(min(n_vec[3], length(rt3) - 1), rt3, window = window)
-  list(r1 = r1, r2 = r2, r3 = r3, rt2 = rt2, rt3 = rt3)
-}
+# Build failure scenarios by subsampling or extending the base failures
+fail_10 <- failures[seq(1, 20, by = 2)]
+fail_20 <- failures
+fail_30 <- sort(c(failures, seq(505, 995, length.out = 10)))
+fail_40 <- sort(c(failures, seq(510, 998, length.out = 20)))
 
-cols3 <- c("steelblue", "tomato", "forestgreen")
-```
-
-### Effect of Number of Failures
-
-More observed failures provide denser information for fitting the
-Weibull distribution. Four multipliers are applied to the base predicted
-failure counts, spanning a wide range to expose how sample size affects
-parameter precision. A larger fleet of 80 units is used here so that
-even the highest failure counts do not deplete the at-risk population
-before Period 3.
-
-| Label | Multiplier | ~Period 1 failures |
-|-------|------------|--------------------|
-| Base  | 1×         | 2                  |
-| 2×    | 2×         | ~4                 |
-| 4×    | 4×         | ~8                 |
-| 6×    | 6×         | ~12                |
-
-``` r
-set.seed(7)
-n_sim_sens <- 200
-runtimes_fail <- sort(sample(500:2000, 80, replace = FALSE))
-
-fail_scenarios <- list(
-  Base  = c(n_p1, n_p2, n_p3),
-  `2x`  = pmax(round(c(n_p1, n_p2, n_p3) * 2), 1),
-  `4x`  = pmax(round(c(n_p1, n_p2, n_p3) * 4), 1),
-  `6x`  = pmax(round(c(n_p1, n_p2, n_p3) * 6), 1)
+test_fail_scenarios <- list(
+  "10 failures" = list(f = fail_10, s = rep(1000, 90)),
+  "20 failures" = list(f = fail_20, s = rep(1000, 80)),
+  "30 failures" = list(f = fail_30, s = rep(1000, 70)),
+  "40 failures" = list(f = fail_40, s = rep(1000, 60))
 )
-# Cap at fleet size - 1 to prevent over-sampling
-fail_scenarios <- lapply(fail_scenarios, function(ns) pmin(ns, length(runtimes_fail) - 1))
 ```
+
+For each scenario, the full pipeline is executed: fit the Weibull, fit
+the RGA, forecast remaining failures, simulate with
+[`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md),
+and fit the combined Weibull. A Monte Carlo loop of 200 iterations per
+scenario captures variability. In each scenario, 75% of the surviving
+units are targeted for simulated failure (matching the base analysis),
+with the remainder treated as suspensions.
 
 ``` r
 set.seed(42)
-par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
+n_mc_sens <- 200
 
-for (sc_name in names(fail_scenarios)) {
-  tryCatch({
-    ns <- fail_scenarios[[sc_name]]
-    n1 <- ns[1]; n2 <- ns[2]; n3 <- ns[3]
-    rt <- runtimes_fail
+sens_fail_list <- lapply(names(test_fail_scenarios), function(sc_name) {
+  sc <- test_fail_scenarios[[sc_name]]
+  n_f <- length(sc$f)
+  n_s <- length(sc$s)
+  n_fc <- round(n_s * 0.75) # forecast 75% of survivors
 
-    res <- run_three_periods(c(n1, n2, n3), rt)
-    f1 <- res$r1$runtime[res$r1$type == "Failure"]
-    s1 <- res$r1$runtime[res$r1$type == "Suspension"]
-    f2 <- res$r2$runtime[res$r2$type == "Failure"]
-    s2 <- res$r2$runtime[res$r2$type == "Suspension"]
-    f3 <- res$r3$runtime[res$r3$type == "Failure"]
-    s3 <- res$r3$runtime[res$r3$type == "Suspension"]
+  tryCatch(
+    {
+      # Fit Weibull
+      obj_sc <- wblr(sc$f, sc$s, is.plot.cb = FALSE)
+      obj_sc <- wblr.fit(obj_sc)
+      beta_sc <- obj_sc$fit[[1]]$beta
 
-    o1 <- wblr(c(hist_fail_times, f1), c(runtimes_fail, s1),
-      col = cols3[1], label = "Period 1", is.plot.cb = FALSE)
-    o1 <- wblr.fit(o1)
-    o2 <- wblr(c(hist_fail_times, f1, f2), c(runtimes_fail, s2),
-      col = cols3[2], label = "Period 2", is.plot.cb = FALSE)
-    o2 <- wblr.fit(o2)
-    o3 <- wblr(c(hist_fail_times, f1, f2, f3), c(runtimes_fail, s3),
-      col = cols3[3], label = "Period 3", is.plot.cb = FALSE)
-    o3 <- wblr.fit(o3)
-    plot.wblr(list(o1, o2, o3), main = paste0(sc_name, " failures (n\u2081=", n1, ")"), 
-              is.plot.legend = FALSE)
-  }, error = function(e) {
-    plot.new()
-    title(main = paste0(sc_name, "\n(insufficient survivors)"))
-  })
-}
-```
+      # Fit RGA
+      rga_sc <- weibull_to_rga(sc$f, sc$s)
+      rga_in <- data.frame(
+        times = rga_sc$CumulativeTime,
+        failures = rga_sc$Failures
+      )
+      fit_sc <- rga(rga_in, times_type = "cumulative_failure_times")
 
-![](RGF_files/figure-html/sens-fail-plots-1.png)
+      # Forecast
+      t_end_sc <- max(rga_in$times)
+      n_tgt <- n_f + n_fc
+      t_fc <- (n_tgt / fit_sc$lambdas)^(1 / fit_sc$betas)
+      delta_sc <- t_fc - t_end_sc
+      effective_sc <- n_s - n_fc / 2
+      put_sc <- delta_sc / effective_sc
 
-``` r
-par(mfrow = c(1, 1))
-```
+      if (put_sc <= 0) {
+        return(NULL)
+      }
 
-A Monte Carlo analysis of 200 iterations per failure scenario collects
-$\widehat{\beta}$ and $\widehat{\eta}$ for the cumulative Period 3 fit:
-
-``` r
-set.seed(456)
-fail_mc_list <- lapply(names(fail_scenarios), function(sc_name) {
-  ns <- fail_scenarios[[sc_name]]
-  n1 <- ns[1]; n2 <- ns[2]; n3 <- ns[3]
-
-  rows <- lapply(seq_len(n_sim_sens), function(i) {
-    tryCatch({
-      res <- run_three_periods(c(n1, n2, n3), runtimes_fail)
-      f1 <- res$r1$runtime[res$r1$type == "Failure"]
-      f2 <- res$r2$runtime[res$r2$type == "Failure"]
-      f3 <- res$r3$runtime[res$r3$type == "Failure"]
-      s3 <- res$r3$runtime[res$r3$type == "Suspension"]
-
-      cum_f3 <- c(hist_fail_times, f1, f2, f3)
-      if (length(cum_f3) < 2) return(NULL)
-      obj <- wblr(cum_f3, c(runtimes_fail, s3), is.plot.cb = FALSE)
-      obj <- wblr.fit(obj)
-      data.frame(scenario = sc_name, beta = obj$fit[[1]]$beta, eta = obj$fit[[1]]$eta)
-    }, error = function(e) NULL)
-  })
-  do.call(rbind, Filter(Negate(is.null), rows))
+      # MC loop
+      rows <- lapply(seq_len(n_mc_sens), function(i) {
+        tryCatch(
+          {
+            r <- sim_and_fit(sc$f, n_fc, rep(1000, n_s), put_sc, beta_sc)
+            cbind(scenario = sc_name, r)
+          },
+          error = function(e) NULL
+        )
+      })
+      do.call(rbind, Filter(Negate(is.null), rows))
+    },
+    error = function(e) NULL
+  )
 })
-names(fail_mc_list) <- names(fail_scenarios)
-fail_mc_df <- do.call(rbind, fail_mc_list)
-fail_mc_df$scenario <- factor(fail_mc_df$scenario, levels = names(fail_scenarios))
+
+sens_fail_df <- do.call(rbind, Filter(Negate(is.null), sens_fail_list))
+sens_fail_df$scenario <- factor(
+  sens_fail_df$scenario,
+  levels = names(test_fail_scenarios)
+)
 ```
 
 ``` r
-fail_cols <- c("#F9E79F", "#F8C471", "#EB984E", "#E74C3C")
-par(mfrow = c(1, 2))
-boxplot(beta ~ scenario, data = fail_mc_df,
-  xlab = "Failure scenario", ylab = expression(hat(beta)),
-  main = "Period 3 Shape (\u03b2) by Failure Count",
-  col  = fail_cols, outline = FALSE
+par(mfrow = c(1, 2), mar = c(5, 4, 3, 1))
+
+fail_cols <- c("#2E86C1", "#27AE60", "#F39C12", "#C0392B")
+boxplot(beta ~ scenario,
+  data = sens_fail_df,
+  col = fail_cols, outline = FALSE,
+  main = "Fitted \u03b2 by Test Failures",
+  xlab = "Scenario", ylab = expression(hat(beta)),
+  las = 2, cex.axis = 0.8
 )
-boxplot(eta ~ scenario, data = fail_mc_df,
-  xlab = "Failure scenario", ylab = expression(hat(eta)),
-  main = "Period 3 Scale (\u03b7) by Failure Count",
-  col  = fail_cols, outline = FALSE
+
+boxplot(eta ~ scenario,
+  data = sens_fail_df,
+  col = fail_cols, outline = FALSE,
+  main = "Fitted \u03b7 by Test Failures",
+  xlab = "Scenario", ylab = expression(hat(eta)),
+  las = 2, cex.axis = 0.8
 )
 ```
 
 ![](RGF_files/figure-html/sens-fail-boxplot-1.png)
 
 ``` r
+
 par(mfrow = c(1, 1))
 ```
 
 ``` r
-fail_tbl <- do.call(rbind, lapply(names(fail_scenarios), function(sc) {
-  sub <- fail_mc_df[fail_mc_df$scenario == sc, ]
-  b <- sub$beta[!is.na(sub$beta)]
-  e <- sub$eta[!is.na(sub$eta)]
-  data.frame(
-    Scenario = sc,
-    n_total  = sum(fail_scenarios[[sc]]),
-    Valid    = length(b),
-    Beta_med = round(median(b), 3),
-    Beta_lo  = round(quantile(b, 0.025), 3),
-    Beta_hi  = round(quantile(b, 0.975), 3),
-    Eta_med  = round(median(e), 1),
-    Eta_lo   = round(quantile(e, 0.025), 1),
-    Eta_hi   = round(quantile(e, 0.975), 1)
-  )
-}))
+sens_fail_tbl <- summarize_mc(sens_fail_df)
 
-knitr::kable(fail_tbl,
-  caption = "Period 3 \u03b2 and \u03b7 summary by failure-count scenario (200 simulations each)",
+knitr::kable(sens_fail_tbl,
+  caption = paste0(
+    "Growth-adjusted Weibull by test-failure scenario (",
+    n_mc_sens, " iterations each)"
+  ),
   col.names = c(
-    "Scenario", "Total n (3 periods)", "Valid",
-    "Med. \u03b2", "2.5% \u03b2", "97.5% \u03b2",
+    "Scenario", "Valid", "Med. \u03b2",
     "Med. \u03b7", "2.5% \u03b7", "97.5% \u03b7"
   ),
   row.names = FALSE
 )
 ```
 
-| Scenario | Total n (3 periods) | Valid | Med. β | 2.5% β | 97.5% β | Med. η | 2.5% η | 97.5% η |
-|:---------|--------------------:|------:|-------:|-------:|--------:|-------:|-------:|--------:|
-| Base     |                   6 |   200 |  0.588 |  0.585 |   0.593 | 8576.2 | 8254.8 |  8845.8 |
-| 2x       |                  12 |   200 |  0.593 |  0.590 |   0.597 | 8496.6 | 8177.9 |  8706.6 |
-| 4x       |                  24 |   200 |  0.626 |  0.624 |   0.633 | 7023.2 | 6780.5 |  7115.9 |
-| 6x       |                  36 |   200 |  0.676 |  0.669 |   0.687 | 5406.4 | 5155.8 |  5530.0 |
+| Scenario    | Valid | Med. β | Med. η | 2.5% η | 97.5% η |
+|:------------|------:|-------:|-------:|-------:|--------:|
+| 10 failures |   200 |  3.045 | 2348.6 | 2252.8 |  2467.7 |
+| 20 failures |   200 |  2.890 | 2055.3 | 1962.3 |  2141.4 |
+| 30 failures |   200 |  2.816 | 1755.2 | 1686.1 |  1820.6 |
+| 40 failures |   200 |  2.882 | 1544.2 | 1470.5 |  1604.6 |
 
-Period 3 β and η summary by failure-count scenario (200 simulations
-each)
+Growth-adjusted Weibull by test-failure scenario (200 iterations each)
 
-As failure counts increase, the parameter uncertainty shrinks, the 95%
-intervals for both $\widehat{\beta}$ and $\widehat{\eta}$ narrow, and
-the median $\widehat{\eta}$ converges toward the true characteristic
-life implied by the underlying runtime distribution.
+More test failures leave fewer units to forecast and provide a more
+constrained Weibull fit from the test data, while fewer test failures
+leave a larger fleet for simulation and greater forecast uncertainty.
 
-### Effect of Growth Model Parameters ($\beta$)
+### Effect of Growth Parameter
 
-The shape of the reliability growth trajectory is governed entirely by
-the Crow-AMSAA growth parameter $\beta$. When $\beta < 1$ failures
-become less frequent over time (reliability is improving); when
-$\beta = 1$ the process is a homogeneous Poisson process (no change);
-and when $\beta > 1$ failures increase over time (degradation). This
-subsection examines how a changing $\beta$ propagates through the
-forecasting and simulation pipeline to produce distinct Weibull life
-distributions.
-
-Four scenarios are constructed by generating synthetic interval failure
-data whose expected counts follow a power-law process with the
-prescribed $\beta$. The same cumulative-time axis (10 intervals of 200
-units, ending at $t = 2000$) and the same approximate total failure
-count (52) are used across all scenarios so that only the *shape* of the
-growth trajectory differs. The $\beta = 1.1$ scenario sits just above
-the growth/degradation threshold and serves as the near-linear
-reference.
+The Crow-AMSAA growth parameter $\beta_{\text{growth}}$ controls the
+forecast horizon: stronger growth (smaller $\beta_{\text{growth}}$)
+implies that more cumulative operating time is needed before the target
+number of additional failures accumulates, producing longer simulated
+lifetimes and a larger $\eta$. Four growth scenarios are examined while
+holding all other inputs at their base values. For each scenario,
+$\lambda$ is re-anchored so that the model matches the observed failure
+count at the test end
+($\lambda_{k} = N_{\text{current}}/t_{\text{end}}^{\,\beta_{g,k}}$),
+isolating the effect of the extrapolation rate from the model fit.
 
 ``` r
-# Growth parameter scenarios
-beta_scenarios <- c(0.3, 0.6, 1.1, 1.4)
-beta_labels <- c(
-  "\u03b2 = 0.3 (strong growth)",
-  "\u03b2 = 0.6 (moderate growth)",
-  "\u03b2 = 1.1 (slight degradation)",
-  "\u03b2 = 1.4 (degradation)"
+growth_scenarios <- c(0.4, 0.6, 0.8, 1.0)
+growth_labels <- c(
+  "\u03b2g = 0.4 (strong)",
+  "\u03b2g = 0.6 (moderate)",
+  "\u03b2g = 0.8 (mild)",
+  "\u03b2g = 1.0 (none)"
 )
-
-# Generate interval failure counts consistent with a given beta.
-# lambda is chosen so that cumulative failures at t_end ≈ total.
-gen_interval_failures <- function(b, total = 52, n_int = 10, t_end = 2000) {
-  t  <- seq(0, t_end, length.out = n_int + 1)
-  lm <- total / t_end^b
-  expected <- lm * (t[-1]^b - t[-length(t)]^b)
-  pmax(round(expected), 1L)
-}
-
-# Verify the generated counts
-beta_failure_counts <- lapply(beta_scenarios, gen_interval_failures)
-names(beta_failure_counts) <- beta_labels
 ```
 
-#### Single-run Weibull overlay per scenario
-
-For each $\beta$ scenario, the RGA model is fitted, three 500-unit
-periods beyond $t = 2000$ are forecast, and the stochastic fleet
-simulation is run (40 units, with replacements). Historical failure
-times derived from each scenario’s interval data and the fleet runtimes
-are included in the Weibull fits. A rightward shift across periods
-indicates that the reliability growth trend is visible in the life
-distribution; a leftward shift (degradation scenario) indicates the
-opposite.
-
 ``` r
-set.seed(42)
-runtimes_beta <- sort(sample(500:2000, 40, replace = FALSE))
+set.seed(77)
 
-# Pre-generate historical failure times for each scenario
-hist_fail_list <- lapply(beta_scenarios, function(b) {
-  fc_b <- gen_interval_failures(b)
-  sort(unlist(mapply(function(start, end, n) {
-    if (n > 0) runif(n, start, end) else numeric(0)
-  }, interval_starts, interval_ends, fc_b)))
-})
+sens_growth_list <- lapply(seq_along(growth_scenarios), function(k) {
+  gb <- growth_scenarios[k]
 
-par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
+  # Re-anchor lambda so model matches observed data, then forecast
+  lambda_k <- n_test_failures / test_end_cum_time^gb
+  t_fc_k <- (n_target / lambda_k)^(1 / gb)
+  delta_k <- t_fc_k - test_end_cum_time
+  put_k <- delta_k / effective_fleet
 
-beta_single <- vector("list", length(beta_scenarios))
-names(beta_single) <- beta_labels
+  if (put_k <= 0) {
+    return(NULL)
+  }
 
-for (k in seq_along(beta_scenarios)) {
-  tryCatch({
-    fc_b  <- gen_interval_failures(beta_scenarios[k])
-    hist_fail_b <- hist_fail_list[[k]]
-
-    fit_b <- rga(rep(200, 10), fc_b)
-    bd_b  <- c(2000, 2500, 3000, 3500)
-    pred_b <- predict_rga(fit_b, bd_b)
-    np1 <- max(1L, round(pred_b$cum_failures[2] - pred_b$cum_failures[1]))
-    np2 <- max(1L, round(pred_b$cum_failures[3] - pred_b$cum_failures[2]))
-    np3 <- max(1L, round(pred_b$cum_failures[4] - pred_b$cum_failures[3]))
-
-    res <- run_three_periods(c(np1, np2, np3), runtimes_beta)
-    f1 <- res$r1$runtime[res$r1$type == "Failure"]
-    s1 <- res$r1$runtime[res$r1$type == "Suspension"]
-    f2 <- res$r2$runtime[res$r2$type == "Failure"]
-    s2 <- res$r2$runtime[res$r2$type == "Suspension"]
-    f3 <- res$r3$runtime[res$r3$type == "Failure"]
-    s3 <- res$r3$runtime[res$r3$type == "Suspension"]
-
-    o1 <- wblr(c(hist_fail_b, f1), c(runtimes_beta, s1),
-      col = cols3[1], label = "Period 1", is.plot.cb = FALSE)
-    o1 <- wblr.fit(o1)
-    o2 <- wblr(c(hist_fail_b, f1, f2), c(runtimes_beta, s2),
-      col = cols3[2], label = "Period 2", is.plot.cb = FALSE)
-    o2 <- wblr.fit(o2)
-    o3 <- wblr(c(hist_fail_b, f1, f2, f3), c(runtimes_beta, s3),
-      col = cols3[3], label = "Period 3", is.plot.cb = FALSE)
-    o3 <- wblr.fit(o3)
-
-    beta_single[[k]] <- list(o1 = o1, o2 = o2, o3 = o3,
-                              np = c(np1, np2, np3))
-    plot.wblr(list(o1, o2, o3), main = beta_labels[k], is.plot.legend = FALSE)
-  }, error = function(e) {
-    plot.new()
-    title(main = paste0(beta_labels[k], "\n(insufficient data)"))
-  })
-}
-```
-
-![](RGF_files/figure-html/beta-single-run-1.png)
-
-``` r
-par(mfrow = c(1, 1))
-```
-
-When $\beta < 1$ the Weibull lines shift rightward across periods,
-reflecting the growing characteristic life predicted by the model. Once
-$\beta$ exceeds 1 the lines shift leftward, indicating earlier expected
-failures with each successive period. The $\beta = 1.1$ panel
-illustrates this reversal: even a modest exceedance above the growth
-threshold produces a visible leftward progression.
-
-#### Monte Carlo summary by $\beta$ scenario
-
-A Monte Carlo analysis of 200 iterations per scenario collects the
-Period 3 cumulative $\widehat{\beta}$ (Weibull shape) and
-$\widehat{\eta}$ (Weibull scale):
-
-``` r
-set.seed(321)
-n_sim_beta <- 200
-
-beta_mc_list <- lapply(seq_along(beta_scenarios), function(k) {
-  hist_fail_b <- hist_fail_list[[k]]
-
-  fc_b <- gen_interval_failures(beta_scenarios[k])
-  fit_b <- rga(rep(200, 10), fc_b)
-  bd_b  <- c(2000, 2500, 3000, 3500)
-  pred_b <- predict_rga(fit_b, bd_b)
-  np1 <- max(1L, round(pred_b$cum_failures[2] - pred_b$cum_failures[1]))
-  np2 <- max(1L, round(pred_b$cum_failures[3] - pred_b$cum_failures[2]))
-  np3 <- max(1L, round(pred_b$cum_failures[4] - pred_b$cum_failures[3]))
-
-  rows <- lapply(seq_len(n_sim_beta), function(i) {
-    tryCatch({
-      res <- run_three_periods(c(np1, np2, np3), runtimes_beta)
-      f1  <- res$r1$runtime[res$r1$type == "Failure"]
-      f2  <- res$r2$runtime[res$r2$type == "Failure"]
-      f3  <- res$r3$runtime[res$r3$type == "Failure"]
-      s3  <- res$r3$runtime[res$r3$type == "Suspension"]
-      cum_f <- c(hist_fail_b, f1, f2, f3)
-      if (length(cum_f) < 2) return(NULL)
-      obj <- wblr(cum_f, c(runtimes_beta, s3), is.plot.cb = FALSE)
-      obj <- wblr.fit(obj)
-      data.frame(beta_rga = beta_scenarios[k],
-                 label    = beta_labels[k],
-                 beta_wb  = obj$fit[[1]]$beta,
-                 eta      = obj$fit[[1]]$eta)
-    }, error = function(e) NULL)
+  rows <- lapply(seq_len(n_mc_sens), function(i) {
+    tryCatch(
+      {
+        r <- sim_and_fit(
+          failures, n_forecast, rep(1000, n_surviving), put_k, sim_beta
+        )
+        cbind(scenario = growth_labels[k], r)
+      },
+      error = function(e) NULL
+    )
   })
   do.call(rbind, Filter(Negate(is.null), rows))
 })
-beta_mc_df <- do.call(rbind, beta_mc_list)
-beta_mc_df$label <- factor(beta_mc_df$label, levels = beta_labels)
+
+sens_growth_df <- do.call(rbind, Filter(Negate(is.null), sens_growth_list))
+sens_growth_df$scenario <- factor(sens_growth_df$scenario, levels = growth_labels)
 ```
 
 ``` r
-beta_cols <- c("#2E86C1", "#27AE60", "#F39C12", "#C0392B")
-par(mfrow = c(1, 2))
-boxplot(beta_wb ~ label, data = beta_mc_df,
+par(mfrow = c(1, 2), mar = c(5, 4, 3, 1))
+
+growth_cols <- c("#2E86C1", "#27AE60", "#F39C12", "#C0392B")
+boxplot(beta ~ scenario,
+  data = sens_growth_df,
+  col = growth_cols, outline = FALSE,
+  main = "Fitted \u03b2 by Growth Strength",
   xlab = "Growth scenario", ylab = expression(hat(beta)),
-  main = "Period 3 Weibull Shape by \u03b2 Scenario",
-  col = beta_cols, outline = FALSE, las = 2, cex.axis = 0.75
+  las = 2, cex.axis = 0.75
 )
-boxplot(eta ~ label, data = beta_mc_df,
+
+boxplot(eta ~ scenario,
+  data = sens_growth_df,
+  col = growth_cols, outline = FALSE,
+  main = "Fitted \u03b7 by Growth Strength",
   xlab = "Growth scenario", ylab = expression(hat(eta)),
-  main = "Period 3 Weibull Scale by \u03b2 Scenario",
-  col = beta_cols, outline = FALSE, las = 2, cex.axis = 0.75
+  las = 2, cex.axis = 0.75
 )
 ```
 
-![](RGF_files/figure-html/beta-mc-boxplot-1.png)
+![](RGF_files/figure-html/growth-boxplot-1.png)
 
 ``` r
+
 par(mfrow = c(1, 1))
 ```
 
 ``` r
-beta_tbl <- do.call(rbind, lapply(beta_labels, function(lbl) {
-  sub <- beta_mc_df[beta_mc_df$label == lbl, ]
-  b   <- sub$beta_wb[!is.na(sub$beta_wb)]
-  e   <- sub$eta[!is.na(sub$eta)]
-  data.frame(
-    Scenario = lbl,
-    Valid    = length(b),
-    Beta_med = round(median(b), 3),
-    Beta_lo  = round(quantile(b, 0.025), 3),
-    Beta_hi  = round(quantile(b, 0.975), 3),
-    Eta_med  = round(median(e), 1),
-    Eta_lo   = round(quantile(e, 0.025), 1),
-    Eta_hi   = round(quantile(e, 0.975), 1)
-  )
-}))
+sens_growth_tbl <- summarize_mc(sens_growth_df)
 
-knitr::kable(beta_tbl,
+knitr::kable(sens_growth_tbl,
   caption = paste0(
-    "Period 3 Weibull parameters by growth scenario (",
-    n_sim_beta, " simulations each)"
+    "Growth-adjusted Weibull by growth parameter scenario (",
+    n_mc_sens, " iterations each)"
   ),
   col.names = c(
-    "Scenario", "Valid",
-    "Med. \u03b2", "2.5% \u03b2", "97.5% \u03b2",
+    "Scenario", "Valid", "Med. \u03b2",
     "Med. \u03b7", "2.5% \u03b7", "97.5% \u03b7"
   ),
   row.names = FALSE
 )
 ```
 
-| Scenario                     | Valid | Med. β | 2.5% β | 97.5% β | Med. η | 2.5% η | 97.5% η |
-|:-----------------------------|------:|-------:|-------:|--------:|-------:|-------:|--------:|
-| β = 0.3 (strong growth)      |   200 |  0.580 |  0.578 |   0.587 | 4445.3 | 4262.5 |  4517.4 |
-| β = 0.6 (moderate growth)    |   200 |  0.776 |  0.770 |   0.785 | 3819.5 | 3728.5 |  3875.6 |
-| β = 1.1 (slight degradation) |   200 |  1.738 |  1.677 |   1.781 | 1985.2 | 1957.7 |  2010.2 |
-| β = 1.4 (degradation)        |   200 |  1.995 |  1.692 |   2.160 | 1706.1 | 1673.6 |  1777.5 |
+| Scenario            | Valid | Med. β |  Med. η | 2.5% η | 97.5% η |
+|:--------------------|------:|-------:|--------:|-------:|--------:|
+| βg = 0.4 (strong)   |   200 |  1.182 | 10523.9 | 9925.2 | 10987.5 |
+| βg = 0.6 (moderate) |   200 |  1.929 |  3577.6 | 3395.8 |  3730.5 |
+| βg = 0.8 (mild)     |   200 |  2.679 |  2232.8 | 2140.8 |  2332.0 |
+| βg = 1.0 (none)     |   200 |  3.398 |  1754.2 | 1674.4 |  1816.0 |
 
-Period 3 Weibull parameters by growth scenario (200 simulations each)
+Growth-adjusted Weibull by growth parameter scenario (200 iterations
+each)
 
-The median $\widehat{\eta}$ rises monotonically as $\beta$ decreases
-from 1.4 to 0.3, confirming that a stronger growth signal in the RGA
-model translates directly into longer estimated characteristic lives in
-the downstream Weibull fit. The $\beta = 1.1$ row sits just above the
-growth/degradation threshold: $\widehat{\eta}$ is lower than the two
-growth scenarios and reflects a slow leftward drift in the life
-distribution across periods.
+Stronger reliability growth (smaller $\beta_{\text{growth}}$) extends
+the forecast horizon, producing longer simulated lifetimes and a larger
+fitted $\eta$ in the combined Weibull. At $\beta_{\text{growth}} = 1$
+(no growth), the forecast horizon is shortest and the growth-adjusted
+distribution is closest to the no-growth baseline.
 
 ## Limitations
 
-1.  **Extrapolation range.** Reliability growth forecasts assume the
-    improvement trend observed during testing continues into the future.
-    The forecast window should be limited to a horizon where this
-    assumption is defensible; large extrapolations beyond the test
-    period carry substantial uncertainty.
+1.  **Extrapolation uncertainty.** The reliability growth forecast
+    extrapolates the observed improvement trend beyond the test horizon.
+    Confidence in the forecast degrades with distance from the observed
+    data, suggesting that forecasts further beyond the test horizon
+    should be interpreted with increasing caution, potentially
+    visualized with widening uncertainty bands. The simulation results
+    should be interpreted as conditional on the growth trend continuing
+    unchanged.
 
-2.  **Fleet depletion.** Removing failed units from each successive
-    period reduces the at-risk population. With small fleets or many
-    predicted failures, the surviving pool for later periods may be too
-    small to support meaningful Weibull estimation. Widening the
-    intervals, increasing the initial fleet size, or modeling
-    repairs/replacements explicitly can mitigate this.
+2.  **Model risk.** The Crow-AMSAA power-law model is one of several
+    possible reliability growth models. Alternative models (e.g.,
+    piecewise, AMSAA-Bingham) may yield different forecast horizons and
+    therefore different simulated life distributions. Future work could
+    involve comparing the robustness of forecasts across different
+    growth models or incorporating model uncertainty into the overall
+    forecast.
 
-3.  **Homogeneous fleet.**
+3.  **Homogeneous fleet.** The simulation assumes all surviving units
+    follow a single conditional Weibull distribution. If the fleet
+    contains distinct subpopulations (e.g., different duty cycles or
+    hardware revisions), separate analyses should be performed for each
+    group.
+
+4.  **Simulation horizon sensitivity.** The per-unit remaining time
+    derived from the RGA forecast directly controls the simulated
+    failure distribution. Errors in the growth parameters propagate
+    through to the Weibull comparison, as demonstrated in the
+    sensitivity analysis.
+
+5.  **Repair policy.** The simulation assumes failed units are not
+    replaced. The combined dataset treats all simulated failures as
+    first-failure events for each unit.
+
+6.  **Input shape parameter.** The
     [`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md)
-    uses a single runtime-proportional failure probability for all
-    units. If the fleet contains distinct sub-populations (e.g.,
-    different software versions or duty cycles), separate simulations
-    for each group should be run before pooling.
+    call uses the Weibull shape parameter from the initial life data fit
+    as input to the conditional failure model. The Monte Carlo analysis
+    captures variability in the fitted parameters on the combined data,
+    but the input shape to the simulation is held constant across
+    iterations. This simplification may lead to an underestimation of
+    total forecast uncertainty; future enhancements could involve
+    sampling this input shape from a distribution to more fully capture
+    its variability.
 
-4.  **Small sample Weibull fits.** Life distribution estimates are
-    sensitive to sample size. With few failures, the confidence bounds
-    on shape and scale will be wide; point estimates should be treated
-    with caution and the full uncertainty interval reported.
+7.  **Mixture distribution.** The combined dataset is a mixture of
+    pre-growth and post-growth failure populations. A single Weibull
+    fitted to this mixture is an approximation; the reduction in $\beta$
+    relative to the no-growth fit reflects the mixture shape rather than
+    a change in the wear-out mechanism.
 
 ## Conclusion
 
-This analysis demonstrated a full reliability growth forecasting
-pipeline: starting with a fitted Crow-AMSAA model, forecasting future
-failures, simulating which units fail and when, and fitting Weibull
-distributions to the combined historical and simulated failure data
-across multiple forecast periods. A Monte Carlo analysis quantified the
-uncertainty in the Weibull parameters attributable to the stochastic
-failure assignment process, while sensitivity analyses showed how
-failure count and growth model parameters affect estimation precision.
-This end-to-end workflow provides a practical framework for translating
-reliability growth signals from testing into actionable fleet
-reliability insights.
+This analysis demonstrated an end-to-end reliability growth forecasting
+pipeline. The Crow-AMSAA growth model determined the cumulative time
+over which a target number of additional failures is expected, and
+[`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md)
+generated conditional Weibull failure times for the surviving units over
+that horizon. Combining the simulated failures with the observed test
+data produced a growth-adjusted Weibull distribution that was compared
+against a no-growth baseline fitted to the test data alone. Monte Carlo
+replication quantified the variability in both $\beta$ and $\eta$
+arising from the stochastic simulation, and sensitivity analyses showed
+how the results depend on the number of test failures and the strength
+of the growth trend. Together, these components provide a repeatable
+methodology for translating observed reliability growth into fleet-level
+life distribution estimates.

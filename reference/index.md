@@ -31,7 +31,7 @@
 - [`rga()`](https://paulgovan.github.io/ReliaGrowR/reference/rga.md) :
   Reliability Growth Analysis.
 - [`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md)
-  : Simulate Failures via PPS Sampling
+  : Simulate Failures from a Conditional Weibull Model
 - [`testdata`](https://paulgovan.github.io/ReliaGrowR/reference/testdata.md)
   : Reliability Test Data
 - [`weibull_to_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/weibull_to_rga.md)
