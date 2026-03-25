@@ -42,15 +42,16 @@ library(WeibullR)
 Reliability Growth Analysis (RGA) tracks the improvement (or
 degradation) of system reliability over a test campaign as changes are
 made. However, translating an observed growth trend into a fleet-level
-life distribution forecast requires several additional steps that are
-often performed separately, leading to potential inconsistencies, loss
-of fidelity in reliability projections, and an incomplete picture of
-future system performance. This study introduces a novel integrated
-workflow that systematically connects RGA to Weibull life estimation
-through stochastic simulation, providing a robust framework to propagate
-observed reliability growth into predictive fleet-level life
-distributions. The RGA forecast determines the cumulative time over
-which a target number of additional failures is expected, sim_failures()
+life forecast requires several additional steps that are often performed
+separately, leading to potential inconsistencies, loss of fidelity in
+reliability projections, and an incomplete picture of future system
+performance. This study introduces a novel integrated workflow that
+systematically connects RGA to life estimation through stochastic
+simulation, providing a robust framework to propagate observed
+reliability growth into predictive fleet-level life distributions. The
+RGA forecast determines the cumulative time over which a target number
+of additional failures is expected,
+[`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md)
 generates conditional failure times for the surviving units over that
 horizon, and the simulated failures are combined with observed test data
 to fit a growth-adjusted Weibull distribution, offering a dynamic and
@@ -61,7 +62,7 @@ accounting for reliability improvements, thereby avoiding
 underestimation of future reliability or misallocation of resources
 often associated with fragmented analyses. A parallel Weibull fit to the
 test data alone (without growth) provides a baseline for the comparison.
-Monte Carlo replication quantifies the variability introduced by the
+Monte Carlo analysis quantifies the variability introduced by the
 simulation, and sensitivity analyses examine how the results depend on
 the number of test failures and the strength of the reliability growth
 trend.
@@ -208,7 +209,7 @@ plot(fc,
 
 ![](RGF_files/figure-html/unnamed-chunk-8-1.png)
 
-## Simulating Remaining Failures
+## Simulating Failures
 
 The
 [`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md)
@@ -247,7 +248,7 @@ combined_failures <- c(failures, sim_fail_times)
 combined_suspensions <- sim_susp_times
 ```
 
-## Weibull Comparison
+### Weibull Comparison
 
 Two Weibull models are fitted to contrast the effect of reliability
 growth:
@@ -319,7 +320,7 @@ downward. The $\eta$ comparison remains the primary indicator of the
 growth effect; the $\beta$ change should be interpreted as a mixture
 artifact rather than a shift in the underlying failure mechanism.
 
-## Monte Carlo Uncertainty Analysis
+## Monte Carlo Analysis
 
 A single call to
 [`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md)
@@ -764,9 +765,9 @@ generated conditional Weibull failure times for the surviving units over
 that horizon. Combining the simulated failures with the observed test
 data produced a growth-adjusted Weibull distribution that was compared
 against a no-growth baseline fitted to the test data alone. Monte Carlo
-replication quantified the variability in both $\beta$ and $\eta$
-arising from the stochastic simulation, and sensitivity analyses showed
-how the results depend on the number of test failures and the strength
-of the growth trend. Together, these components provide a repeatable
+simulation quantified the variability in both $\beta$ and $\eta$ arising
+from the stochastic simulation, and sensitivity analyses showed how the
+results depend on the number of test failures and the strength of the
+growth trend. Together, these components provide a repeatable
 methodology for translating observed reliability growth into fleet-level
 life distribution estimates.

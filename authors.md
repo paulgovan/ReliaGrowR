@@ -11,15 +11,18 @@ Source:
 [`inst/CITATION`](https://github.com/paulgovan/ReliaGrowR/blob/main/inst/CITATION)
 
 Govan P (2026). “ReliaGrowR: Modeling and Plotting Functions for
-Reliability Growth Analysis.” In *2026 Proceedings - Annual Reliability
-and Maintainability Symposium (RAMS)*.
+Reliability Growth Analysis.” In *2026 Annual Reliability and
+Maintainability Symposium (RAMS)*, 1-6.
+[doi:10.1109/RAMS50514.2026.11424445](https://doi.org/10.1109/RAMS50514.2026.11424445).
 
     @InProceedings{,
       title = {ReliaGrowR: Modeling and Plotting Functions for Reliability Growth Analysis},
       author = {Paul Govan},
-      booktitle = {2026 Proceedings - Annual Reliability and Maintainability Symposium (RAMS)},
+      booktitle = {2026 Annual Reliability and Maintainability Symposium (RAMS)},
       year = {2026},
+      pages = {1-6},
       address = {Miramar Beach, USA},
+      doi = {10.1109/RAMS50514.2026.11424445},
     }
 
 Govan P (2024). *ReliaGrowR: Reliability Growth Analysis*.

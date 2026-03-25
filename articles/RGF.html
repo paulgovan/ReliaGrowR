@@ -108,15 +108,15 @@
 <p>Reliability Growth Analysis (RGA) tracks the improvement (or
 degradation) of system reliability over a test campaign as changes are
 made. However, translating an observed growth trend into a fleet-level
-life distribution forecast requires several additional steps that are
-often performed separately, leading to potential inconsistencies, loss
-of fidelity in reliability projections, and an incomplete picture of
-future system performance. This study introduces a novel integrated
-workflow that systematically connects RGA to Weibull life estimation
-through stochastic simulation, providing a robust framework to propagate
-observed reliability growth into predictive fleet-level life
-distributions. The RGA forecast determines the cumulative time over
-which a target number of additional failures is expected, sim_failures()
+life forecast requires several additional steps that are often performed
+separately, leading to potential inconsistencies, loss of fidelity in
+reliability projections, and an incomplete picture of future system
+performance. This study introduces a novel integrated workflow that
+systematically connects RGA to life estimation through stochastic
+simulation, providing a robust framework to propagate observed
+reliability growth into predictive fleet-level life distributions. The
+RGA forecast determines the cumulative time over which a target number
+of additional failures is expected, <code><a href="../reference/sim_failures.html">sim_failures()</a></code>
 generates conditional failure times for the surviving units over that
 horizon, and the simulated failures are combined with observed test data
 to fit a growth-adjusted Weibull distribution, offering a dynamic and
@@ -127,7 +127,7 @@ accounting for reliability improvements, thereby avoiding
 underestimation of future reliability or misallocation of resources
 often associated with fragmented analyses. A parallel Weibull fit to the
 test data alone (without growth) provides a baseline for the comparison.
-Monte Carlo replication quantifies the variability introduced by the
+Monte Carlo analysis quantifies the variability introduced by the
 simulation, and sensitivity analyses examine how the results depend on
 the number of test failures and the strength of the reliability growth
 trend.</p>
@@ -265,7 +265,7 @@ units.</p>
 <p><img src="RGF_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
-<h2 id="simulating-remaining-failures">Simulating Remaining Failures<a class="anchor" aria-label="anchor" href="#simulating-remaining-failures"></a>
+<h2 id="simulating-failures">Simulating Failures<a class="anchor" aria-label="anchor" href="#simulating-failures"></a>
 </h2>
 <p>The <code><a href="../reference/sim_failures.html">sim_failures()</a></code> function generates conditional
 Weibull failure times for the surviving units. Each unit has already
@@ -301,10 +301,9 @@ times and 20 are right-censored at the end of the forecast horizon.</p>
 <span><span class="va">sim_susp_times</span> <span class="op">&lt;-</span> <span class="va">sim_result</span><span class="op">$</span><span class="va">runtime</span><span class="op">[</span><span class="va">sim_result</span><span class="op">$</span><span class="va">type</span> <span class="op">==</span> <span class="st">"Suspension"</span><span class="op">]</span></span>
 <span><span class="va">combined_failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">failures</span>, <span class="va">sim_fail_times</span><span class="op">)</span></span>
 <span><span class="va">combined_suspensions</span> <span class="op">&lt;-</span> <span class="va">sim_susp_times</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="weibull-comparison">Weibull Comparison<a class="anchor" aria-label="anchor" href="#weibull-comparison"></a>
-</h2>
+<div class="section level3">
+<h3 id="weibull-comparison">Weibull Comparison<a class="anchor" aria-label="anchor" href="#weibull-comparison"></a>
+</h3>
 <p>Two Weibull models are fitted to contrast the effect of reliability
 growth:</p>
 <ul>
@@ -398,8 +397,9 @@ comparison remains the primary indicator of the growth effect; the
 change should be interpreted as a mixture artifact rather than a shift
 in the underlying failure mechanism.</p>
 </div>
+</div>
 <div class="section level2">
-<h2 id="monte-carlo-uncertainty-analysis">Monte Carlo Uncertainty Analysis<a class="anchor" aria-label="anchor" href="#monte-carlo-uncertainty-analysis"></a>
+<h2 id="monte-carlo-analysis">Monte Carlo Analysis<a class="anchor" aria-label="anchor" href="#monte-carlo-analysis"></a>
 </h2>
 <p>A single call to <code><a href="../reference/sim_failures.html">sim_failures()</a></code> produces one realization
 of the 60 simulated failure times. Different random draws yield
@@ -925,8 +925,8 @@ expected, and <code><a href="../reference/sim_failures.html">sim_failures()</a><
 failure times for the surviving units over that horizon. Combining the
 simulated failures with the observed test data produced a
 growth-adjusted Weibull distribution that was compared against a
-no-growth baseline fitted to the test data alone. Monte Carlo
-replication quantified the variability in both
+no-growth baseline fitted to the test data alone. Monte Carlo simulation
+quantified the variability in both
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
