@@ -1,0 +1,197 @@
+
+R version 4.4.2 (2024-10-31) -- "Pile of Leaves"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "ReliaLearnR"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('ReliaLearnR')
+
+Attaching package: ‘ReliaLearnR’
+
+The following object is masked from ‘package:stats’:
+
+    rt
+
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("avail")
+> ### * avail
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: avail
+> ### Title: Availability (1 - unavailability / total)
+> ### Aliases: avail
+> 
+> ### ** Examples
+> 
+> avail(100, 1000)
+[1] 0.9
+> avail(c(5,10), c(500,600))
+[1] 0.9863636
+> 
+> 
+> 
+> cleanEx()
+> nameEx("fr")
+> ### * fr
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: fr
+> ### Title: Failure rate (lambda)
+> ### Aliases: fr
+> 
+> ### ** Examples
+> 
+> fr(75, 5000)
+[1] 0.015
+> fr(c(10,5), c(1000,2000))
+[1] 0.005
+> 
+> 
+> 
+> cleanEx()
+> nameEx("lda")
+> ### * lda
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: lda
+> ### Title: Launch the Life Data Analysis Tutorial
+> ### Aliases: lda
+> 
+> ### ** Examples
+> 
+> if (interactive()) {
++   lda()
++ }
+> 
+> 
+> 
+> cleanEx()
+> nameEx("mtbf")
+> ### * mtbf
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: mtbf
+> ### Title: Mean Time Between Failures (MTBF) for repairable items.
+> ### Aliases: mtbf
+> 
+> ### ** Examples
+> 
+> mtbf(5, 1000)
+[1] 200
+> mtbf(c(2,3), c(500,500))
+[1] 200
+> 
+> 
+> 
+> cleanEx()
+> nameEx("mttf")
+> ### * mttf
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: mttf
+> ### Title: Mean Time To Failure (MTTF)
+> ### Aliases: mttf
+> 
+> ### ** Examples
+> 
+> mttf(5, 1000)
+[1] 200
+> mttf(c(2,3), c(500,500))
+[1] 200
+> 
+> 
+> 
+> cleanEx()
+> nameEx("ram")
+> ### * ram
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: ram
+> ### Title: Launch the RAM Analysis Tutorial
+> ### Aliases: ram
+> 
+> ### ** Examples
+> 
+> if (interactive()) {
++   ram()
++ }
+> 
+> 
+> 
+> cleanEx()
+> nameEx("rel")
+> ### * rel
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: rel
+> ### Title: Reliability (1 - outage / total)
+> ### Aliases: rel
+> 
+> ### ** Examples
+> 
+> rel(100, 1000)
+[1] 0.9
+> rel(c(10,20), c(500, 600))
+[1] 0.9727273
+> 
+> 
+> 
+> cleanEx()
+> nameEx("rt")
+> ### * rt
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: rt
+> ### Title: Launch the Reliability Testing Tutorial
+> ### Aliases: rt
+> 
+> ### ** Examples
+> 
+> if (interactive()) {
++   rt()
++ }
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> cleanEx()
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  0.246 0.027 0.276 0 0 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

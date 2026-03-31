@@ -1,0 +1,5 @@
+swagger-package         swagger: Dynamically Generates Documentation
+                        from a Swagger-Compliant API
+swagger_index           Path to Swagger Index
+swagger_path            Path to Swagger Resources
+swagger_spec            Swagger Index File with OpenAPI Path
