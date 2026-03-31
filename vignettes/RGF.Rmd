@@ -18,39 +18,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, message = FALSE, warning = FALSE}
-# Prefer the local source checkout when knitting from the package repo.
-pkg_root <- NULL
-if (requireNamespace("pkgload", quietly = TRUE)) {
-  candidate_roots <- c(".", "..")
-  for (path in candidate_roots) {
-    desc_path <- file.path(path, "DESCRIPTION")
-    if (!file.exists(desc_path)) {
-      next
-    }
-
-    pkg_name <- tryCatch(
-      as.character(read.dcf(desc_path, fields = "Package")[1, 1]),
-      error = function(e) ""
-    )
-    if (identical(pkg_name, "ReliaGrowR")) {
-      pkg_root <- normalizePath(path, winslash = "/", mustWork = TRUE)
-      break
-    }
-  }
-}
-
-if (!is.null(pkg_root)) {
-  pkgload::load_all(
-    pkg_root,
-    export_all = FALSE,
-    helpers = FALSE,
-    attach_testthat = FALSE,
-    quiet = TRUE
-  )
-} else {
-  library(ReliaGrowR)
-}
-
+library(ReliaGrowR)
 library(WeibullR)
 ```
 
