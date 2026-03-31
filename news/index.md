@@ -1,5 +1,37 @@
 # Changelog
 
+## ReliaGrowR 0.4.0
+
+### New Features
+
+- New
+  [`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md)
+  function for simulating failures with optional simulation window
+  parameter.
+- MLE fit method for
+  [`rga()`](https://paulgovan.github.io/ReliaGrowR/reference/rga.md)
+  function for maximum likelihood estimation.
+- Enhanced
+  [`predict_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.md)
+  function for making predictions from RGA models.
+- Added confidence intervals for Duane model.
+- Enhanced
+  [`rdt()`](https://paulgovan.github.io/ReliaGrowR/reference/rdt.md)
+  function with `f` parameter for failure-allowed reliability
+  demonstration test plans.
+
+### Minor improvements and bug fixes
+
+- Fixed legend in rga_predict plot.
+- Added WeibullR to package suggests.
+- New comprehensive RGF (Reliability Growth Function) vignette with
+  detailed documentation.
+- Updated and improved test suite throughout.
+- Enhanced package documentation and examples.
+- Updated citation information.
+- Code styling improvements.
+- Other minor improvements and bug fixes.
+
 ## ReliaGrowR 0.3
 
 CRAN release: 2025-11-07
