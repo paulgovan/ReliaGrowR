@@ -4,20 +4,44 @@
 
 - [`duane()`](https://paulgovan.github.io/ReliaGrowR/reference/duane.md)
   : Duane Analysis
+- [`exposure()`](https://paulgovan.github.io/ReliaGrowR/reference/exposure.md)
+  : Exposure Analysis for Repairable Systems.
 - [`grwr_api()`](https://paulgovan.github.io/ReliaGrowR/reference/grwr_api.md)
   : ReliaGrowR API
+- [`mcf()`](https://paulgovan.github.io/ReliaGrowR/reference/mcf.md) :
+  Mean Cumulative Function for Repairable Systems.
+- [`nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/nhpp.md) :
+  Non-Homogeneous Poisson Process Model for Repairable Systems.
 - [`plot(`*`<duane>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.duane.md)
   : Plot Method for Duane Analysis
+- [`plot(`*`<exposure>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.exposure.md)
+  : Plot Method for exposure Objects.
+- [`plot(`*`<mcf>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.mcf.md)
+  : Plot Method for mcf Objects.
+- [`plot(`*`<nhpp>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.nhpp.md)
+  : Plot Method for nhpp Objects.
+- [`plot(`*`<nhpp_predict>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.nhpp_predict.md)
+  : Plot Method for nhpp_predict Objects.
 - [`plot(`*`<rga>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga.md)
   : Plot Method for RGA Objects
 - [`plot(`*`<rga_predict>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga_predict.md)
   : Plot Method for rga_predict Objects
 - [`ppplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/ppplot.rga.md)
   : P-P Plot for RGA Objects
+- [`predict_nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_nhpp.md)
+  : Forecast Cumulative Events from an NHPP Model.
 - [`predict_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.md)
   : Forecast Cumulative Failures from a Reliability Growth Model
 - [`print(`*`<duane>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane.md)
   : Print method for duane objects.
+- [`print(`*`<exposure>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.exposure.md)
+  : Print Method for exposure Objects.
+- [`print(`*`<mcf>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.mcf.md)
+  : Print Method for mcf Objects.
+- [`print(`*`<nhpp>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.nhpp.md)
+  : Print Method for nhpp Objects.
+- [`print(`*`<nhpp_predict>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.nhpp_predict.md)
+  : Print Method for nhpp_predict Objects.
 - [`print(`*`<rdt>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.rdt.md)
   : Print method for rdt objects
 - [`print(`*`<rga>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga.md)

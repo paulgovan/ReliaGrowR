@@ -8,3 +8,5 @@
   Analysis](https://paulgovan.github.io/ReliaGrowR/articles/RGA.md):
 - [Reliability Growth
   Forecasting](https://paulgovan.github.io/ReliaGrowR/articles/RGF.md):
+- [Repairable Systems
+  Analysis](https://paulgovan.github.io/ReliaGrowR/articles/RSA.md):
