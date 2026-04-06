@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# ReliaGrowR
+# ReliaGrowR <a href="https://paulgovan.github.io/ReliaGrowR/"><img src="man/figures/logo.png" align="right" height="139" alt="ReliaGrowR website" /></a>
 
 <!-- badges: start -->
 
