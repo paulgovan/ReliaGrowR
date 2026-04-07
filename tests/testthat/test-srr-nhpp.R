@@ -484,3 +484,98 @@ test_that("plot.nhpp_predict works without conf bounds and legend", {
   fc <- predict_nhpp(fit, time = c(1500, 2000))
   expect_silent(plot(fc, conf_bounds = FALSE, legend = FALSE))
 })
+
+# ---- overlay_nhpp tests ----
+#' @srrstats {G5.2} Unit tests demonstrate error messages and compare results.
+#' @srrstats {G5.2a} Every message produced by stop() is unique.
+#' @srrstats {G5.8b} Unit tests include checks for unsupported data types.
+#' @srrstats {RE6.0} Model objects have overlay plot methods.
+#' @srrstats {RE6.2} The overlay plot shows fitted values with optional CIs.
+
+test_that("overlay_nhpp: non-list input errors", {
+  m <- nhpp(c(200, 400, 600, 800, 1000), c(3, 5, 4, 7, 6))
+  expect_error(overlay_nhpp(m), "'models' must be a non-empty list of 'nhpp' objects.", fixed = TRUE)
+})
+
+test_that("overlay_nhpp: empty list errors", {
+  expect_error(overlay_nhpp(list()), "'models' must be a non-empty list of 'nhpp' objects.", fixed = TRUE)
+})
+
+test_that("overlay_nhpp: non-nhpp element errors", {
+  m <- nhpp(c(200, 400, 600, 800, 1000), c(3, 5, 4, 7, 6))
+  expect_error(overlay_nhpp(list(m, list(a = 1))),
+               "All elements of 'models' must be objects of class 'nhpp'.", fixed = TRUE)
+})
+
+test_that("overlay_nhpp: conf_bounds wrong type errors", {
+  m <- nhpp(c(200, 400, 600, 800, 1000), c(3, 5, 4, 7, 6))
+  expect_error(overlay_nhpp(list(m), conf_bounds = "yes"),
+               "'conf_bounds' must be a single logical value.", fixed = TRUE)
+})
+
+test_that("overlay_nhpp: legend wrong type errors", {
+  m <- nhpp(c(200, 400, 600, 800, 1000), c(3, 5, 4, 7, 6))
+  expect_error(overlay_nhpp(list(m), legend = 1L),
+               "'legend' must be a single logical value.", fixed = TRUE)
+})
+
+test_that("overlay_nhpp: legend_pos wrong length errors", {
+  m <- nhpp(c(200, 400, 600, 800, 1000), c(3, 5, 4, 7, 6))
+  expect_error(overlay_nhpp(list(m), legend_pos = c("a", "b")),
+               "'legend_pos' must be a single character string.", fixed = TRUE)
+})
+
+test_that("overlay_nhpp: colors too short errors", {
+  m1 <- nhpp(c(200, 400, 600, 800, 1000), c(3, 5, 4, 7, 6))
+  m2 <- nhpp(c(300, 600, 900, 1200, 1500), c(4, 6, 5, 8, 7))
+  expect_error(overlay_nhpp(list(m1, m2), colors = "black"),
+               "'colors' must be a character vector with at least one color per model.", fixed = TRUE)
+})
+
+test_that("overlay_nhpp: single model renders without error", {
+  m <- nhpp(c(200, 400, 600, 800, 1000), c(3, 5, 4, 7, 6))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_silent(overlay_nhpp(list(m)))
+})
+
+test_that("overlay_nhpp: two named models render and return NULL", {
+  m1 <- nhpp(c(200, 400, 600, 800, 1000), c(3, 5, 4, 7, 6))
+  m2 <- nhpp(c(300, 600, 900, 1200, 1500), c(4, 6, 5, 8, 7))
+  pdf(NULL)
+  on.exit(dev.off())
+  result <- overlay_nhpp(list(System_A = m1, System_B = m2))
+  expect_null(result)
+})
+
+test_that("overlay_nhpp: two unnamed models render without error", {
+  m1 <- nhpp(c(200, 400, 600, 800, 1000), c(3, 5, 4, 7, 6))
+  m2 <- nhpp(c(300, 600, 900, 1200, 1500), c(4, 6, 5, 8, 7))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_silent(overlay_nhpp(list(m1, m2)))
+})
+
+test_that("overlay_nhpp: conf_bounds = FALSE renders without error", {
+  m1 <- nhpp(c(200, 400, 600, 800, 1000), c(3, 5, 4, 7, 6))
+  m2 <- nhpp(c(300, 600, 900, 1200, 1500), c(4, 6, 5, 8, 7))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_silent(overlay_nhpp(list(m1, m2), conf_bounds = FALSE))
+})
+
+test_that("overlay_nhpp: custom colors render without error", {
+  m1 <- nhpp(c(200, 400, 600, 800, 1000), c(3, 5, 4, 7, 6))
+  m2 <- nhpp(c(300, 600, 900, 1200, 1500), c(4, 6, 5, 8, 7))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_silent(overlay_nhpp(list(m1, m2), colors = c("steelblue", "tomato")))
+})
+
+test_that("overlay_nhpp: models with different-length datasets render without error", {
+  m1 <- nhpp(c(200, 400, 600), c(3, 5, 4))
+  m2 <- nhpp(c(300, 600, 900, 1200, 1500), c(4, 6, 5, 8, 7))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_silent(overlay_nhpp(list(m1, m2)))
+})

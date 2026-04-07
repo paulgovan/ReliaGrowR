@@ -88,6 +88,7 @@ print(result_ll)
 Other Repairable Systems Analysis: 
 \code{\link{exposure}()},
 \code{\link{mcf}()},
+\code{\link{overlay_nhpp}()},
 \code{\link{plot.exposure}()},
 \code{\link{plot.mcf}()},
 \code{\link{plot.nhpp}()},

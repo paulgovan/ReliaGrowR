@@ -1039,3 +1039,112 @@ test_that("plot.rga and plot.rga_predict with MLE: no error", {
   expect_silent(plot(fit))
   expect_silent(plot(fc))
 })
+
+# ---- overlay_rga tests ----
+#' @srrstats {G5.2} Unit tests demonstrate error messages and compare results.
+#' @srrstats {G5.2a} Every message produced by stop() is unique.
+#' @srrstats {G5.8b} Unit tests include checks for unsupported data types.
+#' @srrstats {RE6.0} Model objects have overlay plot methods.
+#' @srrstats {RE6.2} The overlay plot shows fitted values with optional CIs.
+
+test_that("overlay_rga: non-list input errors", {
+  m <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  expect_error(overlay_rga(m), "'models' must be a non-empty list of 'rga' objects.", fixed = TRUE)
+})
+
+test_that("overlay_rga: empty list errors", {
+  expect_error(overlay_rga(list()), "'models' must be a non-empty list of 'rga' objects.", fixed = TRUE)
+})
+
+test_that("overlay_rga: non-rga element errors", {
+  m <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  expect_error(overlay_rga(list(m, list(a = 1))),
+               "All elements of 'models' must be objects of class 'rga'.", fixed = TRUE)
+})
+
+test_that("overlay_rga: conf_bounds wrong type errors", {
+  m <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  expect_error(overlay_rga(list(m), conf_bounds = "yes"),
+               "'conf_bounds' must be a single logical value.", fixed = TRUE)
+})
+
+test_that("overlay_rga: legend wrong type errors", {
+  m <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  expect_error(overlay_rga(list(m), legend = 1L),
+               "'legend' must be a single logical value.", fixed = TRUE)
+})
+
+test_that("overlay_rga: log wrong type errors", {
+  m <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  expect_error(overlay_rga(list(m), log = "yes"),
+               "'log' must be a single logical value.", fixed = TRUE)
+})
+
+test_that("overlay_rga: legend_pos wrong length errors", {
+  m <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  expect_error(overlay_rga(list(m), legend_pos = c("a", "b")),
+               "'legend_pos' must be a single character string.", fixed = TRUE)
+})
+
+test_that("overlay_rga: colors too short errors", {
+  m1 <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  m2 <- rga(c(150, 300, 450, 600, 750), c(2, 1, 3, 2, 4))
+  expect_error(overlay_rga(list(m1, m2), colors = "black"),
+               "'colors' must be a character vector with at least one color per model.", fixed = TRUE)
+})
+
+test_that("overlay_rga: single model renders without error", {
+  m <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_silent(overlay_rga(list(m)))
+})
+
+test_that("overlay_rga: two named models render and return NULL", {
+  m1 <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  m2 <- rga(c(150, 300, 450, 600, 750), c(2, 1, 3, 2, 4))
+  pdf(NULL)
+  on.exit(dev.off())
+  result <- overlay_rga(list(System_A = m1, System_B = m2))
+  expect_null(result)
+})
+
+test_that("overlay_rga: two unnamed models render without error", {
+  m1 <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  m2 <- rga(c(150, 300, 450, 600, 750), c(2, 1, 3, 2, 4))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_silent(overlay_rga(list(m1, m2)))
+})
+
+test_that("overlay_rga: conf_bounds = FALSE renders without error", {
+  m1 <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  m2 <- rga(c(150, 300, 450, 600, 750), c(2, 1, 3, 2, 4))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_silent(overlay_rga(list(m1, m2), conf_bounds = FALSE))
+})
+
+test_that("overlay_rga: log = TRUE renders without error", {
+  m1 <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  m2 <- rga(c(150, 300, 450, 600, 750), c(2, 1, 3, 2, 4))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_silent(overlay_rga(list(m1, m2), log = TRUE))
+})
+
+test_that("overlay_rga: custom colors render without error", {
+  m1 <- rga(c(100, 200, 300, 400, 500), c(1, 2, 1, 3, 2))
+  m2 <- rga(c(150, 300, 450, 600, 750), c(2, 1, 3, 2, 4))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_silent(overlay_rga(list(m1, m2), colors = c("steelblue", "tomato")))
+})
+
+test_that("overlay_rga: models with different-length datasets render without error", {
+  m1 <- rga(c(100, 200, 300), c(1, 2, 1))
+  m2 <- rga(c(150, 300, 450, 600, 750), c(2, 1, 3, 2, 4))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_silent(overlay_rga(list(m1, m2)))
+})

@@ -720,6 +720,186 @@ plot.rga <- function(x,
   invisible(NULL)
 }
 
+#' Overlay Plot for Multiple RGA Models
+#'
+#' Plots multiple fitted \code{rga} objects on a single set of axes, using
+#' distinct colors per model. Observed data points, fitted lines, and optional
+#' confidence bounds are drawn for every model. Models may have been fit to
+#' different datasets.
+#'
+#' @srrstats {G1.4} \code{roxygen2} documentation is used to document all functions.
+#' @srrstats {G2.0} Inputs are validated for length.
+#' @srrstats {G2.1} Inputs are validated for type.
+#' @srrstats {G2.2} List input is validated to contain only \code{rga} objects.
+#' @srrstats {G5.2} Unit tests demonstrate error messages and compare results.
+#' @srrstats {G5.2a} Every message produced by \code{stop()} is unique.
+#' @srrstats {G5.8b} Unit tests include checks for unsupported data types.
+#' @srrstats {RE6.0} Model objects have default plot methods.
+#' @srrstats {RE6.2} The overlay plot shows fitted values with optional CIs.
+#'
+#' @param models A named or unnamed list of objects of class \code{rga}.
+#'   At least one model must be provided. If the list is named, those names
+#'   are used as legend labels; otherwise labels default to
+#'   \code{"Model 1"}, \code{"Model 2"}, etc.
+#' @param conf_bounds Logical; draw confidence bounds for each model
+#'   (default: \code{TRUE}).
+#' @param legend Logical; draw a legend (default: \code{TRUE}).
+#' @param legend_pos Legend position keyword (default: \code{"bottomright"}).
+#' @param colors Optional character vector of colors, one per model. If
+#'   \code{NULL} (default), \code{palette()} colors are cycled.
+#' @param log Logical; use log-log axes (default: \code{FALSE}).
+#' @param ... Additional arguments passed to the initial \code{plot()} call
+#'   (e.g., \code{main}, \code{xlab}, \code{ylab}). Not forwarded to subsequent
+#'   \code{lines()} or \code{points()} calls.
+#' @family Reliability Growth Analysis
+#' @return Invisibly returns \code{NULL}.
+#' @examples
+#' t1 <- c(100, 200, 300, 400, 500)
+#' f1 <- c(1, 2, 1, 3, 2)
+#' t2 <- c(150, 300, 450, 600, 750)
+#' f2 <- c(2, 1, 3, 2, 4)
+#' m1 <- rga(t1, f1)
+#' m2 <- rga(t2, f2)
+#' overlay_rga(list(System_A = m1, System_B = m2),
+#'   main = "RGA Overlay", xlab = "Cumulative Time",
+#'   ylab = "Cumulative Failures"
+#' )
+#' @importFrom graphics plot points lines abline legend
+#' @importFrom grDevices palette
+#' @export
+overlay_rga <- function(models,
+                        conf_bounds = TRUE,
+                        legend = TRUE,
+                        legend_pos = "bottomright",
+                        colors = NULL,
+                        log = FALSE,
+                        ...) {
+  # Input validation
+  if (!identical(class(models), "list") || length(models) == 0) {
+    stop("'models' must be a non-empty list of 'rga' objects.")
+  }
+  not_rga <- !vapply(models, inherits, logical(1), what = "rga")
+  if (any(not_rga)) {
+    stop("All elements of 'models' must be objects of class 'rga'.")
+  }
+  if (!is.logical(conf_bounds) || length(conf_bounds) != 1) {
+    stop("'conf_bounds' must be a single logical value.")
+  }
+  if (!is.logical(legend) || length(legend) != 1) {
+    stop("'legend' must be a single logical value.")
+  }
+  if (!is.logical(log) || length(log) != 1) {
+    stop("'log' must be a single logical value.")
+  }
+  if (!is.character(legend_pos) || length(legend_pos) != 1) {
+    stop("'legend_pos' must be a single character string.")
+  }
+
+  n_models <- length(models)
+
+  # Resolve model names
+  mod_names <- names(models)
+  if (is.null(mod_names) || any(mod_names == "")) {
+    mod_names <- paste0("Model ", seq_len(n_models))
+  }
+
+  # Resolve colors
+  if (is.null(colors)) {
+    pal <- grDevices::palette()
+    colors <- pal[((seq_len(n_models) - 1L) %% length(pal)) + 1L]
+  } else {
+    if (!is.character(colors) || length(colors) < n_models) {
+      stop("'colors' must be a character vector with at least one color per model.")
+    }
+    colors <- colors[seq_len(n_models)]
+  }
+
+  # Extract observed x/y from each model
+  extract_xy <- function(x) {
+    if (!is.null(x$cum_times) && !is.null(x$cum_failures)) {
+      list(times = x$cum_times, cum_failures = x$cum_failures)
+    } else if (!is.null(x$method) && x$method == "MLE") {
+      list(times = cumsum(x$times), cum_failures = cumsum(x$failures))
+    } else {
+      list(
+        times        = exp(x$model$model$log_times),
+        cum_failures = exp(x$model$model$log_cum_failures)
+      )
+    }
+  }
+  xy_list <- lapply(models, extract_xy)
+
+  # Compute global axis limits
+  all_x <- unlist(lapply(xy_list, `[[`, "times"))
+  all_y <- c(
+    unlist(lapply(xy_list, `[[`, "cum_failures")),
+    unlist(lapply(models, `[[`, "fitted_values"))
+  )
+  if (conf_bounds) {
+    all_y <- c(
+      all_y,
+      unlist(lapply(models, `[[`, "lower_bounds")),
+      unlist(lapply(models, `[[`, "upper_bounds"))
+    )
+  }
+  xlim <- range(all_x, finite = TRUE)
+  ylim <- range(all_y, finite = TRUE)
+  if (log) ylim[1] <- max(ylim[1], .Machine$double.eps)
+
+  # Base plot using first model's observed data
+  plot_args <- list(
+    x    = xy_list[[1]]$times,
+    y    = xy_list[[1]]$cum_failures,
+    xlim = xlim,
+    ylim = ylim,
+    col  = colors[[1]],
+    pch  = 16,
+    ...
+  )
+  if (log) plot_args$log <- "xy"
+  do.call(graphics::plot, plot_args)
+
+  # Add remaining models' observed points
+  if (n_models > 1L) {
+    for (i in seq(2L, n_models)) {
+      graphics::points(xy_list[[i]]$times, xy_list[[i]]$cum_failures,
+                       pch = 16, col = colors[[i]])
+    }
+  }
+
+  # Fitted lines, confidence bounds, and breakpoints for all models
+  for (i in seq_len(n_models)) {
+    xy  <- xy_list[[i]]
+    mdl <- models[[i]]
+    col <- colors[[i]]
+
+    graphics::lines(xy$times, mdl$fitted_values, col = col, lty = 1)
+
+    if (conf_bounds) {
+      graphics::lines(xy$times, mdl$lower_bounds, col = col, lty = 2)
+      graphics::lines(xy$times, mdl$upper_bounds, col = col, lty = 2)
+    }
+
+    if (!is.null(mdl$breakpoints)) {
+      graphics::abline(v = exp(mdl$breakpoints), col = col, lty = 3)
+    }
+  }
+
+  # Legend
+  if (legend) {
+    graphics::legend(
+      legend_pos,
+      legend = mod_names,
+      col    = colors,
+      pch    = 16,
+      lty    = 1,
+      bty    = "n"
+    )
+  }
+
+  invisible(NULL)
+}
+
 #' Forecast Cumulative Failures from a Reliability Growth Model
 #'
 #' Takes a fitted \code{rga} object and a vector of cumulative times, returning

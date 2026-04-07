@@ -35,6 +35,7 @@ Other Repairable Systems Analysis:
 \code{\link{exposure}()},
 \code{\link{mcf}()},
 \code{\link{nhpp}()},
+\code{\link{overlay_nhpp}()},
 \code{\link{plot.exposure}()},
 \code{\link{plot.mcf}()},
 \code{\link{plot.nhpp_predict}()},

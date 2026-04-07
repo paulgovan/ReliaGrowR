@@ -33,6 +33,7 @@ plot(fc, main = "RGA Forecast", xlab = "Cumulative Time", ylab = "Cumulative Fai
 }
 \seealso{
 Other Reliability Growth Analysis: 
+\code{\link{overlay_rga}()},
 \code{\link{plot.rga}()},
 \code{\link{predict_rga}()},
 \code{\link{print.rga}()},

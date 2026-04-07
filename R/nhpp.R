@@ -604,6 +604,160 @@ plot.nhpp <- function(x,
 }
 
 
+#' Overlay Plot for Multiple NHPP Models
+#'
+#' Plots multiple fitted \code{nhpp} objects on a single set of axes, using
+#' distinct colors per model. Observed data points, fitted lines, and optional
+#' confidence bounds are drawn for every model. Models may have been fit to
+#' different datasets.
+#'
+#' @srrstats {G1.4} \code{roxygen2} documentation is used to document all functions.
+#' @srrstats {G2.0} Inputs are validated for length.
+#' @srrstats {G2.1} Inputs are validated for type.
+#' @srrstats {G2.2} List input is validated to contain only \code{nhpp} objects.
+#' @srrstats {G5.2} Unit tests demonstrate error messages and compare results.
+#' @srrstats {G5.2a} Every message produced by \code{stop()} is unique.
+#' @srrstats {G5.8b} Unit tests include checks for unsupported data types.
+#' @srrstats {RE6.0} Model objects have default plot methods.
+#' @srrstats {RE6.2} The overlay plot shows fitted values with optional CIs.
+#'
+#' @param models A named or unnamed list of objects of class \code{nhpp}.
+#'   At least one model must be provided. If the list is named, those names
+#'   are used as legend labels; otherwise labels default to
+#'   \code{"Model 1"}, \code{"Model 2"}, etc.
+#' @param conf_bounds Logical; draw confidence bounds for each model
+#'   (default: \code{TRUE}).
+#' @param legend Logical; draw a legend (default: \code{TRUE}).
+#' @param legend_pos Legend position keyword (default: \code{"topleft"}).
+#' @param colors Optional character vector of colors, one per model. If
+#'   \code{NULL} (default), \code{palette()} colors are cycled.
+#' @param ... Additional arguments passed to the initial \code{plot()} call
+#'   (e.g., \code{main}, \code{xlab}, \code{ylab}). Not forwarded to subsequent
+#'   \code{lines()} or \code{points()} calls.
+#' @family Repairable Systems Analysis
+#' @return Invisibly returns \code{NULL}.
+#' @examples
+#' t1 <- c(200, 400, 600, 800, 1000)
+#' e1 <- c(3, 5, 4, 7, 6)
+#' t2 <- c(300, 600, 900, 1200, 1500)
+#' e2 <- c(4, 6, 5, 8, 7)
+#' m1 <- nhpp(t1, e1)
+#' m2 <- nhpp(t2, e2)
+#' overlay_nhpp(list(System_A = m1, System_B = m2),
+#'   main = "NHPP Overlay", xlab = "Time",
+#'   ylab = "Cumulative Events"
+#' )
+#' @importFrom graphics plot points lines abline legend
+#' @importFrom grDevices palette
+#' @export
+overlay_nhpp <- function(models,
+                         conf_bounds = TRUE,
+                         legend = TRUE,
+                         legend_pos = "topleft",
+                         colors = NULL,
+                         ...) {
+  # Input validation
+  if (!identical(class(models), "list") || length(models) == 0) {
+    stop("'models' must be a non-empty list of 'nhpp' objects.")
+  }
+  not_nhpp <- !vapply(models, inherits, logical(1), what = "nhpp")
+  if (any(not_nhpp)) {
+    stop("All elements of 'models' must be objects of class 'nhpp'.")
+  }
+  if (!is.logical(conf_bounds) || length(conf_bounds) != 1) {
+    stop("'conf_bounds' must be a single logical value.")
+  }
+  if (!is.logical(legend) || length(legend) != 1) {
+    stop("'legend' must be a single logical value.")
+  }
+  if (!is.character(legend_pos) || length(legend_pos) != 1) {
+    stop("'legend_pos' must be a single character string.")
+  }
+
+  n_models <- length(models)
+
+  # Resolve model names
+  mod_names <- names(models)
+  if (is.null(mod_names) || any(mod_names == "")) {
+    mod_names <- paste0("Model ", seq_len(n_models))
+  }
+
+  # Resolve colors
+  if (is.null(colors)) {
+    pal <- grDevices::palette()
+    colors <- pal[((seq_len(n_models) - 1L) %% length(pal)) + 1L]
+  } else {
+    if (!is.character(colors) || length(colors) < n_models) {
+      stop("'colors' must be a character vector with at least one color per model.")
+    }
+    colors <- colors[seq_len(n_models)]
+  }
+
+  # Compute global axis limits
+  all_x <- unlist(lapply(models, `[[`, "time"))
+  all_y <- c(
+    unlist(lapply(models, `[[`, "cum_events")),
+    unlist(lapply(models, `[[`, "fitted_values"))
+  )
+  if (conf_bounds) {
+    all_y <- c(
+      all_y,
+      unlist(lapply(models, `[[`, "lower_bounds")),
+      unlist(lapply(models, `[[`, "upper_bounds"))
+    )
+  }
+  xlim <- range(all_x, finite = TRUE)
+  ylim <- range(all_y, finite = TRUE)
+
+  # Base plot using first model's observed data
+  graphics::plot(
+    models[[1]]$time, models[[1]]$cum_events,
+    xlim = xlim, ylim = ylim,
+    col = colors[[1]], pch = 16,
+    ...
+  )
+
+  # Add remaining models' observed points
+  if (n_models > 1L) {
+    for (i in seq(2L, n_models)) {
+      graphics::points(models[[i]]$time, models[[i]]$cum_events,
+                       pch = 16, col = colors[[i]])
+    }
+  }
+
+  # Fitted lines, confidence bounds, and breakpoints for all models
+  for (i in seq_len(n_models)) {
+    mdl <- models[[i]]
+    col <- colors[[i]]
+
+    graphics::lines(mdl$time, mdl$fitted_values, col = col, lty = 1)
+
+    if (conf_bounds) {
+      graphics::lines(mdl$time, mdl$lower_bounds, col = col, lty = 2)
+      graphics::lines(mdl$time, mdl$upper_bounds, col = col, lty = 2)
+    }
+
+    if (!is.null(mdl$breakpoints)) {
+      graphics::abline(v = exp(mdl$breakpoints), col = col, lty = 3)
+    }
+  }
+
+  # Legend
+  if (legend) {
+    graphics::legend(
+      legend_pos,
+      legend = mod_names,
+      col    = colors,
+      pch    = 16,
+      lty    = 1,
+      bty    = "n"
+    )
+  }
+
+  invisible(NULL)
+}
+
+
 #' Forecast Cumulative Events from an NHPP Model.
 #'
 #' Takes a fitted \code{nhpp} object and a vector of future cumulative times,

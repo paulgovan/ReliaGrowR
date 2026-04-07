@@ -27,6 +27,7 @@ print(fc)
 }
 \seealso{
 Other Reliability Growth Analysis: 
+\code{\link{overlay_rga}()},
 \code{\link{plot.rga}()},
 \code{\link{plot.rga_predict}()},
 \code{\link{predict_rga}()},
