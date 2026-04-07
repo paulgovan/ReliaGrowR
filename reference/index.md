@@ -12,6 +12,10 @@
   Mean Cumulative Function for Repairable Systems.
 - [`nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/nhpp.md) :
   Non-Homogeneous Poisson Process Model for Repairable Systems.
+- [`overlay_nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/overlay_nhpp.md)
+  : Overlay Plot for Multiple NHPP Models
+- [`overlay_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/overlay_rga.md)
+  : Overlay Plot for Multiple RGA Models
 - [`plot(`*`<duane>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.duane.md)
   : Plot Method for Duane Analysis
 - [`plot(`*`<exposure>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.exposure.md)

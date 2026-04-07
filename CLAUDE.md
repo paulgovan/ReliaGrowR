@@ -3,21 +3,13 @@
 This file provides guidance to Claude Code (claude.ai/code) when working
 with code in this repository.
 
-## Package Overview
-
-**ReliaGrowR** is a CRAN-published R package for Reliability Growth
-Analysis (RGA). It implements the Duane, Crow-AMSAA, and Piecewise NHPP
-reliability growth models, plus a REST API interface via plumber.
-
 ## Common Commands
 
-All commands assume an R session in the package root directory.
-
 ``` r
-# Install development dependencies
-devtools::install_dev_deps()
+# Load package for interactive development
+devtools::load_all()
 
-# Regenerate NAMESPACE and Rd files from roxygen2 comments
+# Regenerate documentation (roxygen2 → .Rd files + NAMESPACE)
 devtools::document()
 
 # Run all tests
@@ -26,62 +18,57 @@ devtools::test()
 # Run a single test file
 testthat::test_file("tests/testthat/test-srr-rga.R")
 
-# Full package check (mirrors CI)
+# Full CRAN check
 devtools::check()
-```
-
-From the shell:
-
-``` bash
-R CMD check --no-manual --compact-vignettes=gs+qpdf
 ```
 
 ## Architecture
 
-### Core R files (`R/`)
+ReliaGrowR implements statistical models for Reliability Growth Analysis
+(RGA). Each model is encapsulated in its own file with a consistent
+pattern: a constructor function returns an S3 class object, and
+`print.*` / `plot.*` methods are defined in the same file.
 
-| File               | Purpose                                                                                                                                                                                                                   |
-|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `rga.R`            | Main [`rga()`](https://paulgovan.github.io/ReliaGrowR/reference/rga.md) function — Crow-AMSAA and Piecewise NHPP models; S3 `plot`/`print` methods                                                                        |
-| `duane.R`          | [`duane()`](https://paulgovan.github.io/ReliaGrowR/reference/duane.md) function — log-log regression of cumulative MTBF vs time; S3 `plot`/`print` methods                                                                |
-| `rdt.R`            | [`rdt()`](https://paulgovan.github.io/ReliaGrowR/reference/rdt.md) — Reliability Demonstration Test plan calculator; S3 `plot`/`print` methods                                                                            |
-| `weibull_to_rga.R` | [`weibull_to_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/weibull_to_rga.md) — converts Weibull failure/suspension/interval data to RGA format                                                                |
-| `gof.R`            | [`qqplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/qqplot.rga.md) / [`ppplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/ppplot.rga.md) — Q-Q and P-P goodness-of-fit plots for `rga` objects |
-| `grwr_api.R`       | [`grwr_api()`](https://paulgovan.github.io/ReliaGrowR/reference/grwr_api.md) — launches plumber REST API from `inst/plumber/`                                                                                             |
+**Core models and their files:** - `R/rga.R` — Crow-AMSAA (NHPP Power
+Law), the primary model. Supports least-squares (default) and MLE
+fitting. The `.fit_mle_crow()` internal function handles MLE.
+[`predict_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.md)
+returns a `rga_predict` S3 class. - `R/nhpp.R` — Piecewise NHPP with
+automatic change point detection via the `segmented` package.
+[`predict_nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_nhpp.md)
+returns a `nhpp_predict` S3 class. - `R/duane.R` — Duane log-log
+regression with confidence intervals. - `R/mcf.R` — Mean Cumulative
+Function using the Nelson-Aalen estimator (repairable systems). -
+`R/exposure.R` — Exposure-based NHPP model. - `R/rdt.R` — Reliability
+Demonstration Test planning.
 
-### REST API (`inst/plumber/`)
-
-Plumber endpoint definitions for `rga`, `duane`, and `gof` functions.
-Launched via
+**Supporting files:** - `R/sim_failures.R` — Simulates failure data from
+conditional Weibull models. - `R/weibull_to_rga.R` — Converts
+Weibull-format data to RGA input format. - `R/gof.R` — Goodness-of-fit:
+[`ppplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/ppplot.rga.md)
+and
+[`qqplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/qqplot.rga.md). -
+`R/grwr_api.R` + `inst/plumber/` — Plumber REST API exposing `/rga`,
+`/duane`, `/gof` endpoints via
 [`grwr_api()`](https://paulgovan.github.io/ReliaGrowR/reference/grwr_api.md).
 
-### Key dependencies
+## Testing Conventions
 
-- **segmented** — change-point detection in Piecewise NHPP model
-- **plumber** — REST API
-- **vdiffr** — visual regression testing for plot snapshots (Suggests)
-- **ellmer** — listed in Suggests (AI/LLM integration)
+Tests use the `testthat` (edition 3) framework and are named
+`test-srr-*.R` to indicate SRR (Software Review for Reliability)
+compliance. The SRR tags in test and source files (from
+`R/srr-stats-standards.R`) are part of rOpenSci’s statistical software
+review process — do not remove them.
 
-## Testing
-
-Tests use **testthat v3** and are in `tests/testthat/`. Each test file
-corresponds to a source file (e.g., `test-srr-rga.R` tests `rga.R`).
-
-Tests include: - Unit tests for model parameter estimation - Parameter
-recovery checks (noise susceptibility) - Visual regression tests via
-**vdiffr** (plot snapshots stored in `tests/testthat/_snaps/`) - SRR
-statistical standards compliance tags (`@srrstats`)
-
-When adding or changing plots, run `vdiffr::manage_cases()` to
-review/update snapshots.
+Visual regression tests use `vdiffr`; snapshots live in
+`tests/testthat/_snaps/`. Run `vdiffr::manage_cases()` to review
+snapshot diffs interactively.
 
 ## Documentation
 
-- Docs use **roxygen2** with Markdown enabled. Run
-  `devtools::document()` after editing roxygen2 comments.
-- `@srrstats` tags document compliance with SRR statistical standards —
-  include them when adding new exported functions.
-- The pkgdown site is built and deployed via
-  `.github/workflows/pkgdown.yaml`.
-- README.md is generated from README.Rmd; edit README.Rmd, not
-  README.md.
+All user-facing functions are documented with roxygen2. After editing
+roxygen comments, run `devtools::document()` — never edit `man/*.Rd` or
+`NAMESPACE` directly.
+
+Vignettes are in `vignettes/` as `.Rmd` files. The pkgdown site config
+is in `_pkgdown.yml`.

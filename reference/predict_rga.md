@@ -63,6 +63,7 @@ An object of class `rga_predict` containing:
 ## See also
 
 Other Reliability Growth Analysis:
+[`overlay_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/overlay_rga.md),
 [`plot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga.md),
 [`plot.rga_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga_predict.md),
 [`print.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga.md),

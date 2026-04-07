@@ -96,6 +96,7 @@ divided by the cumulative exposure: \\r(t) = N(t) / E(t)\\.
 Other Repairable Systems Analysis:
 [`mcf()`](https://paulgovan.github.io/ReliaGrowR/reference/mcf.md),
 [`nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/nhpp.md),
+[`overlay_nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/overlay_nhpp.md),
 [`plot.exposure()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.exposure.md),
 [`plot.mcf()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.mcf.md),
 [`plot.nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.nhpp.md),

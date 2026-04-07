@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/404.html</loc></url>
+<url><loc>https://paulgovan.github.io/ReliaGrowR/CLAUDE.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/CODE_OF_CONDUCT.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/CONTRIBUTING.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/LICENSE.html</loc></url>
@@ -18,6 +19,8 @@
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/index.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/mcf.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/nhpp.html</loc></url>
+<url><loc>https://paulgovan.github.io/ReliaGrowR/reference/overlay_nhpp.html</loc></url>
+<url><loc>https://paulgovan.github.io/ReliaGrowR/reference/overlay_rga.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/plot.duane.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/plot.exposure.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/plot.mcf.html</loc></url>

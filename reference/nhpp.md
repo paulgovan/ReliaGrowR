@@ -151,6 +151,7 @@ bt)\\ with cumulative function \\\Lambda(t) = \frac{e^a}{b}(e^{bt} -
 Other Repairable Systems Analysis:
 [`exposure()`](https://paulgovan.github.io/ReliaGrowR/reference/exposure.md),
 [`mcf()`](https://paulgovan.github.io/ReliaGrowR/reference/mcf.md),
+[`overlay_nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/overlay_nhpp.md),
 [`plot.exposure()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.exposure.md),
 [`plot.mcf()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.mcf.md),
 [`plot.nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.nhpp.md),

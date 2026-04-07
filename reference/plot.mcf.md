@@ -42,6 +42,7 @@ Other Repairable Systems Analysis:
 [`exposure()`](https://paulgovan.github.io/ReliaGrowR/reference/exposure.md),
 [`mcf()`](https://paulgovan.github.io/ReliaGrowR/reference/mcf.md),
 [`nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/nhpp.md),
+[`overlay_nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/overlay_nhpp.md),
 [`plot.exposure()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.exposure.md),
 [`plot.nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.nhpp.md),
 [`plot.nhpp_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.nhpp_predict.md),

@@ -40,6 +40,7 @@ Invisibly returns `NULL`.
 ## See also
 
 Other Reliability Growth Analysis:
+[`overlay_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/overlay_rga.md),
 [`plot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga.md),
 [`predict_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.md),
 [`print.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga.md),
