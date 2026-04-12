@@ -526,8 +526,7 @@ test_that("Piecewise NHPP is robust to small noise in times and failures", {
 })
 
 test_that("rga works with input from testdata (Crow-AMSAA)", {
-  data("testdata", package = "ReliaGrowR")
-
+  # testdata is lazy-loaded via LazyData: true; no explicit data() call needed
   g1 <- subset(testdata, LRU == "G1")
   times <- g1$Cum_ETI
   failures <- g1$Failure_Count

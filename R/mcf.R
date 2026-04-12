@@ -178,7 +178,7 @@ mcf <- function(id = NULL, time = NULL, event = NULL, end_time = NULL,
 
   # Determine the end-of-observation time per system
   # Priority: explicit end_time > inferred from data (max observed time)
-  inferred_max <- tapply(time, id, max)
+  inferred_max <- c(tapply(time, id, max))
 
   if (!is.null(end_time)) {
     # Match end_time to system IDs

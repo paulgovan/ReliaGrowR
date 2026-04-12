@@ -3,7 +3,7 @@
 #' @srrstats {G5.10} All unit tests run as part of continuous integration.
 
 test_that("testdata dataset has expected structure", {
-  data("testdata", package = "ReliaGrowR")
+  data("testdata")
 
   # check class
   expect_s3_class(testdata, "data.frame")

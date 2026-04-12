@@ -343,8 +343,7 @@ test_that("adding small noise preserves fitted MTBF values", {
 })
 
 test_that("duane works with input from testdata", {
-  data("testdata", package = "ReliaGrowR")
-
+  # testdata is lazy-loaded via LazyData: true; no explicit data() call needed
   # Subset one LRU to get a simple series
   g1 <- subset(testdata, LRU == "G1")
 
