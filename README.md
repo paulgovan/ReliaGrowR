@@ -21,21 +21,33 @@ coverage](https://codecov.io/gh/paulgovan/ReliaGrowR/graph/badge.svg)](https://a
 ## Introduction
 
 Welcome to **ReliaGrowR**! This package provides modeling and plotting
-functions for Reliability Growth Analysis (RGA), including:
+functions for Reliability Growth Analysis (RGA) and Repairable Systems
+Modeling, including:
+
+**Reliability Growth Analysis**
 
 - Duane Analysis
 - Crow-AMSAA
 - Piecewise NHPP
 - Piecewise NHPP with Change Point Detection
 
-RGA is an important part of reliability engineering, focused on
-improving reliability during development and testing of products. By
-analyzing failure data, RGA helps engineers and researchers identify
-trends, estimate reliability parameters, and track improvements over
-time.
+**Repairable Systems Modeling**
 
-To learn more about RGA and this package, please view the
-[vignette](https://paulgovan.github.io/ReliaGrowR/articles/RGA.html).
+- Mean Cumulative Function (MCF)
+- Power Law NHPP
+- Log-Linear NHPP
+
+RGA is focused on improving reliability during development and testing
+of products, while repairable systems modeling tracks recurrence
+patterns for fielded systems that can be repaired and returned to
+service. By analyzing failure data, both approaches help engineers and
+researchers identify trends, estimate reliability parameters, and
+support decision-making over time.
+
+To learn more about RGA, please view the [RGA
+vignette](https://paulgovan.github.io/ReliaGrowR/articles/RGA.html).
+For repairable systems modeling, see the [RSA
+vignette](https://paulgovan.github.io/ReliaGrowR/articles/RSA.html).
 
 ## Installation
 
