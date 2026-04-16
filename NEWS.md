@@ -1,3 +1,18 @@
+# ReliaGrowR 0.6
+
+## New Features
+* New `nhpp()` function for fitting parametric Non-Homogeneous Poisson Process (NHPP) models (Power Law and Log-Linear) to recurrent event data from repairable systems, including piecewise/segmented support with automatic change point detection.
+* New `mcf()` function for non-parametric Mean Cumulative Function estimation using the Nelson-Aalen estimator.
+* New `exposure()` function for computing system exposure (total operating time at risk) across repairable systems.
+* New `overlay_rga()` and `overlay_nhpp()` functions for overlaying multiple model fits on a single plot.
+* New hex sticker logo for the package.
+
+## Minor improvements and bug fixes
+* Updated and expanded test suite for NHPP, MCF, and exposure models.
+* New vignette on Repairable Systems Analysis (RSA).
+* Updated README with new features and logo.
+* Other minor improvements and bug fixes.
+
 # ReliaGrowR 0.4.0
 
 ## New Features

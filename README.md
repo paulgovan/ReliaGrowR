@@ -45,8 +45,8 @@ researchers identify trends, estimate reliability parameters, and
 support decision-making over time.
 
 To learn more about RGA, please view the [RGA
-vignette](https://paulgovan.github.io/ReliaGrowR/articles/RGA.html).
-For repairable systems modeling, see the [RSA
+vignette](https://paulgovan.github.io/ReliaGrowR/articles/RGA.html). For
+repairable systems modeling, see the [RSA
 vignette](https://paulgovan.github.io/ReliaGrowR/articles/RSA.html).
 
 ## Installation
