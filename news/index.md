@@ -2,6 +2,8 @@
 
 ## ReliaGrowR 0.6
 
+CRAN release: 2026-04-16
+
 ### New Features
 
 - New
