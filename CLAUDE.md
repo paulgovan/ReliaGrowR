@@ -6,6 +6,7 @@ with code in this repository.
 ## Common Commands
 
 ``` r
+
 # Load package for interactive development
 devtools::load_all()
 

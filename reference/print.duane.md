@@ -27,7 +27,10 @@ Invisibly returns the input object.
 
 Other Duane functions:
 [`duane()`](https://paulgovan.github.io/ReliaGrowR/reference/duane.md),
-[`plot.duane()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.duane.md)
+[`plot.duane()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.duane.md),
+[`plot.duane_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.duane_predict.md),
+[`predict_duane()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_duane.md),
+[`print.duane_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane_predict.md)
 
 ## Examples
 

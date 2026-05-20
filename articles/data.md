@@ -20,6 +20,7 @@ You can use the [`read.csv()`](https://rdrr.io/r/utils/read.table.html)
 function to import data from CSV files. For example:
 
 ``` r
+
 data <- read.csv("path/to/your/data.csv")
 head(data)
 ```
@@ -30,6 +31,7 @@ You can use the `readxl` package to import data from Excel files. For
 example:
 
 ``` r
+
 library(readxl)
 data <- read_excel("path/to/your/data.xlsx")
 head(data)
@@ -58,6 +60,7 @@ frame with appropriate column names. For example, data vectors can be
 created as follows:
 
 ``` r
+
 times <- c(100, 200, 300, 400, 500)
 failures <- c(2, 3, 5, 7, 11)
 ```
@@ -65,6 +68,7 @@ failures <- c(2, 3, 5, 7, 11)
 Alternatively, you can create a data frame:
 
 ``` r
+
 data <- data.frame(col1 = times, col2 = failures)
 head(data)
 #>   col1 col2
@@ -83,6 +87,7 @@ expected format. You can use the
 columns:
 
 ``` r
+
 colnames(data) <- c("times", "failures")
 head(data)
 #>   times failures
@@ -128,6 +133,7 @@ For example, consider the following data that includes failure times,
 right-censored times, and interval-censored times:
 
 ``` r
+
 failures <- c(100, 200, 200, 400)
 right_censored <- c(250, 350, 450)
 interval_starts <- c(150, 300)
@@ -138,6 +144,7 @@ To convert this data for reliability growth analysis, you can use the
 `weibull_to_rga` function as follows:
 
 ``` r
+
 library(ReliaGrowR)
 result <- weibull_to_rga(failures, right_censored, interval_starts, interval_ends)
 head(result)
@@ -167,6 +174,7 @@ function to remove rows with missing values from your data frame. For
 example:
 
 ``` r
+
 data <- data.frame(
   times = c(100, 200, NA, 400, 500),
   failures = c(2, NA, 5, 7, 11)
@@ -187,6 +195,7 @@ or median failure time. For example, to replace missing values in the
 following:
 
 ``` r
+
 data <- data.frame(
   times = c(100, 200, NA, 400, 500),
   failures = c(2, NA, 5, 7, 11)
@@ -225,6 +234,7 @@ You can use the
 export data to CSV files. For example:
 
 ``` r
+
 write.csv(data, "path/to/your/cleaned_data.csv", row.names = FALSE)
 ```
 
@@ -234,6 +244,7 @@ You can use the `writexl` package to export data to Excel files. For
 example:
 
 ``` r
+
 library(writexl)
 write_xlsx(data, "path/to/your/cleaned_data.xlsx")
 ```

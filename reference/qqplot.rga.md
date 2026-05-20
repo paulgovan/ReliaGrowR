@@ -34,7 +34,9 @@ A Q-Q plot comparing empirical and theoretical quantiles.
 ## See also
 
 Other goodness-of-fit:
-[`ppplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/ppplot.rga.md)
+[`gof()`](https://paulgovan.github.io/ReliaGrowR/reference/gof.md),
+[`ppplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/ppplot.rga.md),
+[`print.gof()`](https://paulgovan.github.io/ReliaGrowR/reference/print.gof.md)
 
 ## Examples
 

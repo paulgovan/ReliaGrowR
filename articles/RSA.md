@@ -27,12 +27,14 @@ the expected cumulative number of events per system over time. It makes
 no assumptions about the underlying process and is useful as an
 exploratory tool before fitting parametric models.
 
-For a fleet of systems, the MCF at time $t$ is estimated using the
+For a fleet of systems, the MCF at time $`t`$ is estimated using the
 Nelson-Aalen estimator:
 
-$$\widehat{M}(t) = \sum\limits_{t_{j} \leq t}\frac{d_{j}}{n_{j}}$$
+``` math
+\hat{M}(t) = \sum_{t_j \le t} \frac{d_j}{n_j}
+```
 
-where $d_{j}$ is the number of events at time $t_{j}$ and $n_{j}$ is the
+where $`d_j`$ is the number of events at time $`t_j`$ and $`n_j`$ is the
 number of systems still under observation.
 
 ### Example
@@ -40,6 +42,7 @@ number of systems still under observation.
 Consider three systems with the following event histories:
 
 ``` r
+
 library(ReliaGrowR)
 
 id   <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
@@ -49,6 +52,7 @@ time <- c(100, 350, 500, 80, 300, 600, 150, 250, 400, 700)
 Compute and plot the MCF:
 
 ``` r
+
 result <- mcf(id, time)
 plot(result, main = "Mean Cumulative Function",
      xlab = "Time", ylab = "MCF")
@@ -65,6 +69,7 @@ The [`mcf()`](https://paulgovan.github.io/ReliaGrowR/reference/mcf.md)
 function also accepts a data frame:
 
 ``` r
+
 df <- data.frame(id = id, time = time)
 result2 <- mcf(data = df)
 ```
@@ -75,6 +80,7 @@ If some systems are withdrawn from observation before the end of the
 study, use the `event` indicator (1 = event, 0 = censored):
 
 ``` r
+
 id    <- c(1, 1, 1, 2, 2, 2, 3, 3, 3)
 time  <- c(100, 350, 500, 80, 300, 400, 150, 250, 700)
 event <- c(  1,   1,   0,  1,   1,   0,   1,   1,   1)
@@ -97,6 +103,7 @@ The `end_time` parameter specifies the actual observation window per
 system:
 
 ``` r
+
 id   <- c(1, 1, 2, 2, 3, 3)
 time <- c(100, 300, 150, 400, 200, 350)
 
@@ -110,6 +117,7 @@ mcf_adj <- mcf(id, time, end_time = c("1" = 800, "2" = 800, "3" = 800))
 Compare the two MCF estimates:
 
 ``` r
+
 par(mfrow = c(1, 2))
 plot(mcf_basic, main = "MCF (inferred exposure)",
      xlab = "Time", ylab = "MCF")
@@ -132,6 +140,7 @@ field, which can be passed directly to
 [`mcf()`](https://paulgovan.github.io/ReliaGrowR/reference/mcf.md):
 
 ``` r
+
 id    <- c(1, 1, 1, 2, 2, 2, 3, 3, 3)
 time  <- c(100, 350, 500, 80, 300, 400, 150, 250, 700)
 event <- c(  1,   1,   0,  1,   1,   0,   1,   1,   1)
@@ -150,24 +159,29 @@ occur across all systems in a fleet. It is fundamental to repairable
 systems analysis because event rates are only meaningful when normalized
 by the time during which events could have been observed.
 
-For $k$ systems observed up to times $T_{1},T_{2},\ldots,T_{k}$, the
+For $`k`$ systems observed up to times $`T_1, T_2, \ldots, T_k`$, the
 total exposure is:
 
-$$E = \sum\limits_{i = 1}^{k}T_{i}$$
+``` math
+E = \sum_{i=1}^{k} T_i
+```
 
-The cumulative exposure at time $t$ is:
+The cumulative exposure at time $`t`$ is:
 
-$$E(t) = \sum\limits_{i = 1}^{k}\min\left( t,T_{i} \right)$$
+``` math
+E(t) = \sum_{i=1}^{k} \min(t, T_i)
+```
 
-Each system contributes time up to the lesser of $t$ or its observation
-end. The **event rate** is then $r(t) = N(t)/E(t)$, the cumulative
-number of events per unit exposure.
+Each system contributes time up to the lesser of $`t`$ or its
+observation end. The **event rate** is then $`r(t) = N(t) / E(t)`$, the
+cumulative number of events per unit exposure.
 
 ### Example
 
 Using the same three-system fleet from the MCF example:
 
 ``` r
+
 id   <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
 time <- c(100, 350, 500, 80, 300, 600, 150, 250, 400, 700)
 result <- exposure(id, time)
@@ -184,6 +198,7 @@ rate.
 The default plot method produces a three-panel dashboard:
 
 ``` r
+
 plot(result)
 ```
 
@@ -199,12 +214,14 @@ under observation. The bottom panel shows the cumulative event rate
 Individual panels can be selected with the `which` argument:
 
 ``` r
+
 plot(result, which = "exposure")
 ```
 
 ![](RSA_files/figure-html/unnamed-chunk-11-1.png)
 
 ``` r
+
 plot(result, which = "event_rate")
 ```
 
@@ -216,6 +233,7 @@ When systems are withdrawn before the end of study, their observation
 time still contributes to exposure up to the censoring point:
 
 ``` r
+
 id    <- c(1, 1, 1, 2, 2, 2, 3, 3, 3)
 time  <- c(100, 350, 500, 80, 300, 400, 150, 250, 700)
 event <- c(  1,   1,   0,  1,   1,   0,   1,   1,   1)
@@ -229,29 +247,41 @@ are counted in the cumulative event tally.
 
 ## Power Law NHPP
 
-The **Power Law NHPP** models the cumulative number of events as:
+The **Power Law NHPP** models the expected cumulative number of events
+per system (the MCF) as:
 
-$$N(t) = \lambda\, t^{\beta}$$
+``` math
+M(t) = \lambda\, t^{\beta}
+```
 
-The parameter $\beta$ indicates the trend:
+The parameter $`\beta`$ indicates the trend:
 
-- $\beta > 1$: deteriorating system (increasing event rate)
-- $\beta = 1$: constant rate (Homogeneous Poisson Process)
-- $\beta < 1$: improving system (decreasing event rate)
+- $`\beta > 1`$: deteriorating system (increasing event rate)
+- $`\beta = 1`$: constant rate (Homogeneous Poisson Process)
+- $`\beta < 1`$: improving system (decreasing event rate)
 
 ### Example
 
+The recommended workflow is to estimate the MCF non-parametrically
+first, then pass the result directly to
+[`nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/nhpp.md) for
+parametric fitting. Using the three-system fleet from the MCF section:
+
 ``` r
-time  <- c(200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000)
-event <- c(  3,   5,   4,   7,    6,    8,    5,    9,    7,   10)
+
+id   <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
+time <- c(100, 350, 500, 80, 300, 600, 150, 250, 400, 700)
+m <- mcf(id, time)
 ```
 
-Fit using Maximum Likelihood Estimation (default):
+Fit a Power Law NHPP to the MCF using Maximum Likelihood Estimation
+(default):
 
 ``` r
-fit_mle <- nhpp(time, event, method = "MLE")
+
+fit_mle <- nhpp(m)
 plot(fit_mle, main = "Power Law NHPP (MLE)",
-     xlab = "Cumulative Time", ylab = "Cumulative Events")
+     xlab = "Time")
 ```
 
 ![](RSA_files/figure-html/unnamed-chunk-15-1.png)
@@ -259,7 +289,8 @@ plot(fit_mle, main = "Power Law NHPP (MLE)",
 Fit using Least Squares:
 
 ``` r
-fit_ls <- nhpp(time, event, method = "LS")
+
+fit_ls <- nhpp(m, method = "LS")
 ```
 
 Both methods estimate similar parameters. MLE is generally preferred for
@@ -270,21 +301,26 @@ approach and supports piecewise models.
 
 The **Log-Linear NHPP** models the event intensity as:
 
-$$\lambda(t) = \exp(a + bt)$$
+``` math
+\lambda(t) = \exp(a + bt)
+```
 
 with cumulative function:
 
-$$\Lambda(t) = \frac{e^{a}}{b}\left( e^{bt} - 1 \right)$$
+``` math
+\Lambda(t) = \frac{e^a}{b}\left(e^{bt} - 1\right)
+```
 
-The parameter $b$ controls the trend: $b > 0$ means an increasing rate,
-$b < 0$ a decreasing rate, and $b \approx 0$ a constant rate.
+The parameter $`b`$ controls the trend: $`b > 0`$ means an increasing
+rate, $`b < 0`$ a decreasing rate, and $`b \approx 0`$ a constant rate.
 
 ### Example
 
 ``` r
-result_ll <- nhpp(time, event, model_type = "Log-Linear")
-plot(result_ll, main = "Log-Linear NHPP",
-     xlab = "Cumulative Time", ylab = "Cumulative Events")
+
+fit_ll <- nhpp(m, model_type = "Log-Linear")
+plot(fit_ll, main = "Log-Linear NHPP",
+     xlab = "Time")
 ```
 
 ![](RSA_files/figure-html/unnamed-chunk-17-1.png)
@@ -297,21 +333,24 @@ different time segments. This is useful when a system’s behavior changes
 
 ### With User-Specified Breakpoints
 
-``` r
-time  <- c(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
-           1100, 1200, 1300, 1400, 1500)
-event <- c(  1,   1,   2,   4,   4,   1,   1,   2,   1,    4,
-             1,   1,   3,   3,   4)
+Estimate the MCF from a fleet with a visible change point around time
+350, then fit a piecewise model:
 
-result_pw <- nhpp(time, event, breaks = c(500), method = "LS")
-plot(result_pw, main = "Piecewise Power Law NHPP",
-     xlab = "Cumulative Time", ylab = "Cumulative Events")
+``` r
+
+id2   <- c(1,1,1,1,1, 2,2,2,2,2, 3,3,3,3,3)
+time2 <- c(100,200,300,400,500, 80,200,350,450,600, 150,250,400,550,700)
+
+m2 <- mcf(id2, time2)
+fit_pw <- nhpp(m2, breaks = c(350), method = "LS")
+plot(fit_pw, main = "Piecewise Power Law NHPP",
+     xlab = "Time")
 ```
 
 ![](RSA_files/figure-html/unnamed-chunk-18-1.png)
 
-The vertical dashed line indicates the change point at time 500. Each
-segment has its own $\beta$ and $\lambda$ parameters.
+The vertical dashed line indicates the change point at time 350. Each
+segment has its own $`\beta`$ and $`\lambda`$ parameters.
 
 ## Forecasting
 
@@ -322,33 +361,40 @@ model.
 
 ### Example
 
-``` r
-time  <- c(200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000)
-event <- c(  3,   5,   4,   7,    6,    8,    5,    9,    7,   10)
+Using `fit_mle` fitted to the MCF `m` from the Power Law section:
 
-fit <- nhpp(time, event, method = "MLE")
-fc <- predict_nhpp(fit, time = c(2001, 2500, 3000, 4000, 5000))
+``` r
+
+fc <- predict_nhpp(fit_mle, time = c(800, 1000, 1500))
+print(fc)
+#> NHPP Forecast (Power Law) 
+#> -------------------------- 
+#>  Time Cum.Events Lower (95%) Upper (95%)
+#>   800        5.0         2.9         8.7
+#>  1000        6.4         3.6        11.4
+#>  1500       10.0         5.1        19.4
 ```
 
-Plot the observed data with the forecast:
+Plot the observed MCF with the fitted model and forecast:
 
 ``` r
+
 plot(fc, main = "NHPP Forecast",
-     xlab = "Cumulative Time", ylab = "Cumulative Events")
+     xlab = "Time")
 ```
 
 ![](RSA_files/figure-html/unnamed-chunk-20-1.png)
 
-The plot shows the observed data (points), the fitted model (solid
-line), and the forecast (dashed line) with confidence bounds. The
-vertical gray line marks the boundary between observed and forecast
-periods.
+The plot shows the observed MCF (points), the fitted model (solid line),
+and the forecast (dashed line) with confidence bounds. The vertical gray
+line marks the boundary between observed and forecast periods. The
+y-axis is on the MCF scale — expected cumulative events per system.
 
 Forecasting also works with Log-Linear models:
 
 ``` r
-fit_ll <- nhpp(time, event, model_type = "Log-Linear")
-fc_ll <- predict_nhpp(fit_ll, time = c(2500, 3000))
+
+fc_ll <- predict_nhpp(fit_ll, time = c(800, 1000))
 ```
 
 ## Summary
@@ -357,11 +403,15 @@ NHPP models provide a flexible framework for analyzing repairable
 systems:
 
 - The **MCF** gives a non-parametric view of the recurrence pattern,
-  useful for exploratory analysis and comparing systems.
+  useful for exploratory analysis and comparing systems. Pass a fitted
+  `mcf` object directly to
+  [`nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/nhpp.md)
+  to fit parametric models to the MCF curve — the recommended workflow
+  for fleet data.
 - **Exposure analysis** quantifies the total time at risk and event
   rates, providing essential context for interpreting event counts.
 - The **Power Law NHPP** is the most widely used parametric model, with
-  $\beta$ directly indicating whether the system is improving or
+  $`\beta`$ directly indicating whether the system is improving or
   deteriorating.
 - The **Log-Linear NHPP** offers an alternative parametric form for
   modeling time-dependent intensity.

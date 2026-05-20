@@ -22,19 +22,22 @@ The Crow-AMSAA model is a statistical model that characterizes the
 relationship between the cumulative number of failures and cumulative
 time as the following:
 
-$$N(t) = \lambda\, t^{\beta}$$
+``` math
+N(t) = \lambda\, t^{\beta}
+```
 
-where $N(t)$ denotes the cumulative number of failures by time $t$,
-$\lambda$ is a scaling parameter, and $\beta$ is the shape parameter.
+where $`N(t)`$ denotes the cumulative number of failures by time $`t`$,
+$`\lambda`$ is a scaling parameter, and $`\beta`$ is the shape
+parameter.
 
-The shape parameter $\beta$ indicates whether the system’s reliability
+The shape parameter $`\beta`$ indicates whether the system’s reliability
 is improving or deteriorating.
 
-- If $\beta$ \< 1, then the system is improving (reliability is growing,
-  the failure rate is decreasing).
-- If $\beta$ = 1, then there is no change in reliability (the system is
-  stable).
-- If $\beta$ \> 1, then reliability is worsening (the failure rate is
+- If $`\beta`$ \< 1, then the system is improving (reliability is
+  growing, the failure rate is decreasing).
+- If $`\beta`$ = 1, then there is no change in reliability (the system
+  is stable).
+- If $`\beta`$ \> 1, then reliability is worsening (the failure rate is
   increasing).
 
 ### Example
@@ -47,12 +50,14 @@ fitted model.
 First, load the package:
 
 ``` r
+
 library(ReliaGrowR)
 ```
 
 Next, set up some time and failure data:
 
 ``` r
+
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 ```
@@ -60,6 +65,7 @@ failures <- c(1, 2, 1, 3, 2)
 Then run the rga and plot the results:
 
 ``` r
+
 result <- rga(times, failures)
 plot(result, main = "Crow-AMSAA Model", xlab = "Cumulative Time", ylab = "Cumulative Failures")
 ```
@@ -84,11 +90,13 @@ as a piecewise function, where each segment has its own parameters.
 Formally, for time t within phase i, the relationship between the
 cumulative number of failures and cumulative time is given by:
 
-$$N_{i}(t) = N\left( t_{i - 1} \right) + \lambda_{i}\left( t - t_{i - 1} \right)^{\beta_{i}},\,{\text{for}\mspace{6mu}}t_{i - 1} < t \leq t_{i}$$
+``` math
+N_i(t) = N(t_{i-1}) + \lambda_i (t - t_{i-1})^{\beta_i}, \, \text{for } t_{i-1} < t \leq t_i
+```
 
-where $N_{i}(t)$ is the cumulative number of failures by time $t$ in
-phase $i$, $\lambda_{i}$ is the scale parameter for phase $i$, and
-$\beta_{i}$ is the shape parameter for phase $i$.
+where $`N_i(t)`$ is the cumulative number of failures by time $`t`$ in
+phase $`i`$, $`\lambda_i`$ is the scale parameter for phase $`i`$, and
+$`\beta_i`$ is the shape parameter for phase $`i`$.
 
 ### Example
 
@@ -96,6 +104,7 @@ To use the Piecewise NHPP model in ReliaGrowR, first, set up some time
 and failure data and specify a breakpoint:
 
 ``` r
+
 times <- c(25, 55, 97, 146, 201, 268, 341, 423, 513, 609, 710, 820, 940, 1072, 1217)
 failures <- c(1, 1, 2, 4, 4, 1, 1, 2, 1, 4, 1, 1, 3, 3, 4)
 breaks <- 500
@@ -104,6 +113,7 @@ breaks <- 500
 Then run the rga and plot the results:
 
 ``` r
+
 result <- rga(times, failures, model_type = "Piecewise NHPP", breaks = c(breaks))
 plot(result, main = "Piecewise NHPP Model", xlab = "Cumulative Time", ylab = "Cumulative Failures")
 ```
@@ -130,6 +140,7 @@ based on the provided failure data. First, set up some time and failure
 data:
 
 ``` r
+
 times <- c(25, 55, 97, 146, 201, 268, 341, 423, 513, 609, 710, 820, 940, 1072, 1217)
 failures <- c(1, 1, 2, 4, 4, 1, 1, 2, 1, 4, 1, 1, 3, 3, 4)
 ```
@@ -137,6 +148,7 @@ failures <- c(1, 1, 2, 4, 4, 1, 1, 2, 1, 4, 1, 1, 3, 3, 4)
 Then run the rga and plot the results:
 
 ``` r
+
 result <- rga(times, failures, model_type = "Piecewise NHPP")
 plot(result, main = "Piecewise NHPP with Change Point Detection", xlab = "Cumulative Time", ylab = "Cumulative Failures")
 ```
@@ -170,6 +182,7 @@ time.
 First, set up some time and failure data:
 
 ``` r
+
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
 ```
@@ -177,6 +190,7 @@ failures <- c(1, 2, 1, 3, 2)
 Then fit the model and plot the results:
 
 ``` r
+
 fit <- duane(times, failures)
 plot(fit, main = "Duane Plot", xlab = "Cumulative Time", ylab = "Cumulative MTBF")
 ```
@@ -193,6 +207,7 @@ data. Two key functions are `qqplot.rga` for Q-Q plots and `ppplot.rga`
 for P-P plots. Both functions take an rga object as input.
 
 ``` r
+
 times <- c(50, 100, 150, 200, 300, 400, 600, 800, 1000)
 failures <- c(1, 1, 2, 2, 3, 4, 5, 6, 8)
 result <- rga(times, failures)
@@ -209,6 +224,7 @@ line.
 Similarly, a P-P plot can be created with:
 
 ``` r
+
 ppplot.rga(result)
 ```
 
@@ -233,6 +249,7 @@ For example, consider the following dataset with failure times,
 right-censored times, and interval-censored times:
 
 ``` r
+
 failures <- c(100, 200, 200, 400)
 suspensions <- c(250, 350, 450)
 interval_starts <- c(150, 300)
@@ -242,6 +259,7 @@ interval_ends <- c(180, 320)
 The data can be converted using `weibull_to_rga`:
 
 ``` r
+
 result <- weibull_to_rga(failures, suspensions, interval_starts, interval_ends)
 ```
 
@@ -250,6 +268,7 @@ which can then be passed directly to the `rga` function for reliability
 growth analysis.
 
 ``` r
+
 fit <- rga(result$CumulativeTime, result$Failures)
 plot(fit, main = "RGA from Converted Data", xlab = "Cumulative Time", ylab = "Cumulative Failures")
 ```

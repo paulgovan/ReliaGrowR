@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Reliability Growth Analysis and Repairable Systems Modeling • ReliaGrowR</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Reliability Growth Analysis and Repairable Systems Modeling">
 <meta name="description" content="Modeling and plotting functions for Reliability Growth Analysis (RGA) and Non-Homogeneous Poisson Process (NHPP) models for repairable systems. RGA models include the Duane (1962) &lt;doi:10.1109/TA.1964.4319640&gt;, NHPP by Crow (1975) (No. AMSAATR138), Piecewise Weibull NHPP by Guo et al. (2010) &lt;doi:10.1109/RAMS.2010.5448029&gt;, and Piecewise Weibull NHPP with Change Point Detection based on the segmented package by Muggeo (2024) &lt;https://cran.r-project.org/package=segmented&gt;. Repairable systems functions include the Mean Cumulative Function (MCF) using the Nelson-Aalen estimator, parametric Power Law and Log-Linear NHPP models, and forecasting.">
@@ -33,15 +33,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/data.html">Reliability Data Management</a></li>
-    <li><a class="dropdown-item" href="articles/RGA.html">Reliability Growth Analysis</a></li>
-    <li><a class="dropdown-item" href="articles/RGF.html">Reliability Growth Forecasting</a></li>
-    <li><a class="dropdown-item" href="articles/RSA.html">Repairable Systems Analysis</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="articles/index.html">Articles</a></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -74,15 +66,24 @@
 <li>Crow-AMSAA</li>
 <li>Piecewise NHPP</li>
 <li>Piecewise NHPP with Change Point Detection</li>
+<li>Forecasting (Duane and Crow-AMSAA)</li>
+<li>Goodness-of-Fit Testing (Cramér-von Mises, K-S)</li>
+<li>Reliability Demonstration Test (RDT) Planning</li>
 </ul>
 <p><strong>Repairable Systems Modeling</strong></p>
 <ul>
 <li>Mean Cumulative Function (MCF)</li>
 <li>Power Law NHPP</li>
 <li>Log-Linear NHPP</li>
+<li>Forecasting</li>
+</ul>
+<p><strong>AI Integration</strong></p>
+<ul>
+<li>MCP tools for AI assistants via <code><a href="reference/rga_mcp_server.html">rga_mcp_server()</a></code>
+</li>
 </ul>
 <p>RGA is focused on improving reliability during development and testing of products, while repairable systems modeling tracks recurrence patterns for fielded systems that can be repaired and returned to service. By analyzing failure data, both approaches help engineers and researchers identify trends, estimate reliability parameters, and support decision-making over time.</p>
-<p>To learn more about RGA, please view the <a href="https://paulgovan.github.io/ReliaGrowR/articles/RGA.html">RGA vignette</a>. For repairable systems modeling, see the <a href="https://paulgovan.github.io/ReliaGrowR/articles/RSA.html">RSA vignette</a>.</p>
+<p>To learn more about RGA, please view the <a href="https://paulgovan.github.io/ReliaGrowR/articles/RGA.html">RGA vignette</a>. For repairable systems modeling, see the <a href="https://paulgovan.github.io/ReliaGrowR/articles/RSA.html">RSA vignette</a>. For test planning, see the <a href="https://paulgovan.github.io/ReliaGrowR/articles/RDT.html">RDT vignette</a>. For AI integration, see the <a href="https://paulgovan.github.io/ReliaGrowR/articles/MCP.html">MCP vignette</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -108,7 +109,17 @@
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/rga.html">rga</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">failures</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span>, main <span class="op">=</span> <span class="st">"Reliability Growth Analysis"</span>, xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-4-1.png" alt="" width="100%"></p>
+</div>
+<div class="section level2">
+<h2 id="ai-integration-via-mcp">AI Integration via MCP<a class="anchor" aria-label="anchor" href="#ai-integration-via-mcp"></a>
+</h2>
+<p>ReliaGrowR can expose its analysis functions as <a href="https://posit-dev.github.io/mcptools/" class="external-link">Model Context Protocol (MCP)</a> tools so AI assistants like Claude can call them directly. First install the required packages:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mcptools"</span>, <span class="st">"ellmer"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Then add the server to Claude Code:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">claude</span> mcp add <span class="at">-s</span> user reliagrowR <span class="at">--</span> Rscript <span class="at">-e</span> <span class="st">"ReliaGrowR::rga_mcp_server()"</span></span></code></pre></div>
+<p>Once configured, you can ask Claude to fit models, run forecasts, plan demonstration tests, and more — all without writing any R code yourself. See the <a href="https://paulgovan.github.io/ReliaGrowR/articles/MCP.html">MCP vignette</a> for full setup instructions.</p>
 </div>
 <div class="section level2">
 <h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>

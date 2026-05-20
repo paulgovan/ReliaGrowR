@@ -27,28 +27,28 @@ a graphical and analytical representation of reliability growth.
 
 ## Main Functions
 
-|                                                                                          |                                                    |
-|------------------------------------------------------------------------------------------|----------------------------------------------------|
-| Function                                                                                 | Description                                        |
-| [`rga()`](https://paulgovan.github.io/ReliaGrowR/reference/rga.md)                       | Fit Crow-AMSAA or Piecewise NHPP model             |
-| [`predict_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.md)       | Forecast cumulative failures from a fitted model   |
-| [`duane()`](https://paulgovan.github.io/ReliaGrowR/reference/duane.md)                   | Fit Duane model                                    |
-| [`rdt()`](https://paulgovan.github.io/ReliaGrowR/reference/rdt.md)                       | Reliability Demonstration Test plan calculator     |
-| [`weibull_to_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/weibull_to_rga.md) | Convert Weibull data to RGA format                 |
-| [`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md)     | Simulate failures from a conditional Weibull model |
-| [`qqplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/qqplot.rga.md)         | Q-Q goodness-of-fit plot for an `rga` object       |
-| [`ppplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/ppplot.rga.md)         | P-P goodness-of-fit plot for an `rga` object       |
-| [`grwr_api()`](https://paulgovan.github.io/ReliaGrowR/reference/grwr_api.md)             | Launch the plumber REST API                        |
+|  |  |
+|----|----|
+| Function | Description |
+| [`rga()`](https://paulgovan.github.io/ReliaGrowR/reference/rga.md) | Fit Crow-AMSAA or Piecewise NHPP model |
+| [`predict_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.md) | Forecast cumulative failures from a fitted model |
+| [`duane()`](https://paulgovan.github.io/ReliaGrowR/reference/duane.md) | Fit Duane model |
+| [`rdt()`](https://paulgovan.github.io/ReliaGrowR/reference/rdt.md) | Reliability Demonstration Test plan calculator |
+| [`weibull_to_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/weibull_to_rga.md) | Convert Weibull data to RGA format |
+| [`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md) | Simulate failures from a conditional Weibull model |
+| [`qqplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/qqplot.rga.md) | Q-Q goodness-of-fit plot for an `rga` object |
+| [`ppplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/ppplot.rga.md) | P-P goodness-of-fit plot for an `rga` object |
+| [`grwr_api()`](https://paulgovan.github.io/ReliaGrowR/reference/grwr_api.md) | Launch the plumber REST API |
 
 ## S3 Classes and Methods
 
-|               |                                                                                                                                                                                              |
-|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Class         | Methods                                                                                                                                                                                      |
-| `rga`         | [`print.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga.md), [`plot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga.md)                                 |
+|  |  |
+|----|----|
+| Class | Methods |
+| `rga` | [`print.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga.md), [`plot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga.md) |
 | `rga_predict` | [`print.rga_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rga_predict.md), [`plot.rga_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.rga_predict.md) |
-| `duane`       | [`print.duane()`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane.md), [`plot.duane()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.duane.md)                         |
-| `rdt`         | [`print.rdt()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rdt.md)                                                                                                               |
+| `duane` | [`print.duane()`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane.md), [`plot.duane()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.duane.md) |
+| `rdt` | [`print.rdt()`](https://paulgovan.github.io/ReliaGrowR/reference/print.rdt.md) |
 
 ## References
 

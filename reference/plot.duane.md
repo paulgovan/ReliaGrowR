@@ -10,9 +10,11 @@ line and optional confidence bounds.
 plot(
   x,
   log = TRUE,
-  conf.int = TRUE,
+  conf_bounds = TRUE,
   legend = TRUE,
-  legend.pos = "topleft",
+  legend_pos = "topleft",
+  conf.int = NULL,
+  legend.pos = NULL,
   ...
 )
 ```
@@ -27,7 +29,7 @@ plot(
 
   Logical; whether to use logarithmic scales for axes (default: `TRUE`).
 
-- conf.int:
+- conf_bounds:
 
   Logical; whether to plot confidence bounds (default: `TRUE`).
 
@@ -35,9 +37,17 @@ plot(
 
   Logical; whether to include a legend (default: TRUE).
 
-- legend.pos:
+- legend_pos:
 
   Position of the legend (default: "topleft").
+
+- conf.int:
+
+  Deprecated. Use `conf_bounds` instead.
+
+- legend.pos:
+
+  Deprecated. Use `legend_pos` instead.
 
 - ...:
 
@@ -52,7 +62,10 @@ Invisibly returns `NULL`.
 
 Other Duane functions:
 [`duane()`](https://paulgovan.github.io/ReliaGrowR/reference/duane.md),
-[`print.duane()`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane.md)
+[`plot.duane_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.duane_predict.md),
+[`predict_duane()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_duane.md),
+[`print.duane()`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane.md),
+[`print.duane_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane_predict.md)
 
 ## Examples
 

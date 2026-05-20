@@ -6,6 +6,8 @@
   : Duane Analysis
 - [`exposure()`](https://paulgovan.github.io/ReliaGrowR/reference/exposure.md)
   : Exposure Analysis for Repairable Systems.
+- [`gof()`](https://paulgovan.github.io/ReliaGrowR/reference/gof.md) :
+  Goodness-of-Fit Statistics for RGA Objects
 - [`grwr_api()`](https://paulgovan.github.io/ReliaGrowR/reference/grwr_api.md)
   : ReliaGrowR API
 - [`mcf()`](https://paulgovan.github.io/ReliaGrowR/reference/mcf.md) :
@@ -18,6 +20,8 @@
   : Overlay Plot for Multiple RGA Models
 - [`plot(`*`<duane>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.duane.md)
   : Plot Method for Duane Analysis
+- [`plot(`*`<duane_predict>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.duane_predict.md)
+  : Plot Method for duane_predict Objects
 - [`plot(`*`<exposure>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.exposure.md)
   : Plot Method for exposure Objects.
 - [`plot(`*`<mcf>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/plot.mcf.md)
@@ -32,14 +36,20 @@
   : Plot Method for rga_predict Objects
 - [`ppplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/ppplot.rga.md)
   : P-P Plot for RGA Objects
+- [`predict_duane()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_duane.md)
+  : Forecast MTBF from a Duane Model
 - [`predict_nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_nhpp.md)
   : Forecast Cumulative Events from an NHPP Model.
 - [`predict_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.md)
   : Forecast Cumulative Failures from a Reliability Growth Model
 - [`print(`*`<duane>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane.md)
   : Print method for duane objects.
+- [`print(`*`<duane_predict>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane_predict.md)
+  : Print Method for duane_predict Objects
 - [`print(`*`<exposure>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.exposure.md)
   : Print Method for exposure Objects.
+- [`print(`*`<gof>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.gof.md)
+  : Print Method for gof Objects
 - [`print(`*`<mcf>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.mcf.md)
   : Print Method for mcf Objects.
 - [`print(`*`<nhpp>`*`)`](https://paulgovan.github.io/ReliaGrowR/reference/print.nhpp.md)
@@ -58,6 +68,8 @@
   Reliability Demonstration Test (RDT) Plan Calculator
 - [`rga()`](https://paulgovan.github.io/ReliaGrowR/reference/rga.md) :
   Reliability Growth Analysis.
+- [`rga_mcp_server()`](https://paulgovan.github.io/ReliaGrowR/reference/rga_mcp_server.md)
+  : Start the ReliaGrowR MCP Server
 - [`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md)
   : Simulate Failures from a Conditional Weibull Model
 - [`testdata`](https://paulgovan.github.io/ReliaGrowR/reference/testdata.md)

@@ -9,7 +9,7 @@ cumulative time. The function accepts either two numeric vectors
 ## Usage
 
 ``` r
-duane(times, failures = NULL, conf.level = 0.95)
+duane(times, failures = NULL, conf_level = 0.95, conf.level = NULL)
 ```
 
 ## Arguments
@@ -31,10 +31,14 @@ duane(times, failures = NULL, conf.level = 0.95)
   length as `times` if both are vectors. All values must be positive and
   finite.
 
-- conf.level:
+- conf_level:
 
   Confidence level for the confidence bounds (default: `0.95`). Must be
   between 0 and 1 (exclusive).
+
+- conf.level:
+
+  Deprecated. Use `conf_level` instead.
 
 ## Value
 
@@ -73,7 +77,7 @@ A list of class `"duane"` containing:
 
   Bayesian Information Criterion (BIC).
 
-- conf.level:
+- conf_level:
 
   The confidence level.
 
@@ -116,14 +120,17 @@ and includes unit tests to verify correctness and performance.
 
 Other Duane functions:
 [`plot.duane()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.duane.md),
-[`print.duane()`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane.md)
+[`plot.duane_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/plot.duane_predict.md),
+[`predict_duane()`](https://paulgovan.github.io/ReliaGrowR/reference/predict_duane.md),
+[`print.duane()`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane.md),
+[`print.duane_predict()`](https://paulgovan.github.io/ReliaGrowR/reference/print.duane_predict.md)
 
 ## Examples
 
 ``` r
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
-fit1 <- duane(times, failures, conf.level = 0.90)
+fit1 <- duane(times, failures, conf_level = 0.90)
 print(fit1)
 #> Duane Analysis Result
 #> ----------------------
@@ -141,7 +148,7 @@ print(fit1)
 #> Confidence level: 90.0%
 
 df <- data.frame(times = times, failures = failures)
-fit2 <- duane(df, conf.level = 0.95)
+fit2 <- duane(df, conf_level = 0.95)
 print(fit2)
 #> Duane Analysis Result
 #> ----------------------

@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Reliability Growth Forecasting • ReliaGrowR</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Reliability Growth Forecasting">
 </head>
@@ -30,15 +30,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/data.html">Reliability Data Management</a></li>
-    <li><a class="dropdown-item" href="../articles/RGA.html">Reliability Growth Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/RGF.html">Reliability Growth Forecasting</a></li>
-    <li><a class="dropdown-item" href="../articles/RSA.html">Repairable Systems Analysis</a></li>
-  </ul>
-</li>
+<li class="active nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -61,7 +53,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Reliability Growth Forecasting</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/v0.6/vignettes/RGF.Rmd" class="external-link"><code>vignettes/RGF.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/main/vignettes/RGF.Rmd" class="external-link"><code>vignettes/RGF.Rmd</code></a></small>
       <div class="d-none name"><code>RGF.Rmd</code></div>
     </div>
 
@@ -194,7 +186,7 @@ the test campaign.</p>
 <p>The Crow-AMSAA model provides an intensity function that can be
 extrapolated to forecast future failures. The cumulative failure
 function is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>λ</mi><mspace width="0.167em"></mspace><msup><mi>t</mi><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub></msup></mrow><annotation encoding="application/x-tex">N(t) = \lambda \, t^{\beta_{\text{growth}}}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>λ</mi><mspace width="0.167em"></mspace><msup><mi>t</mi><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub></msup></mrow><annotation encoding="application/x-tex">N(t) = \lambda \, t^{\beta_{\text{growth}}}</annotation></semantics></math>,
 and solving for the cumulative time
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>f</mi></msub><annotation encoding="application/x-tex">t_f</annotation></semantics></math>
 at which a target number of total failures is reached gives:</p>

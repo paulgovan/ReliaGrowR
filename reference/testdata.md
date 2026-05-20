@@ -61,22 +61,22 @@ head(testdata)
 #> 5  G1    84.0             5     16.8        13    1     D
 #> 6  G1   215.0             6     35.6        25    1     D
 summary(testdata)
-#>      LRU               Cum_ETI       Failure_Count    Cum_MTBF    
-#>  Length:25          Min.   :   4.9   Min.   : 1    Min.   :  4.9  
-#>  Class :character   1st Qu.: 215.0   1st Qu.: 4    1st Qu.: 31.3  
-#>  Mode  :character   Median : 349.0   Median : 7    Median : 70.4  
-#>                     Mean   : 780.3   Mean   : 7    Mean   : 89.7  
-#>                     3rd Qu.:1503.0   3rd Qu.:10    3rd Qu.:143.4  
-#>                     Max.   :2502.0   Max.   :15    Max.   :235.5  
-#>                                                                   
-#>    Report_No           Flag           Cause          
-#>  Min.   :  2.00   Min.   : 0.000   Length:25         
-#>  1st Qu.: 21.00   1st Qu.: 1.000   Class :character  
-#>  Median : 36.00   Median : 1.000   Mode  :character  
-#>  Mean   : 54.36   Mean   : 7.609                     
-#>  3rd Qu.: 98.00   3rd Qu.:14.500                     
-#>  Max.   :125.00   Max.   :28.000                     
-#>                   NA's   :2                          
+#>         LRU        Cum_ETI       Failure_Count    Cum_MTBF       Report_No     
+#>  Length   :25   Min.   :   4.9   Min.   : 1    Min.   :  4.9   Min.   :  2.00  
+#>  N.unique : 2   1st Qu.: 215.0   1st Qu.: 4    1st Qu.: 31.3   1st Qu.: 21.00  
+#>  N.blank  : 0   Median : 349.0   Median : 7    Median : 70.4   Median : 36.00  
+#>  Min.nchar: 2   Mean   : 780.3   Mean   : 7    Mean   : 89.7   Mean   : 54.36  
+#>  Max.nchar: 2   3rd Qu.:1503.0   3rd Qu.:10    3rd Qu.:143.4   3rd Qu.: 98.00  
+#>                 Max.   :2502.0   Max.   :15    Max.   :235.5   Max.   :125.00  
+#>                                                                                
+#>       Flag              Cause   
+#>  Min.   : 0.000   Length   :25  
+#>  1st Qu.: 1.000   N.unique : 4  
+#>  Median : 1.000   N.blank  : 0  
+#>  Mean   : 7.609   Min.nchar: 1  
+#>  3rd Qu.:14.500   Max.nchar: 2  
+#>  Max.   :28.000                 
+#>  NAs    :2                      
 str(testdata)
 #> 'data.frame':    25 obs. of  7 variables:
 #>  $ LRU          : chr  "G1" "G1" "G1" "G1" ...

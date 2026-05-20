@@ -34,6 +34,8 @@ A P-P plot comparing empirical and theoretical CDFs.
 ## See also
 
 Other goodness-of-fit:
+[`gof()`](https://paulgovan.github.io/ReliaGrowR/reference/gof.md),
+[`print.gof()`](https://paulgovan.github.io/ReliaGrowR/reference/print.gof.md),
 [`qqplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/qqplot.rga.md)
 
 ## Examples

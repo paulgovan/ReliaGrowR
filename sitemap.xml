@@ -4,6 +4,8 @@
 <url><loc>https://paulgovan.github.io/ReliaGrowR/CODE_OF_CONDUCT.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/CONTRIBUTING.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/LICENSE.html</loc></url>
+<url><loc>https://paulgovan.github.io/ReliaGrowR/articles/MCP.html</loc></url>
+<url><loc>https://paulgovan.github.io/ReliaGrowR/articles/RDT.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/articles/RGA.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/articles/RGF.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/articles/RSA.html</loc></url>
@@ -15,13 +17,16 @@
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/ReliaGrowR-package.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/duane.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/exposure.html</loc></url>
+<url><loc>https://paulgovan.github.io/ReliaGrowR/reference/gof.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/grwr_api.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/index.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/mcf.html</loc></url>
+<url><loc>https://paulgovan.github.io/ReliaGrowR/reference/mcp.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/nhpp.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/overlay_nhpp.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/overlay_rga.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/plot.duane.html</loc></url>
+<url><loc>https://paulgovan.github.io/ReliaGrowR/reference/plot.duane_predict.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/plot.exposure.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/plot.mcf.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/plot.nhpp.html</loc></url>
@@ -29,10 +34,13 @@
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/plot.rga.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/plot.rga_predict.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/ppplot.rga.html</loc></url>
+<url><loc>https://paulgovan.github.io/ReliaGrowR/reference/predict_duane.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/predict_nhpp.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/predict_rga.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/print.duane.html</loc></url>
+<url><loc>https://paulgovan.github.io/ReliaGrowR/reference/print.duane_predict.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/print.exposure.html</loc></url>
+<url><loc>https://paulgovan.github.io/ReliaGrowR/reference/print.gof.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/print.mcf.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/print.nhpp.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/print.nhpp_predict.html</loc></url>
@@ -42,6 +50,7 @@
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/qqplot.rga.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/rdt.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/rga.html</loc></url>
+<url><loc>https://paulgovan.github.io/ReliaGrowR/reference/rga_mcp_server.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/testdata.html</loc></url>
 <url><loc>https://paulgovan.github.io/ReliaGrowR/reference/weibull_to_rga.html</loc></url>
