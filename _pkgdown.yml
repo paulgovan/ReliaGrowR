@@ -7,10 +7,10 @@ articles:
   - title: "Reliability Growth Analysis"
     contents: RGA
   - title: "Reliability Growth Forecasting"
-    contents: RGA
+    contents: RGF
   - title: "Reliability Demonstration Testing"
     contents: RDT
   - title: "Repairable Systems Analysis"
     contents: RSA
   - title: "AI Integration via MCP"
-    contents: RGA
+    contents: MCP
