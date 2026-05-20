@@ -249,6 +249,18 @@ nhpp <- function(time, event = NULL, data = NULL,
                  method = c("MLE", "LS"),
                  conf_level = 0.95) {
 
+  # Accept mcf S3 objects directly; extract time, MCF values, and n_systems
+  mcf_input <- !missing(time) && inherits(time, "mcf")
+  mcf_vals <- NULL
+  n_sys <- NULL
+  if (mcf_input) {
+    mcf_obj  <- time
+    time     <- mcf_obj$time
+    mcf_vals <- mcf_obj$mcf
+    n_sys    <- mcf_obj$n_systems
+    event    <- NULL
+  }
+
   # Extract from data frame
   if (!is.null(data)) {
     if (!is.data.frame(data)) {
@@ -278,21 +290,23 @@ nhpp <- function(time, event = NULL, data = NULL,
     stop("'time' must be strictly increasing.")
   }
 
-  # Validate event
-  if (is.null(event)) {
-    event <- rep(1, length(time))
-  }
-  if (!is.numeric(event) || !is.vector(event)) {
-    stop("'event' must be a numeric vector.")
-  }
-  if (length(event) != length(time)) {
-    stop("'event' and 'time' must have the same length.")
-  }
-  if (any(is.na(event)) || any(is.nan(event))) {
-    stop("'event' contains missing (NA) or NaN values.")
-  }
-  if (any(!is.finite(event)) || any(event <= 0)) {
-    stop("All values in 'event' must be finite and > 0.")
+  # Validate event (skipped when input is an mcf object; counts are derived later)
+  if (!mcf_input) {
+    if (is.null(event)) {
+      event <- rep(1, length(time))
+    }
+    if (!is.numeric(event) || !is.vector(event)) {
+      stop("'event' must be a numeric vector.")
+    }
+    if (length(event) != length(time)) {
+      stop("'event' and 'time' must have the same length.")
+    }
+    if (any(is.na(event)) || any(is.nan(event))) {
+      stop("'event' contains missing (NA) or NaN values.")
+    }
+    if (any(!is.finite(event)) || any(event <= 0)) {
+      stop("All values in 'event' must be finite and > 0.")
+    }
   }
 
   # Validate model_type
@@ -335,12 +349,24 @@ nhpp <- function(time, event = NULL, data = NULL,
     stop("'conf_level' must be between 0 and 1 (exclusive).")
   }
 
-  cum_events <- cumsum(event)
-  n_obs <- length(event)
+  cum_events <- if (mcf_input) mcf_vals else cumsum(event)
+  n_obs <- length(time)
+
+  # For MLE paths, derive approximate interval counts from MCF increments
+  if (mcf_input) {
+    event <- pmax(round(diff(c(0, mcf_vals)) * n_sys), 1L)
+  }
 
   # ---- Log-Linear MLE ----
   if (valid_model == "log-linear") {
     mle <- .fit_mle_loglinear(time, event, conf_level)
+    if (mcf_input) {
+      mle$fitted_values <- mle$fitted_values / n_sys
+      mle$lower_bounds  <- mle$lower_bounds  / n_sys
+      mle$upper_bounds  <- mle$upper_bounds  / n_sys
+      mle$a             <- mle$a - log(n_sys)
+      mle$residuals     <- mcf_vals - mle$fitted_values
+    }
     result <- list(
       time          = time,
       event         = event,
@@ -360,6 +386,7 @@ nhpp <- function(time, event = NULL, data = NULL,
       AIC           = mle$aic,
       BIC           = mle$bic,
       breakpoints   = NULL,
+      mcf_input     = mcf_input,
       conf_level    = conf_level
     )
     class(result) <- "nhpp"
@@ -368,10 +395,20 @@ nhpp <- function(time, event = NULL, data = NULL,
 
   # ---- Power Law ----
   log_times <- log(time)
-  log_cum_events <- log(cum_events)
+  log_cum_events <- log(cum_events)  # cum_events = mcf_vals when mcf_input is TRUE
 
   if (method == "MLE") {
     mle <- .fit_mle_power(time, event, conf_level)
+    if (mcf_input) {
+      mle$fitted_values <- mle$fitted_values / n_sys
+      mle$lower_bounds  <- mle$lower_bounds  / n_sys
+      mle$upper_bounds  <- mle$upper_bounds  / n_sys
+      mle$lambda        <- mle$lambda        / n_sys
+      mle$vcov[1, 2]    <- mle$vcov[1, 2]   / n_sys
+      mle$vcov[2, 1]    <- mle$vcov[2, 1]   / n_sys
+      mle$vcov[2, 2]    <- mle$vcov[2, 2]   / n_sys^2
+      mle$residuals     <- mcf_vals - mle$fitted_values
+    }
     result <- list(
       time          = time,
       event         = event,
@@ -391,6 +428,7 @@ nhpp <- function(time, event = NULL, data = NULL,
       AIC           = mle$aic,
       BIC           = mle$bic,
       breakpoints   = NULL,
+      mcf_input     = mcf_input,
       conf_level    = conf_level
     )
     class(result) <- "nhpp"
@@ -464,6 +502,7 @@ nhpp <- function(time, event = NULL, data = NULL,
     AIC           = aic,
     BIC           = bic,
     breakpoints   = bp,
+    mcf_input     = mcf_input,
     conf_level    = conf_level
   )
   class(result) <- "nhpp"
@@ -494,6 +533,7 @@ print.nhpp <- function(x, ...) {
   cat("---------------------------------------\n")
   cat("Model Type:", x$model_type, "\n")
   cat("Estimation Method:", x$method, "\n")
+  if (isTRUE(x$mcf_input)) cat("Fitted to: Mean Cumulative Function (MCF)\n")
   cat(sprintf("Number of observations: %d\n\n", x$n_obs))
 
   if (!is.null(x$breakpoints)) {
@@ -561,7 +601,11 @@ plot.nhpp <- function(x,
     stop("'legend_pos' must be a single character string.")
   }
 
-  graphics::plot(x$time, x$cum_events, pch = 16, ...)
+  plot_args <- list(...)
+  if (isTRUE(x$mcf_input) && is.null(plot_args$ylab)) {
+    plot_args$ylab <- "Mean Cumulative Function"
+  }
+  do.call(graphics::plot, c(list(x$time, x$cum_events, pch = 16), plot_args))
   graphics::lines(x$time, x$fitted_values)
 
   if (conf_bounds) {

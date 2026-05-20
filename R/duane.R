@@ -93,8 +93,9 @@
 #'   time in `times`. Ignored if `times` is a data frame. Must be the same length as
 #'   `times` if both are vectors.
 #'   All values must be positive and finite.
-#' @param conf.level Confidence level for the confidence bounds (default: `0.95`).
+#' @param conf_level Confidence level for the confidence bounds (default: `0.95`).
 #'   Must be between 0 and 1 (exclusive).
+#' @param conf.level Deprecated. Use `conf_level` instead.
 #'
 #' @family Duane functions
 #'
@@ -107,7 +108,7 @@
 #' \item{logLik}{The log-likelihood of the fitted model.}
 #' \item{AIC}{Akaike Information Criterion (AIC).}
 #' \item{BIC}{Bayesian Information Criterion (BIC).}
-#' \item{conf.level}{The confidence level.}
+#' \item{conf_level}{The confidence level.}
 #' \item{Cumulative_Time}{The cumulative operating times.}
 #' \item{Cumulative_MTBF}{The cumulative mean time between failures.}
 #' \item{Fitted_Values}{The fitted values on the MTBF scale.}
@@ -127,16 +128,20 @@
 #' @examples
 #' times <- c(100, 200, 300, 400, 500)
 #' failures <- c(1, 2, 1, 3, 2)
-#' fit1 <- duane(times, failures, conf.level = 0.90)
+#' fit1 <- duane(times, failures, conf_level = 0.90)
 #' print(fit1)
 #'
 #' df <- data.frame(times = times, failures = failures)
-#' fit2 <- duane(df, conf.level = 0.95)
+#' fit2 <- duane(df, conf_level = 0.95)
 #' print(fit2)
 #'
 #' @importFrom stats lm AIC BIC logLik predict residuals
 #' @export
-duane <- function(times, failures = NULL, conf.level = 0.95) {
+duane <- function(times, failures = NULL, conf_level = 0.95, conf.level = NULL) {
+  if (!is.null(conf.level)) {
+    warning("'conf.level' is deprecated; use 'conf_level' instead.")
+    conf_level <- conf.level
+  }
   # Case 1: data frame input
   if (is.data.frame(times)) {
     if (!all(c("times", "failures") %in% names(times))) {
@@ -176,11 +181,11 @@ duane <- function(times, failures = NULL, conf.level = 0.95) {
   if (any(!is.finite(failures)) || any(failures <= 0)) {
     stop("All values in 'failures' must be finite and > 0.")
   }
-  if (!is.numeric(conf.level) || length(conf.level) != 1) {
-    stop("'conf.level' must be a single numeric value.")
+  if (!is.numeric(conf_level) || length(conf_level) != 1) {
+    stop("'conf_level' must be a single numeric value.")
   }
-  if (conf.level <= 0 || conf.level >= 1) {
-    stop("'conf.level' must be between 0 and 1 (exclusive).")
+  if (conf_level <= 0 || conf_level >= 1) {
+    stop("'conf_level' must be between 0 and 1 (exclusive).")
   }
 
   # Cumulative times & failures
@@ -210,8 +215,8 @@ duane <- function(times, failures = NULL, conf.level = 0.95) {
   residuals_mtbf <- cum_mtbf - fitted_values
 
   # confidence intervals on MTBF scale
-  pred <- predict(fit, interval = "confidence", level = conf.level)
-  conf_intervals <- stats::predict(fit, interval = "confidence", level = conf.level)
+  pred <- predict(fit, interval = "confidence", level = conf_level)
+  conf_intervals <- stats::predict(fit, interval = "confidence", level = conf_level)
   ci_bounds <- exp(pred)
   lower_bounds <- exp(conf_intervals[, "lwr"])
   upper_bounds <- exp(conf_intervals[, "upr"])
@@ -225,7 +230,7 @@ duane <- function(times, failures = NULL, conf.level = 0.95) {
     logLik = loglik,
     AIC = aic,
     BIC = bic,
-    conf.level = conf.level,
+    conf_level = conf_level,
     Cumulative_Time = cum_times,
     Cumulative_MTBF = cum_mtbf,
     Fitted_Values = fitted_values,
@@ -327,8 +332,8 @@ print.duane <- function(x, ...) {
   cat(sprintf("\nAIC: %.2f, BIC: %.2f", x$AIC, x$BIC))
 
   # Confidence level, if used
-  if (!is.null(x$conf.level)) {
-    cat(sprintf("\nConfidence level: %.1f%%", 100 * x$conf.level))
+  if (!is.null(x$conf_level)) {
+    cat(sprintf("\nConfidence level: %.1f%%", 100 * x$conf_level))
   }
 
   cat("\n")
@@ -389,9 +394,11 @@ print.duane <- function(x, ...) {
 #'
 #' @param x An object of class \code{"duane"}.
 #' @param log Logical; whether to use logarithmic scales for axes (default: \code{TRUE}).
-#' @param conf.int Logical; whether to plot confidence bounds (default: \code{TRUE}).
+#' @param conf_bounds Logical; whether to plot confidence bounds (default: \code{TRUE}).
 #' @param legend Logical; whether to include a legend (default: TRUE).
-#' @param legend.pos Position of the legend (default: "topleft").
+#' @param legend_pos Position of the legend (default: "topleft").
+#' @param conf.int Deprecated. Use `conf_bounds` instead.
+#' @param legend.pos Deprecated. Use `legend_pos` instead.
 #' @param ... Further arguments passed to \code{plot()}.
 #' @family Duane functions
 #'
@@ -406,10 +413,20 @@ print.duane <- function(x, ...) {
 plot.duane <- function(
     x,
     log = TRUE,
-    conf.int = TRUE,
+    conf_bounds = TRUE,
     legend = TRUE,
-    legend.pos = "topleft",
+    legend_pos = "topleft",
+    conf.int = NULL,
+    legend.pos = NULL,
     ...) {
+  if (!is.null(conf.int)) {
+    warning("'conf.int' is deprecated; use 'conf_bounds' instead.")
+    conf_bounds <- conf.int
+  }
+  if (!is.null(legend.pos)) {
+    warning("'legend.pos' is deprecated; use 'legend_pos' instead.")
+    legend_pos <- legend.pos
+  }
   # Input validation
   if (!inherits(x, "duane")) {
     stop("'x' must be an object of class 'duane'.")
@@ -417,14 +434,14 @@ plot.duane <- function(
   if (!is.logical(log) || length(log) != 1) {
     stop("'log' must be a single logical value.")
   }
-  if (!is.logical(conf.int) || length(conf.int) != 1) {
-    stop("'conf.int' must be a single logical value.")
+  if (!is.logical(conf_bounds) || length(conf_bounds) != 1) {
+    stop("'conf_bounds' must be a single logical value.")
   }
   if (!is.logical(legend) || length(legend) != 1) {
     stop("'legend' must be a single logical value.")
   }
-  if (!is.character(legend.pos) || length(legend.pos) != 1) {
-    stop("'legend.pos' must be a single character string.")
+  if (!is.character(legend_pos) || length(legend_pos) != 1) {
+    stop("'legend_pos' must be a single character string.")
   }
 
   cum_time <- x$Cumulative_Time
@@ -445,7 +462,7 @@ plot.duane <- function(
   graphics::lines(cum_time, x$Fitted_Values, lty = 1)
 
   # confidence bounds (optional)
-  if (conf.int && !is.null(x$Confidence_Bounds)) {
+  if (conf_bounds && !is.null(x$Confidence_Bounds)) {
     graphics::lines(cum_time, x$Confidence_Bounds[, "lwr"], lty = 2)
     graphics::lines(cum_time, x$Confidence_Bounds[, "upr"], lty = 2)
   }
@@ -456,17 +473,245 @@ plot.duane <- function(
     pch <- c(16, NA)
     lty <- c(NA, 1)
 
-    if (conf.int && !is.null(x$Confidence_Bounds)) {
+    if (conf_bounds && !is.null(x$Confidence_Bounds)) {
       legend_items <- c(legend_items, "Confidence Bounds")
       pch <- c(pch, NA)
       lty <- c(lty, 2)
     }
 
     graphics::legend(
-      legend.pos,
+      legend_pos,
       legend = legend_items,
       pch = pch,
       lty = lty,
+      bty = "n"
+    )
+  }
+
+  invisible(NULL)
+}
+
+#' Forecast MTBF from a Duane Model
+#'
+#' Takes a fitted \code{duane} object and a vector of cumulative times, returning
+#' predicted MTBF with confidence bounds as a \code{duane_predict} S3 object.
+#'
+#' @srrstats {G1.4} \code{roxygen2} documentation is used to document all functions.
+#' @srrstats {G2.0} Inputs are validated for length.
+#' @srrstats {G2.1} Inputs are validated for type.
+#' @srrstats {G2.8} Sub-functions \code{print.duane_predict} and
+#'   \code{plot.duane_predict} are provided for the \code{duane_predict} class.
+#' @srrstats {G2.13} The function checks for missing data and errors if any is found.
+#' @srrstats {G2.14a} Missing data results in an error.
+#' @srrstats {G2.14b} Missing data results in an error.
+#' @srrstats {G2.14c} Missing data results in an error.
+#' @srrstats {G5.2} Unit tests demonstrate error messages and compare results with expected values.
+#' @srrstats {G5.2a} Every message produced by \code{stop()} is unique.
+#' @srrstats {G5.2b} Unit tests demonstrate error messages and compare results with expected values.
+#'
+#' @param object An object of class \code{duane} returned by \code{duane()}.
+#' @param times A numeric vector of cumulative times at which to forecast MTBF.
+#'   All values must be finite and > 0. A warning is issued if any value is at
+#'   or below the maximum observed cumulative time (hindcasting).
+#' @param conf_level The desired confidence level (default \code{0.95}). Must
+#'   be a single finite numeric in (0, 1).
+#' @family Duane functions
+#' @return An object of class \code{duane_predict} containing:
+#' \item{times}{The forecast cumulative times.}
+#' \item{mtbf}{Predicted MTBF values.}
+#' \item{lower_bounds}{Lower confidence bounds on MTBF.}
+#' \item{upper_bounds}{Upper confidence bounds on MTBF.}
+#' \item{conf_level}{The confidence level used.}
+#' \item{duane_object}{The original \code{duane} object (used by the plot method).}
+#' @examples
+#' times <- c(100, 200, 300, 400, 500)
+#' failures <- c(1, 2, 1, 3, 2)
+#' fit <- duane(times, failures)
+#' fc <- predict_duane(fit, times = c(1000, 2000))
+#' print(fc)
+#' @importFrom stats predict
+#' @export
+predict_duane <- function(object, times, conf_level = 0.95) {
+  if (!inherits(object, "duane")) {
+    stop("'object' must be an object of class 'duane'.")
+  }
+  if (!is.numeric(times) || !is.vector(times)) {
+    stop("'times' must be a numeric vector.")
+  }
+  if (length(times) == 0) {
+    stop("'times' cannot be empty.")
+  }
+  if (any(is.na(times)) || any(is.nan(times))) {
+    stop("'times' contains missing (NA) or NaN values.")
+  }
+  if (any(!is.finite(times)) || any(times <= 0)) {
+    stop("All values in 'times' must be finite and > 0.")
+  }
+  if (!is.numeric(conf_level) || length(conf_level) != 1) {
+    stop("'conf_level' must be a single numeric value.")
+  }
+  if (!is.finite(conf_level) || conf_level <= 0 || conf_level >= 1) {
+    stop("'conf_level' must be between 0 and 1 (exclusive).")
+  }
+
+  max_obs_time <- max(object$Cumulative_Time)
+  if (any(times <= max_obs_time)) {
+    warning(
+      "Some 'times' values are <= the maximum observed cumulative time. ",
+      "Hindcasting is allowed but may not be meaningful."
+    )
+  }
+
+  newdata <- data.frame(log_cum_times = log(times))
+  pred <- stats::predict(object$model, newdata = newdata,
+                         interval = "confidence", level = conf_level)
+
+  result <- list(
+    times        = times,
+    mtbf         = exp(pred[, "fit"]),
+    lower_bounds = exp(pred[, "lwr"]),
+    upper_bounds = exp(pred[, "upr"]),
+    conf_level   = conf_level,
+    duane_object = object
+  )
+  class(result) <- "duane_predict"
+  result
+}
+
+#' Print Method for duane_predict Objects
+#'
+#' Prints a formatted table of forecast MTBF with confidence bounds.
+#'
+#' @srrstats {G1.4} \code{roxygen2} documentation is used to document all functions.
+#' @srrstats {G2.8} This method is provided for the \code{duane_predict} class.
+#' @srrstats {G5.2} Unit tests demonstrate output content.
+#'
+#' @param x An object of class \code{duane_predict}.
+#' @param ... Additional arguments (not used).
+#' @family Duane functions
+#' @return Invisibly returns the input object.
+#' @examples
+#' times <- c(100, 200, 300, 400, 500)
+#' failures <- c(1, 2, 1, 3, 2)
+#' fit <- duane(times, failures)
+#' fc <- predict_duane(fit, times = c(1000, 2000))
+#' print(fc)
+#' @export
+print.duane_predict <- function(x, ...) {
+  if (!inherits(x, "duane_predict")) {
+    stop("'x' must be an object of class 'duane_predict'.")
+  }
+
+  pct <- round(x$conf_level * 100)
+  header <- "Duane MTBF Forecast"
+  cat(header, "\n")
+  cat(paste(rep("-", nchar(header) + 1), collapse = ""), "\n")
+
+  df <- data.frame(
+    Time  = x$times,
+    MTBF  = round(x$mtbf, 2),
+    Lower = round(x$lower_bounds, 2),
+    Upper = round(x$upper_bounds, 2),
+    check.names = FALSE
+  )
+  names(df)[3] <- sprintf("Lower (%d%%)", pct)
+  names(df)[4] <- sprintf("Upper (%d%%)", pct)
+
+  print(df, row.names = FALSE)
+  invisible(x)
+}
+
+#' Plot Method for duane_predict Objects
+#'
+#' Plots observed MTBF, fitted Duane curve, and forecast with optional confidence
+#' bounds for a \code{duane_predict} object.
+#'
+#' @srrstats {G1.4} \code{roxygen2} documentation is used to document all functions.
+#' @srrstats {G2.0} Inputs are validated for length.
+#' @srrstats {G2.1} Inputs are validated for type.
+#' @srrstats {G2.8} This method is provided for the \code{duane_predict} class.
+#'
+#' @param x An object of class \code{duane_predict}.
+#' @param conf_bounds Logical; include confidence bounds (default: \code{TRUE}).
+#' @param legend Logical; show the legend (default: \code{TRUE}).
+#' @param legend_pos Position of the legend (default: \code{"topleft"}).
+#' @param ... Additional arguments passed to \code{plot()}.
+#' @family Duane functions
+#' @return Invisibly returns \code{NULL}.
+#' @examples
+#' times <- c(100, 200, 300, 400, 500)
+#' failures <- c(1, 2, 1, 3, 2)
+#' fit <- duane(times, failures)
+#' fc <- predict_duane(fit, times = c(1000, 2000))
+#' plot(fc, main = "Duane Forecast", xlab = "Cumulative Time", ylab = "MTBF")
+#' @importFrom graphics legend lines plot points
+#' @export
+plot.duane_predict <- function(x,
+                               conf_bounds = TRUE,
+                               legend = TRUE,
+                               legend_pos = "topleft",
+                               ...) {
+  if (!inherits(x, "duane_predict")) {
+    stop("'x' must be an object of class 'duane_predict'.")
+  }
+  if (!is.logical(conf_bounds) || length(conf_bounds) != 1) {
+    stop("'conf_bounds' must be a single logical value.")
+  }
+  if (!is.logical(legend) || length(legend) != 1) {
+    stop("'legend' must be a single logical value.")
+  }
+  if (!is.character(legend_pos) || length(legend_pos) != 1) {
+    stop("'legend_pos' must be a single character string.")
+  }
+
+  d <- x$duane_object
+  obs_x <- d$Cumulative_Time
+  obs_y <- d$Cumulative_MTBF
+  fit_y <- d$Fitted_Values
+  fcast_x <- x$times
+  fcast_y <- x$mtbf
+
+  all_x <- c(obs_x, fcast_x)
+  all_y <- c(obs_y, fcast_y)
+  if (conf_bounds) {
+    all_y <- c(all_y, x$lower_bounds, x$upper_bounds,
+                d$lower_bounds, d$upper_bounds)
+  }
+
+  graphics::plot(obs_x, obs_y,
+    xlim = range(all_x, finite = TRUE),
+    ylim = range(all_y[all_y > 0], finite = TRUE),
+    pch = 16,
+    log = "xy",
+    ...
+  )
+  graphics::lines(obs_x, fit_y, lty = 1)
+  graphics::points(fcast_x, fcast_y, pch = 17, col = "blue")
+  graphics::lines(fcast_x, fcast_y, lty = 2, col = "blue")
+
+  if (conf_bounds) {
+    graphics::lines(obs_x, d$lower_bounds, lty = 3)
+    graphics::lines(obs_x, d$upper_bounds, lty = 3)
+    graphics::lines(fcast_x, x$lower_bounds, lty = 3, col = "blue")
+    graphics::lines(fcast_x, x$upper_bounds, lty = 3, col = "blue")
+  }
+
+  if (legend) {
+    legend_items <- c("Observed", "Fitted", "Forecast")
+    pch_vals <- c(16, NA, 17)
+    lty_vals <- c(NA, 1, 2)
+    col_vals <- c("black", "black", "blue")
+    if (conf_bounds) {
+      legend_items <- c(legend_items, "Conf. Bounds")
+      pch_vals <- c(pch_vals, NA)
+      lty_vals <- c(lty_vals, 3)
+      col_vals <- c(col_vals, "black")
+    }
+    graphics::legend(legend_pos,
+      legend = legend_items,
+      pch = pch_vals,
+      lty = lty_vals,
+      col = col_vals,
       bty = "n"
     )
   }

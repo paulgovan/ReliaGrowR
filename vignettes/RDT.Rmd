@@ -1,0 +1,114 @@
+---
+title: "Reliability Demonstration Test Planning"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Reliability Demonstration Test Planning}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+```{r setup}
+library(ReliaGrowR)
+```
+
+## Overview
+
+A **Reliability Demonstration Test (RDT)** provides statistical evidence that a
+product meets its reliability requirement. The `rdt()` function computes either:
+
+- the **required test time** given a fixed sample size, or
+- the **required sample size** given a fixed test duration.
+
+The calculation uses the Weibull distribution; setting `beta = 1` (the default)
+gives the exponential special case.
+
+## Test Time
+
+For a zero-failure test plan (`f = 0`), the required cumulative test time $T$
+for $n$ units satisfying reliability $R$ at mission time $t_m$ with confidence
+$C$ is:
+
+$$T = t_m \left(\frac{-\ln C}{-\ln R}\right)^{1/\beta}$$
+
+When allowable failures $f > 0$, the chi-squared quantile replaces $-\ln C$:
+
+$$T = \frac{t_m}{(-\ln R)^{1/\beta}} \cdot \left(\frac{\chi^2_{1-C,\,2(f+1)}}{2n}\right)^{1/\beta}$$
+
+## Solving for Test Time
+
+Suppose you need to demonstrate 90% reliability at 500 hours with 90%
+confidence, and you have 20 units available for testing:
+
+```{r solve-time}
+plan <- rdt(
+  target       = 0.90,   # 90% reliability
+  mission_time = 500,    # hours
+  conf_level   = 0.90,   # 90% confidence
+  n            = 20      # 20 test units
+)
+print(plan)
+```
+
+Each unit must be tested for `Required_Test_Time` hours (or failure, whichever
+comes first) with zero failures allowed.
+
+## Solving for Sample Size
+
+Alternatively, fix the test duration at 800 hours per unit:
+
+```{r solve-n}
+plan2 <- rdt(
+  target       = 0.90,
+  mission_time = 500,
+  conf_level   = 0.90,
+  test_time    = 800
+)
+print(plan2)
+```
+
+## Effect of Weibull Shape
+
+For products with wear-out (`beta > 1`) or infant mortality (`beta < 1`), the
+Weibull shape parameter changes the required test time. Here we compare three
+scenarios:
+
+```{r weibull-shape}
+betas <- c(0.8, 1.0, 1.5)
+for (b in betas) {
+  p <- rdt(target = 0.90, mission_time = 500, conf_level = 0.90, n = 20, beta = b)
+  cat(sprintf("beta = %.1f  ->  required test time = %.1f hours\n",
+              b, p$Required_Test_Time))
+}
+```
+
+Higher beta (wear-out) demands shorter tests because failures concentrate near
+end-of-life; lower beta (infant mortality) demands longer tests.
+
+## Allowing Failures
+
+A zero-failure plan is conservative. Allowing a small number of failures can
+substantially reduce the test burden:
+
+```{r allow-failures}
+for (f in 0:3) {
+  p <- rdt(target = 0.90, mission_time = 500, conf_level = 0.90, n = 20, f = f)
+  cat(sprintf("f = %d  ->  required test time = %.1f hours\n",
+              f, p$Required_Test_Time))
+}
+```
+
+## Summary
+
+| Parameter | Role |
+|---|---|
+| `target` | Required reliability R(t_m) |
+| `mission_time` | The time at which reliability is evaluated |
+| `conf_level` | Statistical confidence in the demonstration |
+| `beta` | Weibull shape (1 = exponential) |
+| `f` | Allowable failures (0 = most conservative) |
+| `n` | Sample size → solves for test time |
+| `test_time` | Test duration per unit → solves for sample size |

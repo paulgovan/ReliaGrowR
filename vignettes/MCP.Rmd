@@ -1,0 +1,115 @@
+---
+title: "AI Integration via MCP"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{AI Integration via MCP}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+## Overview
+
+ReliaGrowR can expose its core analysis functions as **Model Context Protocol (MCP)
+tools**, allowing AI assistants such as Claude to call them directly during a
+conversation. This is powered by the
+[mcptools](https://posit-dev.github.io/mcptools/) package from Posit.
+
+Once configured, an AI assistant can:
+
+- Fit reliability growth models on data you describe
+- Forecast future failures or MTBF
+- Run goodness-of-fit tests
+- Plan reliability demonstration tests
+- Analyze repairable systems with MCF and NHPP models
+
+## Installation
+
+Install the required packages:
+
+```r
+install.packages("mcptools")   # MCP server framework
+install.packages("ellmer")     # Tool definition helpers (already in ReliaGrowR Suggests)
+```
+
+## Starting the MCP Server
+
+The server is started with a single call:
+
+```r
+ReliaGrowR::rga_mcp_server()
+```
+
+By default this uses stdio transport (suitable for Claude Code and Claude
+Desktop). To use HTTP transport instead:
+
+```r
+ReliaGrowR::rga_mcp_server(type = "http", port = 8080)
+```
+
+## Configuring Claude Code
+
+Add the server to Claude Code from your terminal:
+
+```bash
+claude mcp add -s user reliagrowR -- Rscript -e "ReliaGrowR::rga_mcp_server()"
+```
+
+The `-s user` flag stores the configuration in your user-level settings so it is
+available in every project.
+
+## Configuring Claude Desktop
+
+Add the following block to `claude_desktop_config.json`
+(`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+
+```json
+{
+  "mcpServers": {
+    "reliagrowR": {
+      "command": "Rscript",
+      "args": ["-e", "ReliaGrowR::rga_mcp_server()"]
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving.
+
+## Available Tools
+
+| Tool | Function | Description |
+|---|---|---|
+| `rga` | `rga()` | Crow-AMSAA reliability growth model |
+| `nhpp` | `nhpp()` | NHPP Power Law / Log-Linear for repairable systems |
+| `duane` | `duane()` | Duane log-log regression |
+| `mcf` | `mcf()` | Mean Cumulative Function (Nelson-Aalen) |
+| `predict_rga` | `predict_rga()` | Forecast cumulative failures from RGA model |
+| `predict_duane` | `predict_duane()` | Forecast MTBF from Duane model |
+| `rdt` | `rdt()` | Reliability Demonstration Test planning |
+| `gof_rga` | `gof()` | Goodness-of-fit statistics (CvM, K-S) |
+
+## Example Session
+
+With the MCP server running, you can ask Claude questions like:
+
+> "I have failure data with times [100, 200, 300, 400, 500] and failure counts
+> [1, 2, 1, 3, 2]. Fit a Crow-AMSAA reliability growth model and forecast the
+> cumulative failures at 1000 and 2000 hours."
+
+Claude will call `rga` and `predict_rga` on your behalf and return the results
+in plain language.
+
+> "Plan a reliability demonstration test for 90% reliability at 500 hours with
+> 90% confidence, using a Weibull model with beta = 1.5 and 10 test units."
+
+Claude will call `rdt` and explain the required test duration.
+
+## Security Considerations
+
+The MCP server runs R code in your local R session. Only share the server
+endpoint with trusted clients. For multi-user deployments, consider running the
+server in a sandboxed environment.

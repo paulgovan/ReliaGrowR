@@ -4,7 +4,7 @@
 \alias{duane}
 \title{Duane Analysis}
 \usage{
-duane(times, failures = NULL, conf.level = 0.95)
+duane(times, failures = NULL, conf_level = 0.95, conf.level = NULL)
 }
 \arguments{
 \item{times}{Either:
@@ -20,8 +20,10 @@ time in \code{times}. Ignored if \code{times} is a data frame. Must be the same 
 \code{times} if both are vectors.
 All values must be positive and finite.}
 
-\item{conf.level}{Confidence level for the confidence bounds (default: \code{0.95}).
+\item{conf_level}{Confidence level for the confidence bounds (default: \code{0.95}).
 Must be between 0 and 1 (exclusive).}
+
+\item{conf.level}{Deprecated. Use \code{conf_level} instead.}
 }
 \value{
 A list of class \code{"duane"} containing:
@@ -33,7 +35,7 @@ A list of class \code{"duane"} containing:
 \item{logLik}{The log-likelihood of the fitted model.}
 \item{AIC}{Akaike Information Criterion (AIC).}
 \item{BIC}{Bayesian Information Criterion (BIC).}
-\item{conf.level}{The confidence level.}
+\item{conf_level}{The confidence level.}
 \item{Cumulative_Time}{The cumulative operating times.}
 \item{Cumulative_MTBF}{The cumulative mean time between failures.}
 \item{Fitted_Values}{The fitted values on the MTBF scale.}
@@ -59,17 +61,20 @@ and includes unit tests to verify correctness and performance.
 \examples{
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
-fit1 <- duane(times, failures, conf.level = 0.90)
+fit1 <- duane(times, failures, conf_level = 0.90)
 print(fit1)
 
 df <- data.frame(times = times, failures = failures)
-fit2 <- duane(df, conf.level = 0.95)
+fit2 <- duane(df, conf_level = 0.95)
 print(fit2)
 
 }
 \seealso{
 Other Duane functions: 
 \code{\link{plot.duane}()},
-\code{\link{print.duane}()}
+\code{\link{plot.duane_predict}()},
+\code{\link{predict_duane}()},
+\code{\link{print.duane}()},
+\code{\link{print.duane_predict}()}
 }
 \concept{Duane functions}

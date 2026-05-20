@@ -92,3 +92,57 @@ test_that("ppplot.rga runs silently on valid input (matrix/list params)", {
   fit <- make_rga_matrix()
   expect_silent(ppplot.rga(fit))
 })
+
+# ── gof() tests ────────────────────────────────────────────────────────────────
+
+test_that("gof() is an S3 generic that dispatches gof.rga", {
+  fit <- make_rga_numeric()
+  g <- gof(fit)
+  expect_s3_class(g, "gof")
+})
+
+test_that("gof.rga returns correct structure", {
+  fit <- make_rga_numeric()
+  g <- gof(fit)
+  expect_named(g, c("cvm", "ks", "n", "model_type"))
+  expect_equal(g$model_type, "Crow-AMSAA")
+  expect_equal(g$n, 5L)
+  expect_true(is.numeric(g$cvm) && g$cvm > 0)
+  expect_true(is.numeric(g$ks) && g$ks > 0 && g$ks <= 1)
+})
+
+test_that("gof.rga CvM is within expected range for small well-fitting dataset", {
+  # For data generated from a known NHPP Power Law, statistics should be small
+  set.seed(42)
+  times <- cumsum(rexp(20, rate = 0.01))
+  failures <- rep(1, 20)
+  fit <- rga(times, failures, times_type = "cumulative_failure_times")
+  g <- gof(fit)
+  expect_true(g$cvm < 1.0)
+  expect_true(g$ks < 1.0)
+})
+
+test_that("gof.rga errors on piecewise NHPP", {
+  times <- c(5, 10, 15, 20, 25, 50, 60, 80, 90, 100)
+  failures <- c(1, 2, 1, 3, 2, 1, 2, 1, 3, 2)
+  fit <- rga(times, failures, model_type = "Piecewise NHPP")
+  expect_error(gof(fit), "currently supports only the Crow-AMSAA model")
+})
+
+test_that("gof.rga errors on non-rga input", {
+  expect_error(gof(list()), "'x' must be an object of class 'rga'.")
+  expect_error(gof("text"), "'x' must be an object of class 'rga'.")
+})
+
+test_that("print.gof produces expected output", {
+  fit <- make_rga_numeric()
+  g <- gof(fit)
+  out <- capture.output(print(g))
+  expect_true(any(grepl("Cramer-von Mises", out)))
+  expect_true(any(grepl("Kolmogorov-Smirnov", out)))
+  expect_true(any(grepl("Crow-AMSAA", out)))
+})
+
+test_that("print.gof errors on non-gof input", {
+  expect_error(print.gof(list()), "'x' must be an object of class 'gof'.")
+})

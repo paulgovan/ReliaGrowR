@@ -30,6 +30,8 @@ ppplot.rga(fit)
 }
 \seealso{
 Other goodness-of-fit: 
+\code{\link{gof}()},
+\code{\link{print.gof}()},
 \code{\link{qqplot.rga}()}
 }
 \concept{goodness-of-fit}

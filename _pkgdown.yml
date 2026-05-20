@@ -1,4 +1,16 @@
 url: https://paulgovan.github.io/ReliaGrowR/
 template:
   bootstrap: 5
-
+articles:
+  - title: "Reliability Data Management"
+    contents: data
+  - title: "Reliability Growth Analysis"
+    contents: RGA
+  - title: "Reliability Growth Forecasting"
+    contents: RGA
+  - title: "Reliability Demonstration Testing"
+    contents: RDT
+  - title: "Repairable Systems Analysis"
+    contents: RSA
+  - title: "AI Integration via MCP"
+    contents: RGA

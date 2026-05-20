@@ -7,9 +7,11 @@
 \method{plot}{duane}(
   x,
   log = TRUE,
-  conf.int = TRUE,
+  conf_bounds = TRUE,
   legend = TRUE,
-  legend.pos = "topleft",
+  legend_pos = "topleft",
+  conf.int = NULL,
+  legend.pos = NULL,
   ...
 )
 }
@@ -18,11 +20,15 @@
 
 \item{log}{Logical; whether to use logarithmic scales for axes (default: \code{TRUE}).}
 
-\item{conf.int}{Logical; whether to plot confidence bounds (default: \code{TRUE}).}
+\item{conf_bounds}{Logical; whether to plot confidence bounds (default: \code{TRUE}).}
 
 \item{legend}{Logical; whether to include a legend (default: TRUE).}
 
-\item{legend.pos}{Position of the legend (default: "topleft").}
+\item{legend_pos}{Position of the legend (default: "topleft").}
+
+\item{conf.int}{Deprecated. Use \code{conf_bounds} instead.}
+
+\item{legend.pos}{Deprecated. Use \code{legend_pos} instead.}
 
 \item{...}{Further arguments passed to \code{plot()}.}
 }
@@ -42,6 +48,9 @@ plot(fit, main = "Duane Plot", xlab = "Cumulative Time", ylab = "Cumulative MTBF
 \seealso{
 Other Duane functions: 
 \code{\link{duane}()},
-\code{\link{print.duane}()}
+\code{\link{plot.duane_predict}()},
+\code{\link{predict_duane}()},
+\code{\link{print.duane}()},
+\code{\link{print.duane_predict}()}
 }
 \concept{Duane functions}

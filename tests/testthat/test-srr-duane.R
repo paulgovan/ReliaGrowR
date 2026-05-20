@@ -79,13 +79,13 @@ test_that("data.frame with non-positive or infinite values errors", {
   expect_error(duane(df_inf_time), "must be finite and > 0")
 })
 
-test_that("data.frame input respects conf.level parameter", {
+test_that("data.frame input respects conf_level parameter", {
   times <- c(100, 200, 300)
   failures <- c(1, 2, 1)
   df <- data.frame(times = times, failures = failures)
 
-  res <- duane(df, conf.level = 0.90)
-  expect_equal(res$conf.level, 0.90)
+  res <- suppressWarnings(duane(df, conf.level = 0.90))
+  expect_equal(res$conf_level, 0.90)
 })
 
 # Helper: minimal valid inputs
@@ -155,19 +155,19 @@ test_that("finite and >0 checks for times and failures", {
   )
 })
 
-test_that("conf.level validation", {
-  expect_error(duane(valid_times, valid_failures, conf.level = c(0.9, 0.95)),
-    "'conf.level' must be a single numeric value.",
+test_that("conf_level validation", {
+  expect_error(duane(valid_times, valid_failures, conf_level = c(0.9, 0.95)),
+    "'conf_level' must be a single numeric value.",
     fixed = TRUE
   )
 
-  expect_error(duane(valid_times, valid_failures, conf.level = 1),
-    "'conf.level' must be between 0 and 1 (exclusive).",
+  expect_error(duane(valid_times, valid_failures, conf_level = 1),
+    "'conf_level' must be between 0 and 1 (exclusive).",
     fixed = TRUE
   )
 
-  expect_error(duane(valid_times, valid_failures, conf.level = 0),
-    "'conf.level' must be between 0 and 1 (exclusive).",
+  expect_error(duane(valid_times, valid_failures, conf_level = 0),
+    "'conf_level' must be between 0 and 1 (exclusive).",
     fixed = TRUE
   )
 })
@@ -195,21 +195,21 @@ test_that("plot.duane argument type checks", {
     fixed = TRUE
   )
 
-  # conf.int must be single logical
-  expect_error(plot.duane(dummy_fit, log = TRUE, conf.int = "nope"),
-    "'conf.int' must be a single logical value.",
+  # conf_bounds must be single logical
+  expect_error(plot.duane(dummy_fit, log = TRUE, conf_bounds = "nope"),
+    "'conf_bounds' must be a single logical value.",
     fixed = TRUE
   )
 
   # legend must be single logical
-  expect_error(plot.duane(dummy_fit, log = TRUE, conf.int = TRUE, legend = "nope"),
+  expect_error(plot.duane(dummy_fit, log = TRUE, conf_bounds = TRUE, legend = "nope"),
     "'legend' must be a single logical value.",
     fixed = TRUE
   )
 
-  # legend.pos must be single character
-  expect_error(plot.duane(dummy_fit, log = TRUE, conf.int = TRUE, legend = TRUE, legend.pos = c("a", "b")),
-    "'legend.pos' must be a single character string.",
+  # legend_pos must be single character
+  expect_error(plot.duane(dummy_fit, log = TRUE, conf_bounds = TRUE, legend = TRUE, legend_pos = c("a", "b")),
+    "'legend_pos' must be a single character string.",
     fixed = TRUE
   )
 })
@@ -219,7 +219,7 @@ test_that("duane recovers known parameters (linear log-log relationship)", {
   times <- rep(100, 10) # equal spacing of 100
   failures <- rep(1, 10) # one failure per interval
 
-  fit <- duane(times, failures, conf.level = 0.95)
+  fit <- duane(times, failures, conf_level = 0.95)
 
   coef_est <- coef(fit$model)
 
@@ -249,8 +249,8 @@ test_that("confidence level is respected", {
   times <- c(100, 200, 300, 400, 500)
   failures <- c(1, 2, 1, 3, 2)
 
-  fit90 <- duane(times, failures, conf.level = 0.90)
-  fit95 <- duane(times, failures, conf.level = 0.95)
+  fit90 <- duane(times, failures, conf_level = 0.90)
+  fit95 <- duane(times, failures, conf_level = 0.95)
 
   # Wider interval for higher confidence level
   width90 <- mean(fit90$Confidence_Bounds[, "upr"] - fit90$Confidence_Bounds[, "lwr"])
@@ -351,7 +351,7 @@ test_that("duane works with input from testdata", {
   times <- g1$Cum_ETI
   failures <- g1$Failure_Count
 
-  fit <- duane(times, failures, conf.level = 0.95)
+  fit <- duane(times, failures, conf_level = 0.95)
 
   # Check structure
   expect_true(all(fit$Cumulative_MTBF > 0))
@@ -361,7 +361,7 @@ test_that("duane works with input from testdata", {
 # Example data
 times <- c(100, 200, 300, 400, 500)
 failures <- c(1, 2, 1, 3, 2)
-fit <- duane(times, failures, conf.level = 0.95)
+fit <- duane(times, failures, conf_level = 0.95)
 
 test_that("print.duane works on valid duane object", {
   expect_invisible(out <- print(fit))
@@ -384,7 +384,7 @@ test_that("print.duane errors on wrong input type", {
 
 test_that("plot.duane works on valid duane object", {
   expect_invisible(plot(fit)) # default args
-  expect_invisible(plot(fit, log = FALSE, conf.int = FALSE, legend = FALSE))
+  expect_invisible(plot(fit, log = FALSE, conf_bounds = FALSE, legend = FALSE))
 })
 
 test_that("plot.duane errors on wrong input type", {
@@ -394,9 +394,9 @@ test_that("plot.duane errors on wrong input type", {
 
 test_that("plot.duane input validation works", {
   expect_error(plot(fit, log = "yes"), "'log' must be a single logical value")
-  expect_error(plot(fit, conf.int = "yes"), "'conf.int' must be a single logical value")
+  expect_error(plot(fit, conf_bounds = "yes"), "'conf_bounds' must be a single logical value")
   expect_error(plot(fit, legend = "yes"), "'legend' must be a single logical value")
-  expect_error(plot(fit, legend.pos = TRUE), "'legend.pos' must be a single character string")
+  expect_error(plot(fit, legend_pos = TRUE), "'legend_pos' must be a single character string")
 })
 
 test_that("duane() handles noiseless, exact relationships efficiently", {
@@ -447,4 +447,116 @@ test_that("output retains row or case names from input data", {
   # Expect that output retains names
   expect_equal(names(fit_named$times), names(times))
   expect_equal(names(fit_named$failures), names(failures))
+})
+
+# ── API standardization tests ──────────────────────────────────────────────────
+
+test_that("conf_level parameter works and deprecated conf.level warns", {
+  times <- c(100, 200, 300, 400, 500)
+  failures <- c(1, 2, 1, 3, 2)
+
+  fit_new <- duane(times, failures, conf_level = 0.90)
+  expect_equal(fit_new$conf_level, 0.90)
+
+  expect_warning(
+    fit_old <- duane(times, failures, conf.level = 0.90),
+    "'conf.level' is deprecated"
+  )
+  expect_equal(fit_old$conf_level, 0.90)
+  expect_equal(fit_new$Fitted_Values, fit_old$Fitted_Values)
+})
+
+test_that("plot.duane deprecated conf.int and legend.pos warn", {
+  times <- c(100, 200, 300, 400, 500)
+  failures <- c(1, 2, 1, 3, 2)
+  fit <- duane(times, failures)
+
+  expect_warning(
+    plot(fit, conf.int = FALSE),
+    "'conf.int' is deprecated"
+  )
+  expect_warning(
+    plot(fit, legend.pos = "bottomright"),
+    "'legend.pos' is deprecated"
+  )
+})
+
+test_that("plot.duane conf_bounds and legend_pos work without warning", {
+  times <- c(100, 200, 300, 400, 500)
+  failures <- c(1, 2, 1, 3, 2)
+  fit <- duane(times, failures)
+  expect_no_warning(plot(fit, conf_bounds = FALSE, legend_pos = "bottomright"))
+})
+
+# ── predict_duane tests ────────────────────────────────────────────────────────
+
+test_that("predict_duane returns duane_predict with correct structure", {
+  times <- c(100, 200, 300, 400, 500)
+  failures <- c(1, 2, 1, 3, 2)
+  fit <- duane(times, failures)
+  fc <- predict_duane(fit, times = c(2000, 5000))
+
+  expect_s3_class(fc, "duane_predict")
+  expect_named(fc, c("times", "mtbf", "lower_bounds", "upper_bounds",
+                      "conf_level", "duane_object"))
+  expect_length(fc$times, 2)
+  expect_length(fc$mtbf, 2)
+  expect_true(all(fc$lower_bounds < fc$mtbf))
+  expect_true(all(fc$mtbf < fc$upper_bounds))
+})
+
+test_that("predict_duane forecasts increase monotonically for growth data", {
+  times <- c(100, 200, 300, 400, 500)
+  failures <- c(5, 4, 3, 2, 1)  # decreasing failure rate = growth
+  fit <- duane(times, failures)
+  fc <- predict_duane(fit, times = c(2000, 3000, 5000))
+  expect_true(all(diff(fc$mtbf) > 0))
+})
+
+test_that("predict_duane warns on hindcasting", {
+  times <- c(100, 200, 300, 400, 500)
+  failures <- c(1, 2, 1, 3, 2)
+  fit <- duane(times, failures)
+  expect_warning(
+    predict_duane(fit, times = c(300, 1000)),
+    "Hindcasting"
+  )
+})
+
+test_that("predict_duane input validation errors", {
+  times <- c(100, 200, 300, 400, 500)
+  failures <- c(1, 2, 1, 3, 2)
+  fit <- duane(times, failures)
+
+  expect_error(predict_duane(list(), times = 1000),
+               "'object' must be an object of class 'duane'.")
+  expect_error(predict_duane(fit, times = "a"),
+               "'times' must be a numeric vector.")
+  expect_error(predict_duane(fit, times = numeric(0)),
+               "'times' cannot be empty.")
+  expect_error(predict_duane(fit, times = NA_real_),
+               "missing")
+  expect_error(predict_duane(fit, times = -1),
+               "finite and > 0")
+  expect_error(predict_duane(fit, times = 1000, conf_level = 2),
+               "between 0 and 1")
+})
+
+test_that("print.duane_predict produces output", {
+  times <- c(100, 200, 300, 400, 500)
+  failures <- c(1, 2, 1, 3, 2)
+  fit <- duane(times, failures)
+  fc <- predict_duane(fit, times = c(2000, 5000))
+  out <- capture.output(print(fc))
+  expect_true(any(grepl("Duane MTBF Forecast", out)))
+  expect_true(any(grepl("MTBF", out)))
+})
+
+test_that("plot.duane_predict runs without error", {
+  times <- c(100, 200, 300, 400, 500)
+  failures <- c(1, 2, 1, 3, 2)
+  fit <- duane(times, failures)
+  fc <- predict_duane(fit, times = c(2000, 5000))
+  expect_no_error(plot(fc))
+  expect_no_error(plot(fc, conf_bounds = FALSE, legend = FALSE))
 })
