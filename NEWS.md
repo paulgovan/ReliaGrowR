@@ -1,3 +1,19 @@
+# ReliaGrowR 0.8
+
+## New Features
+* New `gof()` function for computing numerical goodness-of-fit statistics
+  (Cramér-von Mises and Kolmogorov-Smirnov) for fitted RGA models.
+* New `predict_duane()` function for making predictions from Duane models,
+  with confidence bounds and `print`/`plot` S3 methods.
+* New MCP server integration via `rga_mcp_server()`, exposing ReliaGrowR
+  functions as Model Context Protocol tools for AI assistants such as Claude.
+
+## Minor improvements and bug fixes
+* New vignette on Reliability Demonstration Test Planning.
+* New vignette on MCP server usage.
+* Updated and expanded test suite for Duane, GOF, and MCP functions.
+* Other minor improvements and bug fixes.
+
 # ReliaGrowR 0.6
 
 ## New Features
