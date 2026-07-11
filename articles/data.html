@@ -53,7 +53,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Reliability Data Management</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/v0.7/vignettes/data.Rmd" class="external-link"><code>vignettes/data.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/main/vignettes/data.Rmd" class="external-link"><code>vignettes/data.Rmd</code></a></small>
       <div class="d-none name"><code>data.Rmd</code></div>
     </div>
 
@@ -202,11 +202,11 @@ right-censored times, and interval-censored times:</p>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weibull_to_rga.html">weibull_to_rga</a></span><span class="op">(</span><span class="va">failures</span>, <span class="va">right_censored</span>, <span class="va">interval_starts</span>, <span class="va">interval_ends</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   CumulativeTime Failures</span></span>
-<span><span class="co">#&gt; 1            100        1</span></span>
-<span><span class="co">#&gt; 2            265        1</span></span>
-<span><span class="co">#&gt; 3            465        2</span></span>
-<span><span class="co">#&gt; 6           1225        1</span></span>
-<span><span class="co">#&gt; 8           1975        1</span></span></code></pre></div>
+<span><span class="co">#&gt; 1            900        1</span></span>
+<span><span class="co">#&gt; 2           1420        1</span></span>
+<span><span class="co">#&gt; 3           1665        2</span></span>
+<span><span class="co">#&gt; 6           2155        1</span></span>
+<span><span class="co">#&gt; 8           2375        1</span></span></code></pre></div>
 <p>The resulting data frame contains cumulative times and failure
 counts, which can then be passed directly to the <code>rga</code>
 function for reliability growth analysis.</p>
@@ -306,7 +306,7 @@ Data Import/Export</a> documentation.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

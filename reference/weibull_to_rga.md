@@ -5,8 +5,11 @@ into a format suitable for reliability growth analysis (RGA). The
 function handles exact failure times, right-censored suspensions, and
 interval-censored data. It approximates interval-censored failures by
 placing them at the midpoint of the interval. The output is a data frame
-with cumulative time and failure counts. This format can be used with
-RGA models such as Crow-AMSAA.
+with cumulative time and failure counts, where the cumulative time is
+the total time on test of the population: at each event, units that have
+already failed or been suspended contribute their own time, while units
+still operating contribute the current event time (their current age).
+This format can be used with RGA models such as Crow-AMSAA.
 
 ## Usage
 
@@ -53,7 +56,9 @@ The data frame contains two columns:
 
 - CumulativeTime:
 
-  Cumulative time at each failure event.
+  Total time on test of the population at each failure event. Failed and
+  suspended units contribute their own time, while units still running
+  contribute the current event time (their current age).
 
 - Failures:
 
@@ -77,9 +82,9 @@ interval_ends <- c(180, 320)
 result <- weibull_to_rga(failures, suspensions, interval_starts, interval_ends)
 print(result)
 #>   CumulativeTime Failures
-#> 1            100        1
-#> 2            265        1
-#> 3            465        2
-#> 6           1225        1
-#> 8           1975        1
+#> 1            900        1
+#> 2           1420        1
+#> 3           1665        2
+#> 6           2155        1
+#> 8           2375        1
 ```

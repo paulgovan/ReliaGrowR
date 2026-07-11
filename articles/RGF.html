@@ -53,7 +53,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Reliability Growth Forecasting</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/v0.7/vignettes/RGF.Rmd" class="external-link"><code>vignettes/RGF.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/paulgovan/ReliaGrowR/blob/main/vignettes/RGF.Rmd" class="external-link"><code>vignettes/RGF.Rmd</code></a></small>
       <div class="d-none name"><code>RGF.Rmd</code></div>
     </div>
 
@@ -65,164 +65,248 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>Reliability Growth Analysis (RGA) tracks the improvement (or
-degradation) of system reliability over a test campaign as changes are
-made. However, translating an observed growth trend into a fleet-level
-life forecast requires several additional steps that are often performed
+<p>Reliability Growth Analysis (RGA) tracks the improvement of system
+reliability over a development program as design changes are introduced.
+However, translating an observed growth trend into a fleet-level life
+forecast requires several additional steps that are often performed
 separately, leading to potential inconsistencies, loss of fidelity in
 reliability projections, and an incomplete picture of future system
-performance. This study introduces a novel integrated workflow that
-systematically connects RGA to life estimation through stochastic
-simulation, providing a robust framework to propagate observed
-reliability growth into predictive fleet-level life distributions. The
-RGA forecast determines the cumulative time over which a target number
-of additional failures is expected, <code><a href="../reference/sim_failures.html">sim_failures()</a></code>
-generates conditional failure times for the surviving units over that
-horizon, and the simulated failures are combined with observed test data
-to fit a growth-adjusted Weibull distribution, offering a dynamic and
-data-driven representation of reliability that evolves with observed
-improvements. This integration provides a more comprehensive and
-realistic fleet-level life distribution forecast by explicitly
-accounting for reliability improvements, thereby avoiding
-underestimation of future reliability or misallocation of resources
-often associated with fragmented analyses. A parallel Weibull fit to the
-test data alone (without growth) provides a baseline for the comparison.
-Monte Carlo analysis quantifies the variability introduced by the
-simulation, and sensitivity analyses examine how the results depend on
-the number of test failures and the strength of the reliability growth
-trend.</p>
+performance. This study presents an integrated workflow that connects
+RGA to life estimation through stochastic simulation, propagating an
+observed reliability growth trend into a fleet-level life
+distribution.</p>
+<p>The example is structured in two phases, both involving
+non-repairable units. In the <strong>developmental growth test</strong>
+(Phase 1), prototypes are built and tested to failure in sequence;
+design improvements introduced between builds genuinely increase unit
+life, so the Crow-AMSAA growth parameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\beta_{\text{growth}} &lt; 1</annotation></semantics></math>
+reflects a real improvement trend rather than an artifact of how the
+data are pooled. In the <strong>fielded fleet</strong> (Phase 2), a
+population of the matured design is placed in service, and the growth
+trend established in development is projected forward to forecast the
+fleet’s life distribution. Over a fixed forecast window the growth model
+lowers the number of additional failures expected from the fleet’s own
+life distribution, <code><a href="../reference/sim_failures.html">sim_failures()</a></code> generates conditional
+failure times for the surviving units over that window, and the
+simulated failures are combined with observed data to fit a
+growth-adjusted Weibull distribution. A parallel Weibull fit without
+growth provides a baseline. Monte Carlo analysis quantifies the
+variability introduced by the simulation (and, to a lesser extent,
+growth-parameter uncertainty), and sensitivity analyses examine how the
+results depend on the fleet assessment point and the strength of the
+growth trend. Because the projection is conditional on the observed
+growth continuing into service, it is designed to address the potential
+underestimation of future reliability that results when growth trends
+are not propagated into fleet-level forecasts; the workflow is intended
+to make that dependence explicit and to quantify the variability of the
+projection rather than to assert a single point forecast. The forecast
+should be read as conditional on the developmental growth trend
+continuing in service.</p>
 </div>
 <div class="section level2">
-<h2 id="life-data-analysis">Life Data Analysis<a class="anchor" aria-label="anchor" href="#life-data-analysis"></a>
+<h2 id="developmental-growth-test">Developmental Growth Test<a class="anchor" aria-label="anchor" href="#developmental-growth-test"></a>
 </h2>
-<p>Suppose a reliability test is conducted on 100 units over a 1000
-time-unit campaign, during which 20 failures occur. The failure
-mechanism is wear-out
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>&gt;1),
-so the hazard rate increases with age. During the test, design
-improvements were introduced to mitigate the wear-out mechanism,
-producing a reliability growth trend in the system-level failure
-intensity. Eighty surviving units remained at risk during the forecast
-period. The failure and suspension times were as follows:</p>
+<p>In a developmental reliability growth program, prototype units are
+built and tested to failure one at a time. After each failure the design
+is analyzed and improved, so successive builds are progressively more
+reliable. We represent this by simulating 30 sequential builds in which
+the characteristic life
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+of the underlying wear-out mechanism increases with build index, while
+the shape (failure mechanism) is held fixed. Because only one unit is on
+test at a time, the total time on test is simply the running sum of the
+individual lives, and the data are passed directly to <code><a href="../reference/rga.html">rga()</a></code>
+— no concurrent-fleet conversion is involved.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="fl">500</span>, <span class="fl">600</span>, <span class="fl">650</span>, <span class="fl">700</span>, <span class="fl">730</span>, <span class="fl">760</span>, <span class="fl">790</span>, <span class="fl">810</span>, <span class="fl">830</span>, <span class="fl">845</span>,</span>
-<span>  <span class="fl">860</span>, <span class="fl">875</span>, <span class="fl">890</span>, <span class="fl">905</span>, <span class="fl">920</span>, <span class="fl">935</span>, <span class="fl">945</span>, <span class="fl">960</span>, <span class="fl">975</span>, <span class="fl">990</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">N_dev</span> <span class="op">&lt;-</span> <span class="fl">30</span> <span class="co"># prototypes built and tested in sequence</span></span>
+<span><span class="va">beta_mech</span> <span class="op">&lt;-</span> <span class="fl">4</span> <span class="co"># wear-out failure mechanism (shape), constant across builds</span></span>
+<span><span class="va">eta_matured</span> <span class="op">&lt;-</span> <span class="fl">1456</span> <span class="co"># characteristic life of the final, matured design</span></span>
+<span><span class="va">g_exp</span> <span class="op">&lt;-</span> <span class="fl">0.30</span> <span class="co"># strength of design-life improvement with build index</span></span>
+<span></span>
+<span><span class="co"># Design life improves with build index; the last build is the matured design.</span></span>
+<span><span class="va">eta_build</span> <span class="op">&lt;-</span> <span class="va">eta_matured</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">N_dev</span><span class="op">)</span> <span class="op">/</span> <span class="va">N_dev</span><span class="op">)</span><span class="op">^</span><span class="va">g_exp</span></span>
+<span><span class="va">dev_life</span> <span class="op">&lt;-</span> <span class="va">eta_build</span> <span class="op">*</span> <span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">N_dev</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">beta_mech</span><span class="op">)</span></span>
+<span><span class="va">dev_cum</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum</a></span><span class="op">(</span><span class="va">dev_life</span><span class="op">)</span></span></code></pre></div>
+<p>The Crow-AMSAA model is fitted directly with <code><a href="../reference/rga.html">rga()</a></code>,
+treating each build as one failure at its cumulative test time. The
+cumulative failure function is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>λ</mi><mspace width="0.167em"></mspace><msup><mi>t</mi><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub></msup></mrow><annotation encoding="application/x-tex">N(t) = \lambda\, t^{\beta_{\text{growth}}}</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\beta_{\text{growth}} &lt; 1</annotation></semantics></math>
+indicates a decreasing failure intensity — genuine reliability
+growth.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dev_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>times <span class="op">=</span> <span class="va">dev_cum</span>, failures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N_dev</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  times_type <span class="op">=</span> <span class="st">"cumulative_failure_times"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">suspensions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">80</span><span class="op">)</span></span>
+<span><span class="va">growth_beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">dev_fit</span><span class="op">$</span><span class="va">betas</span><span class="op">)</span></span>
+<span><span class="va">dev_r2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">dev_fit</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">$</span><span class="va">r.squared</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dev_fit</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Developmental Reliability Growth Test"</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Cumulative Test Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="RGF_files/figure-html/dev-fit-1.png" class="r-plt" alt="" width="700"></p>
+<p>The fitted growth parameter is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>
+= 0.821
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>
+= 0.997), indicating a decreasing failure intensity as the design
+matured. The reliability growth rate is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo>=</mo><mn>1</mn><mo>−</mo><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub></mrow><annotation encoding="application/x-tex">g = 1 - \beta_{\text{growth}}</annotation></semantics></math>
+= 0.179.</p>
+</div>
+<div class="section level2">
+<h2 id="fielded-fleet-and-life-data-analysis">Fielded Fleet and Life Data Analysis<a class="anchor" aria-label="anchor" href="#fielded-fleet-and-life-data-analysis"></a>
+</h2>
+<p>The matured design — the configuration reached at the end of the
+developmental test — is now placed into service as a fleet of 100 units,
+each observed over a 1000 time-unit period. These are non-repairable
+units: each either fails once or is right-censored (suspended) at the
+end of the observation window. To provide a reproducible example, the
+fleet life data are simulated from the matured Weibull population (shape
+4, scale 1456). Because this population is fixed — every unit is drawn
+from the same matured Weibull, with no further design change in service
+— its true characteristic life does not improve over the period, so the
+no-growth baseline fitted below coincides with the ground truth here and
+the growth-adjusted forecast is the optimistic bound that applies only
+if the developmental trend continues into service.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span></span>
+<span><span class="va">n_units</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
+<span><span class="va">test_end</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span><span class="va">fleet_life</span> <span class="op">&lt;-</span> <span class="va">eta_matured</span> <span class="op">*</span> <span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n_units</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">beta_mech</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fleet_life</span><span class="op">[</span><span class="va">fleet_life</span> <span class="op">&lt;=</span> <span class="va">test_end</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">suspensions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">test_end</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">fleet_life</span> <span class="op">&gt;</span> <span class="va">test_end</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">n_test_failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">failures</span><span class="op">)</span></span>
 <span><span class="va">n_surviving</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">suspensions</span><span class="op">)</span></span></code></pre></div>
-<p>The <code>WeibullR</code> package is used to fit a Weibull
-distribution to the failure and suspension data. The <code><a href="https://rdrr.io/pkg/WeibullR/man/wblr.html" class="external-link">wblr()</a></code>
-function creates a Weibull object, and <code><a href="https://rdrr.io/pkg/WeibullR/man/wblr.fit.html" class="external-link">wblr.fit()</a></code> fits the
-model:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p>This draw yields 20 exact failures, leaving 80 surviving units at
+risk during the forecast period. The <code>WeibullR</code> package fits
+a Weibull distribution to the fielded data, providing the no-growth
+baseline life distribution:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.html" class="external-link">wblr</a></span><span class="op">(</span><span class="va">failures</span>, <span class="va">suspensions</span>,</span>
-<span>  col <span class="op">=</span> <span class="st">"steelblue"</span>, label <span class="op">=</span> <span class="st">"Test Data"</span>, is.plot.cb <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  col <span class="op">=</span> <span class="st">"steelblue"</span>, label <span class="op">=</span> <span class="st">"Fielded Fleet"</span>, is.plot.cb <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.fit.html" class="external-link">wblr.fit</a></span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span>
+<span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.fit.html" class="external-link">wblr.fit</a></span><span class="op">(</span><span class="va">obj</span>, method.fit <span class="op">=</span> <span class="st">"mle"</span><span class="op">)</span></span>
 <span><span class="va">sim_beta</span> <span class="op">&lt;-</span> <span class="va">obj</span><span class="op">$</span><span class="va">fit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">beta</span></span>
 <span><span class="va">eta_orig</span> <span class="op">&lt;-</span> <span class="va">obj</span><span class="op">$</span><span class="va">fit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">eta</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">obj</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Weibull Fit to Test Data"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Weibull Fit to Fielded Fleet (No-Growth Baseline)"</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Operating Time"</span>, ylab <span class="op">=</span> <span class="st">"Unreliability"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="RGF_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="RGF_files/figure-html/weibull-fit-1.png" class="r-plt" alt="" width="700"></p>
 <p>The estimated shape parameter
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-is 5.135 and the scale parameter
+is 3.816 and the scale parameter
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-is 1321.4. A shape parameter greater than one confirms the wear-out
-failure mode.</p>
-</div>
-<div class="section level2">
-<h2 id="reliability-growth-analysis">Reliability Growth Analysis<a class="anchor" aria-label="anchor" href="#reliability-growth-analysis"></a>
-</h2>
-<p>The Weibull life data are converted into the cumulative-time and
-failure-count format required for reliability growth analysis with
-<code><a href="../reference/weibull_to_rga.html">weibull_to_rga()</a></code>. The function handles the exact failure
-times and right-censored suspensions, producing a data frame with
-cumulative time and failure counts that can be used to fit a Crow-AMSAA
-model.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rga_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weibull_to_rga.html">weibull_to_rga</a></span><span class="op">(</span><span class="va">failures</span>, <span class="va">suspensions</span><span class="op">)</span></span>
-<span><span class="va">rga_input</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  times <span class="op">=</span> <span class="va">rga_data</span><span class="op">$</span><span class="va">CumulativeTime</span>,</span>
-<span>  failures <span class="op">=</span> <span class="va">rga_data</span><span class="op">$</span><span class="va">Failures</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>The Crow-AMSAA model is fitted with <code><a href="../reference/rga.html">rga()</a></code>. The growth
-parameter
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>
-governs the system-level failure intensity trend and is distinct from
-the Weibull shape parameter
+is 1479.4. A shape parameter greater than one confirms the wear-out
+failure mode. This Weibull
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-estimated above: the Crow-AMSAA
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>
-describes whether the rate of failure accumulation is increasing or
-decreasing over cumulative operating time, whereas the Weibull
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-describes the unit-level hazard function.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">test_end_cum_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">rga_input</span><span class="op">$</span><span class="va">times</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">rga_input</span>, times_type <span class="op">=</span> <span class="st">"cumulative_failure_times"</span><span class="op">)</span></span>
-<span><span class="va">growth_beta</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">betas</span></span>
-<span><span class="va">growth_lambda</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambdas</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Reliability Growth Analysis"</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="RGF_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="700"></p>
-<p>The cumulative operating time at test end is 16,470 units. The fitted
-growth parameter
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>
-is 0.854. A value less than one indicates reliability improvement over
-the test campaign.</p>
+describes the unit-level hazard in <em>individual age</em> and is
+distinct from the Crow-AMSAA
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>,
+which describes the system-level failure-intensity trend over the
+development program.</p>
 </div>
 <div class="section level2">
 <h2 id="reliability-growth-forecast">Reliability Growth Forecast<a class="anchor" aria-label="anchor" href="#reliability-growth-forecast"></a>
 </h2>
-<p>The Crow-AMSAA model provides an intensity function that can be
-extrapolated to forecast future failures. The cumulative failure
-function is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>λ</mi><mspace width="0.167em"></mspace><msup><mi>t</mi><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub></msup></mrow><annotation encoding="application/x-tex">N(t) = \lambda \, t^{\beta_{\text{growth}}}</annotation></semantics></math>,
-and solving for the cumulative time
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>f</mi></msub><annotation encoding="application/x-tex">t_f</annotation></semantics></math>
-at which a target number of total failures is reached gives:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>f</mi></msub><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>N</mi><mtext mathvariant="normal">target</mtext></msub><mi>λ</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mn>1</mn><mi>/</mi><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub></mrow></msup></mrow><annotation encoding="application/x-tex">t_f = \left(\frac{N_{\text{target}}}{\lambda}\right)^{1/\beta_{\text{growth}}}</annotation></semantics></math></p>
-<p>The forecast targets 60 additional failures beyond the 20 observed
-during the test, for a total of 80 cumulative failures. This represents
-75% of the surviving fleet, leaving 20 units as right-censored
-suspensions in the combined dataset.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">n_forecast</span> <span class="op">&lt;-</span> <span class="fl">60</span></span>
-<span><span class="va">n_target</span> <span class="op">&lt;-</span> <span class="va">n_test_failures</span> <span class="op">+</span> <span class="va">n_forecast</span></span>
+<p>The growth trend established in development is now projected onto the
+fielded fleet. The forecast is run over a fixed <strong>forecast
+window</strong> taken from the life data; over that window the fitted
+fleet Weibull sets the number of failures expected with no growth, and
+the developmental growth rate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>
+lowers that count through the Crow-AMSAA count-ratio.</p>
+<p>The <strong>no-growth count</strong> is what the fitted fleet Weibull
+expects over the window, read from each surviving unit’s
+<em>forward</em> hazard (age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>i</mi></msub><annotation encoding="application/x-tex">r_i</annotation></semantics></math>):</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>F</mi><mn>0</mn></msub><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">[</mo><mn>1</mn><mo>−</mo><mi mathvariant="normal">exp</mi><mrow><mo stretchy="true" form="prefix">{</mo><mi>−</mi><mrow><mo stretchy="true" form="prefix">[</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mstyle displaystyle="false"><mfrac><mrow><msub><mi>r</mi><mi>i</mi></msub><mo>+</mo><mi>w</mi></mrow><mi>η</mi></mfrac></mstyle><mo stretchy="true" form="postfix">)</mo></mrow><mi>β</mi></msup><mo>−</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mstyle displaystyle="false"><mfrac><msub><mi>r</mi><mi>i</mi></msub><mi>η</mi></mfrac></mstyle><mo stretchy="true" form="postfix">)</mo></mrow><mi>β</mi></msup><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">}</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">F_0 = \sum_i \left[1 - \exp\left\{-\left[\left(\tfrac{r_i + w}{\eta}\right)^{\beta} - \left(\tfrac{r_i}{\eta}\right)^{\beta}\right]\right\}\right]</annotation></semantics></math></p>
+<p>Growth lowers this count. Re-anchoring the Crow-AMSAA scale to the
+fleet
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>=</mo><msub><mi>N</mi><mtext mathvariant="normal">current</mtext></msub><mi>/</mi><msubsup><mi>T</mi><mtext mathvariant="normal">end</mtext><mrow><mspace width="0.167em"></mspace><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub></mrow></msubsup></mrow><annotation encoding="application/x-tex">\lambda = N_{\text{current}} / T_{\text{end}}^{\,\beta_{\text{growth}}}</annotation></semantics></math>,
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mtext mathvariant="normal">end</mtext></msub><annotation encoding="application/x-tex">T_{\text{end}}</annotation></semantics></math>
+the fleet’s cumulative operating time and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mtext mathvariant="normal">current</mtext></msub><annotation encoding="application/x-tex">N_{\text{current}}</annotation></semantics></math>
+the failures observed so far), the expected additional failures over the
+cumulative window
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi><mo>=</mo><msub><mi>n</mi><mi>s</mi></msub><mi>w</mi></mrow><annotation encoding="application/x-tex">\Delta t = n_s w</annotation></semantics></math>
+are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mtext mathvariant="normal">current</mtext></msub><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>ρ</mi><msup><mo stretchy="false" form="postfix">)</mo><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">N_{\text{current}}[(1+\rho)^{\beta_{\text{growth}}} - 1]</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>=</mo><mi mathvariant="normal">Δ</mi><mi>t</mi><mi>/</mi><msub><mi>T</mi><mtext mathvariant="normal">end</mtext></msub></mrow><annotation encoding="application/x-tex">\rho = \Delta t / T_{\text{end}}</annotation></semantics></math>.
+Expressed as a ratio to the no-growth case — which cancels the
+since-inception anchoring bias — the <strong>growth count-ratio</strong>
+is</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>ρ</mi><msup><mo stretchy="false" form="postfix">)</mo><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub></msup><mo>−</mo><mn>1</mn></mrow><mi>ρ</mi></mfrac><mo>,</mo><mspace width="2.0em"></mspace><mi>c</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">c(\beta_{\text{growth}}) = \frac{(1+\rho)^{\beta_{\text{growth}}} - 1}{\rho}, \qquad c(1) = 1,</annotation></semantics></math></p>
+<p>and the growth-adjusted target count is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><msub><mi>F</mi><mn>0</mn></msub><mspace width="0.167em"></mspace><mi>c</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">n = F_0 \, c(\beta_{\text{growth}})</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Forecast window: a modest forward increment (~20% of the observation period) applied to</span></span>
+<span><span class="co"># each surviving unit, taken from the life data rather than solved for.</span></span>
+<span><span class="va">forecast_window</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
+<span><span class="va">test_end_cum_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">failures</span>, <span class="va">suspensions</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">t_forecast</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n_target</span> <span class="op">/</span> <span class="va">growth_lambda</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">growth_beta</span><span class="op">)</span></span>
-<span><span class="va">delta_cum_time</span> <span class="op">&lt;-</span> <span class="va">t_forecast</span> <span class="op">-</span> <span class="va">test_end_cum_time</span></span>
-<span><span class="va">effective_fleet</span> <span class="op">&lt;-</span> <span class="va">n_surviving</span> <span class="op">-</span> <span class="va">n_forecast</span> <span class="op">/</span> <span class="fl">2</span></span>
-<span><span class="va">per_unit_time</span> <span class="op">&lt;-</span> <span class="va">delta_cum_time</span> <span class="op">/</span> <span class="va">effective_fleet</span></span></code></pre></div>
-<p>The forecasted cumulative time to 80 total failures is 82,705 units,
-requiring an additional 66,235 cumulative time units beyond the test
-end. Because units that fail during the forecast period stop
-accumulating operating time, a simple division by 80 would underestimate
-the per-unit horizon. An attrition-adjusted effective fleet size of 50
-accounts for this by assuming that, on average, each failing unit
-contributes roughly half a window of operating time. The resulting
-per-unit simulation horizon is 1324.7 additional operating time
-units.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">forecast_times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">test_end_cum_time</span>, <span class="va">t_forecast</span>, length.out <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span><span class="va">fc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_rga.html">predict_rga</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">forecast_times</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in predict_rga(fit, forecast_times): Some 'times' values are &lt;= the</span></span>
-<span><span class="co">#&gt; maximum observed cumulative time. Hindcasting is allowed but may not be</span></span>
-<span><span class="co">#&gt; meaningful.</span></span>
+<span><span class="co"># No-growth count the fitted fleet Weibull expects over the window (forward hazard).</span></span>
+<span><span class="va">expected_failures</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">w</span>, <span class="va">eta</span>, <span class="va">r</span>, <span class="va">beta</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="op">(</span><span class="op">(</span><span class="va">r</span> <span class="op">+</span> <span class="va">w</span><span class="op">)</span> <span class="op">/</span> <span class="va">eta</span><span class="op">)</span><span class="op">^</span><span class="va">beta</span> <span class="op">-</span> <span class="op">(</span><span class="va">r</span> <span class="op">/</span> <span class="va">eta</span><span class="op">)</span><span class="op">^</span><span class="va">beta</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co"># Scale that reproduces a target expected count over the window.</span></span>
+<span><span class="va">solve_eta</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">target</span>, <span class="va">r</span>, <span class="va">beta</span>, <span class="va">window</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/uniroot.html" class="external-link">uniroot</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">eta</span><span class="op">)</span> <span class="fu">expected_failures</span><span class="op">(</span><span class="va">window</span>, <span class="va">eta</span>, <span class="va">r</span>, <span class="va">beta</span><span class="op">)</span> <span class="op">-</span> <span class="va">target</span>,</span>
+<span>    interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1e-3</span>, <span class="fl">1e9</span><span class="op">)</span></span>
+<span>  <span class="op">)</span><span class="op">$</span><span class="va">root</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co"># Crow-AMSAA growth count-ratio: growth lowers the expected count; equals 1 at beta_growth = 1.</span></span>
+<span><span class="va">count_ratio</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">bg</span>, <span class="va">rho</span><span class="op">)</span> <span class="op">(</span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">rho</span><span class="op">)</span><span class="op">^</span><span class="va">bg</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="va">rho</span></span>
+<span></span>
+<span><span class="va">f0</span> <span class="op">&lt;-</span> <span class="fu">expected_failures</span><span class="op">(</span><span class="va">forecast_window</span>, <span class="va">eta_orig</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">test_end</span>, <span class="va">n_surviving</span><span class="op">)</span>, <span class="va">sim_beta</span><span class="op">)</span></span>
+<span><span class="va">rho</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n_surviving</span> <span class="op">*</span> <span class="va">forecast_window</span><span class="op">)</span> <span class="op">/</span> <span class="va">test_end_cum_time</span></span>
+<span><span class="va">n_expected</span> <span class="op">&lt;-</span> <span class="va">f0</span> <span class="op">*</span> <span class="fu">count_ratio</span><span class="op">(</span><span class="va">growth_beta</span>, <span class="va">rho</span><span class="op">)</span></span>
+<span><span class="va">n_forecast</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">n_expected</span><span class="op">)</span></span>
+<span><span class="va">n_target</span> <span class="op">&lt;-</span> <span class="va">n_test_failures</span> <span class="op">+</span> <span class="va">n_forecast</span></span></code></pre></div>
+<p>Over the forecast window of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+= 200 operating time units, the fitted fleet Weibull expects
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mn>0</mn></msub><annotation encoding="application/x-tex">F_0</annotation></semantics></math>
+= 16.2 failures with no growth. The growth count-ratio is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>
+= 0.81, lowering the growth-adjusted target to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+= 13 additional failures, for a total of 33 cumulative failures. Because
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">c = 1</annotation></semantics></math>
+at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\beta_{\text{growth}} = 1</annotation></semantics></math>,
+with no growth the target reduces to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mn>0</mn></msub><annotation encoding="application/x-tex">F_0</annotation></semantics></math>
+and the calibrated scale returns the fitted fleet value, so the
+growth-adjusted distribution then recovers the no-growth baseline
+exactly.</p>
+<p>Underlying the fleet projection is the developmental growth model
+itself, which <code><a href="../reference/predict_rga.html">predict_rga()</a></code> extrapolates to forecast
+continued failure accumulation. The figure shows the Crow-AMSAA model
+fitted to the 30 developmental builds and forecast forward to 43
+cumulative failures (i.e. 13 further failures along the same trend),
+with the model’s confidence bounds.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dev_target</span> <span class="op">&lt;-</span> <span class="va">N_dev</span> <span class="op">+</span> <span class="va">n_forecast</span></span>
+<span><span class="va">t_f_dev</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">dev_target</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">dev_fit</span><span class="op">$</span><span class="va">lambdas</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">growth_beta</span><span class="op">)</span></span>
+<span><span class="va">dev_forecast_times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">dev_cum</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.001</span>, <span class="va">t_f_dev</span>, length.out <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_rga.html">predict_rga</a></span><span class="op">(</span><span class="va">dev_fit</span>, times <span class="op">=</span> <span class="va">dev_forecast_times</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fc</span>,</span>
 <span>  main <span class="op">=</span> <span class="st">"Reliability Growth Forecast"</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="st">"Cumulative Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span></span>
+<span>  xlab <span class="op">=</span> <span class="st">"Cumulative Test Time"</span>, ylab <span class="op">=</span> <span class="st">"Cumulative Failures"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="RGF_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="RGF_files/figure-html/forecast-plot-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="simulating-failures">Simulating Failures<a class="anchor" aria-label="anchor" href="#simulating-failures"></a>
@@ -231,32 +315,36 @@ units.</p>
 Weibull failure times for the surviving units. Each unit has already
 accumulated 1000 operating time units, and the simulation draws failure
 times from the conditional Weibull distribution over the forecast
-horizon derived above. The function internally calibrates the Weibull
-scale parameter
+window. We calibrate the Weibull scale parameter
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-so that the expected number of conditional failures over the horizon
-matches the target count of 60.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+to the growth-adjusted expected count over the window and pass it in (at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\beta_{\text{growth}} = 1</annotation></semantics></math>
+this returns the fitted fleet scale exactly), then draw the integer
+number of failures.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">sim_eta</span> <span class="op">&lt;-</span> <span class="fu">solve_eta</span><span class="op">(</span><span class="va">n_expected</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">test_end</span>, <span class="va">n_surviving</span><span class="op">)</span>, <span class="va">sim_beta</span>, <span class="va">forecast_window</span><span class="op">)</span></span>
 <span><span class="va">sim_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_failures.html">sim_failures</a></span><span class="op">(</span></span>
 <span>  n <span class="op">=</span> <span class="va">n_forecast</span>,</span>
 <span>  runtimes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="va">n_surviving</span><span class="op">)</span>,</span>
-<span>  window <span class="op">=</span> <span class="va">per_unit_time</span>,</span>
-<span>  beta <span class="op">=</span> <span class="va">sim_beta</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">sim_eta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sim_result</span>, <span class="st">"weibull_eta"</span><span class="op">)</span></span></code></pre></div>
+<span>  window <span class="op">=</span> <span class="va">forecast_window</span>,</span>
+<span>  beta <span class="op">=</span> <span class="va">sim_beta</span>,</span>
+<span>  eta <span class="op">=</span> <span class="va">sim_eta</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>The calibrated scale parameter is
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-= 2175.8, compared to the original test-data estimate of
+= 1573.3, compared to the original baseline estimate of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-= 1321.4. The increase in
+= 1479.4. The increase in
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-reflects the reliability growth: the growth-adjusted failure rate is
-lower, so a larger characteristic life is needed to match the forecasted
-failure count. Of the 80 surviving units, 60 receive simulated failure
-times and 20 are right-censored at the end of the forecast horizon.</p>
-<p>The simulated failures are combined with the 20 test failures:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+is the mechanical consequence of the assumed growth: growth lowers the
+expected failure count over the fixed window, so a larger characteristic
+life is required to reproduce the reduced count. Of the 80 surviving
+units, 13 receive simulated failure times and 67 are right-censored at
+the end of the forecast window.</p>
+<p>The simulated failures are combined with the 20 observed
+failures:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_fail_times</span> <span class="op">&lt;-</span> <span class="va">sim_result</span><span class="op">$</span><span class="va">runtime</span><span class="op">[</span><span class="va">sim_result</span><span class="op">$</span><span class="va">type</span> <span class="op">==</span> <span class="st">"Failure"</span><span class="op">]</span></span>
 <span><span class="va">sim_susp_times</span> <span class="op">&lt;-</span> <span class="va">sim_result</span><span class="op">$</span><span class="va">runtime</span><span class="op">[</span><span class="va">sim_result</span><span class="op">$</span><span class="va">type</span> <span class="op">==</span> <span class="st">"Suspension"</span><span class="op">]</span></span>
 <span><span class="va">combined_failures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">failures</span>, <span class="va">sim_fail_times</span><span class="op">)</span></span>
@@ -268,124 +356,164 @@ times and 20 are right-censored at the end of the forecast horizon.</p>
 growth:</p>
 <ul>
 <li>
-<strong>Without growth</strong>: fitted to the original test data
+<strong>Without growth</strong>: fitted to the fielded fleet data
 (20 failures, 80 suspensions at
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">t = 1000</annotation></semantics></math>).
-This represents the life distribution implied by the test alone, without
-projecting the growth trend forward.</li>
+This represents the life distribution implied by the fleet alone,
+without projecting the growth trend forward.</li>
 <li>
 <strong>With growth</strong>: fitted to the combined dataset (20
-test failures + 60 simulated failures + 20 suspensions). This represents
-the life distribution when growth-adjusted failure times are
+observed failures + 13 simulated failures + 67 suspensions). This
+represents the life distribution when growth-adjusted failure times are
 included.</li>
 </ul>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">obj_growth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.html" class="external-link">wblr</a></span><span class="op">(</span><span class="va">combined_failures</span>, <span class="va">combined_suspensions</span>,</span>
-<span>  col <span class="op">=</span> <span class="st">"tomato"</span>, label <span class="op">=</span> <span class="st">"With Growth"</span>, is.plot.cb <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">obj_growth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.fit.html" class="external-link">wblr.fit</a></span><span class="op">(</span><span class="va">obj_growth</span><span class="op">)</span></span>
-<span></span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Headline comparison is like-for-like: a 2-parameter Weibull fitted by MLE to both the</span></span>
+<span><span class="co"># fielded fleet (no-growth baseline) and the growth-augmented data, so the two fits differ</span></span>
+<span><span class="co"># only in their data, not in parameterization or estimation method.</span></span>
 <span><span class="va">obj_nogrowth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.html" class="external-link">wblr</a></span><span class="op">(</span><span class="va">failures</span>, <span class="va">suspensions</span>,</span>
 <span>  col <span class="op">=</span> <span class="st">"grey40"</span>, label <span class="op">=</span> <span class="st">"Without Growth"</span>, is.plot.cb <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">obj_nogrowth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.fit.html" class="external-link">wblr.fit</a></span><span class="op">(</span><span class="va">obj_nogrowth</span><span class="op">)</span></span>
+<span><span class="va">obj_nogrowth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.fit.html" class="external-link">wblr.fit</a></span><span class="op">(</span><span class="va">obj_nogrowth</span>, method.fit <span class="op">=</span> <span class="st">"mle"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">obj_growth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.html" class="external-link">wblr</a></span><span class="op">(</span><span class="va">combined_failures</span>, <span class="va">combined_suspensions</span>,</span>
+<span>  col <span class="op">=</span> <span class="st">"tomato"</span>, label <span class="op">=</span> <span class="st">"With Growth (2P)"</span>, is.plot.cb <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">obj_growth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.fit.html" class="external-link">wblr.fit</a></span><span class="op">(</span><span class="va">obj_growth</span>, method.fit <span class="op">=</span> <span class="st">"mle"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/plot.wblr.html" class="external-link">plot.wblr</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">obj_nogrowth</span>, <span class="va">obj_growth</span><span class="op">)</span>,</span>
 <span>  main <span class="op">=</span> <span class="st">"Weibull Comparison: With vs. Without Reliability Growth"</span>,</span>
 <span>  is.plot.legend <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="RGF_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<p><img src="RGF_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="700"></p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">growth_wb_beta</span> <span class="op">&lt;-</span> <span class="va">obj_growth</span><span class="op">$</span><span class="va">fit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">beta</span></span>
 <span><span class="va">growth_wb_eta</span> <span class="op">&lt;-</span> <span class="va">obj_growth</span><span class="op">$</span><span class="va">fit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">eta</span></span>
 <span><span class="va">nogrowth_wb_beta</span> <span class="op">&lt;-</span> <span class="va">obj_nogrowth</span><span class="op">$</span><span class="va">fit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">beta</span></span>
 <span><span class="va">nogrowth_wb_eta</span> <span class="op">&lt;-</span> <span class="va">obj_nogrowth</span><span class="op">$</span><span class="va">fit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">eta</span></span>
 <span></span>
+<span><span class="co"># B10 life (10th-percentile life): t such that F(t) = 0.10.</span></span>
+<span><span class="va">b10</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">beta</span>, <span class="va">eta</span>, <span class="va">t0</span> <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="va">t0</span> <span class="op">+</span> <span class="va">eta</span> <span class="op">*</span> <span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">0.90</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">beta</span><span class="op">)</span></span>
+<span><span class="va">nogrowth_b10</span> <span class="op">&lt;-</span> <span class="fu">b10</span><span class="op">(</span><span class="va">nogrowth_wb_beta</span>, <span class="va">nogrowth_wb_eta</span><span class="op">)</span></span>
+<span><span class="va">growth_b10</span> <span class="op">&lt;-</span> <span class="fu">b10</span><span class="op">(</span><span class="va">growth_wb_beta</span>, <span class="va">growth_wb_eta</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  Scenario <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Without Growth"</span>, <span class="st">"With Growth"</span><span class="op">)</span>,</span>
+<span>  Scenario <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Without Growth (2P)"</span>, <span class="st">"With Growth (2P)"</span><span class="op">)</span>,</span>
 <span>  Beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">nogrowth_wb_beta</span>, <span class="va">growth_wb_beta</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
-<span>  Eta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">nogrowth_wb_eta</span>, <span class="va">growth_wb_eta</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span>  Eta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">nogrowth_wb_eta</span>, <span class="va">growth_wb_eta</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  B10 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">nogrowth_b10</span>, <span class="va">growth_b10</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">params</span>,</span>
-<span>  caption <span class="op">=</span> <span class="st">"Weibull parameters: with vs. without reliability growth"</span>,</span>
-<span>  col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Scenario"</span>, <span class="st">"\u03b2"</span>, <span class="st">"\u03b7"</span><span class="op">)</span>,</span>
+<span>  caption <span class="op">=</span> <span class="st">"Weibull parameters and B10 life: with vs. without reliability growth (two-parameter MLE)"</span>,</span>
+<span>  col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Scenario"</span>, <span class="st">"β"</span>, <span class="st">"η"</span>, <span class="st">"B10"</span><span class="op">)</span>,</span>
 <span>  row.names <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <table class="table">
-<caption>Weibull parameters: with vs. without reliability
-growth</caption>
+<caption>Weibull parameters and B10 life: with vs. without reliability
+growth (two-parameter MLE)</caption>
 <thead><tr class="header">
 <th align="left">Scenario</th>
 <th align="right">β</th>
 <th align="right">η</th>
+<th align="right">B10</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">Without Growth</td>
-<td align="right">5.135</td>
-<td align="right">1321.4</td>
+<td align="left">Without Growth (2P)</td>
+<td align="right">3.816</td>
+<td align="right">1479.4</td>
+<td align="right">820.3</td>
 </tr>
 <tr class="even">
-<td align="left">With Growth</td>
-<td align="right">2.895</td>
-<td align="right">2071.9</td>
+<td align="left">With Growth (2P)</td>
+<td align="right">3.598</td>
+<td align="right">1548.0</td>
+<td align="right">828.2</td>
 </tr>
 </tbody>
 </table>
-<p>Under reliability growth, the combined dataset includes simulated
-failure times that extend beyond the original test horizon, producing a
-larger estimated
+<p>Under the assumed continued growth, the fleet accumulates fewer
+failures over the forecast window than its no-growth life distribution
+predicts, producing a larger estimated
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-(rightward shift in the life distribution). Both
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-are freely estimated in each fit.</p>
-<p>Because the combined dataset merges test-era failures (generated
-under the original failure distribution) with simulated post-growth
-failures (generated under a larger
+(rightward shift in the life distribution). This shift is a mechanistic
+consequence of calibrating the simulation to the growth-reduced failure
+count rather than an independently discovered effect; the analysis
+quantifies its size, it does not establish its existence.</p>
+<p>To keep the comparison like-for-like, both the no-growth baseline and
+the growth-augmented data are fitted with a two-parameter Weibull by
+maximum likelihood, so the two fits differ only in their data — not in
+parameterization or estimation method. The B10 life — the
+10th-percentile life,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>η</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><mn>0.9</mn><msup><mo stretchy="false" form="postfix">)</mo><mrow><mn>1</mn><mi>/</mi><mi>β</mi></mrow></msup></mrow><annotation encoding="application/x-tex">\eta\,(-\ln 0.9)^{1/\beta}</annotation></semantics></math>
+— is the headline growth indicator, rising from 820.3 (without growth)
+to 828.2 (with growth).</p>
+<p>Because the combined dataset merges field failures (generated under
+the matured failure distribution) with simulated post-growth failures
+(generated under a larger
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>),
-the data do not follow a single Weibull distribution exactly. On a
-Weibull probability plot the two populations produce a concave pattern,
-which pulls the fitted
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-downward. The
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-comparison remains the primary indicator of the growth effect; the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-change should be interpreted as a mixture artifact rather than a shift
-in the underlying failure mechanism.</p>
+the two populations produce a concave-downward (mixture) pattern on a
+Weibull probability plot, which the two-parameter fit accommodates with
+a depressed shape
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+falls from 3.82 to 3.6). The two-parameter B10 is retained because it is
+stable across estimation methods and matches the two-parameter fits used
+in the Monte Carlo and sensitivity analyses.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="monte-carlo-analysis">Monte Carlo Analysis<a class="anchor" aria-label="anchor" href="#monte-carlo-analysis"></a>
 </h2>
 <p>A single call to <code><a href="../reference/sim_failures.html">sim_failures()</a></code> produces one realization
-of the 60 simulated failure times. Different random draws yield
+of the 13 simulated failure times. Different random draws yield
 different combined datasets and therefore different Weibull parameter
-estimates. The Monte Carlo analysis repeats the simulation 500 times to
-characterize this variability.</p>
+estimates. The Monte Carlo analysis repeats the procedure 500 times to
+characterize this variability. Two sources are propagated: the
+randomness of the conditional simulation and the estimation uncertainty
+in the developmental growth parameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>.
+Here the growth trend is estimated very precisely — the developmental
+fit pins
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>
+down tightly (small standard error) — so the spread is dominated by the
+conditional simulation, with growth-parameter uncertainty included for
+completeness but contributing little. The result should be read as a
+forecast variability band rather than a formal confidence interval.</p>
 <div class="section level3">
 <h3 id="run-the-monte-carlo-loop">Run the Monte Carlo Loop<a class="anchor" aria-label="anchor" href="#run-the-monte-carlo-loop"></a>
 </h3>
-<p>Each iteration draws a new set of 60 simulated failure times,
-combines them with the 20 test failures, and fits a Weibull
-distribution. Both
+<p>Each iteration resamples the growth parameter from its sampling
+distribution, recomputes the growth-adjusted failure count over the
+fixed window, then draws a new set of simulated failure times, combines
+them with the 20 observed failures, and fits a Weibull distribution.
+Both
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-are freely estimated in every iteration.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+are freely estimated in every iteration. The Monte Carlo and sensitivity
+loops use the two-parameter MLE fit, matching the headline comparison
+above, so the B10 life is directly comparable throughout.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">99</span><span class="op">)</span></span>
 <span><span class="va">n_mc</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
 <span><span class="va">mc_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="va">n_mc</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Sampling distribution of the developmental growth parameter.</span></span>
+<span><span class="va">betag_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">dev_fit</span><span class="op">$</span><span class="va">betas</span><span class="op">)</span></span>
+<span><span class="va">betag_se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">dev_fit</span><span class="op">$</span><span class="va">betas_se</span><span class="op">)</span></span>
+<span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_mc</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span></span>
 <span>    <span class="op">{</span></span>
+<span>      <span class="co"># Draw a growth parameter and recompute the growth-adjusted count over the window.</span></span>
+<span>      <span class="va">beta_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">betag_hat</span>, <span class="va">betag_se</span><span class="op">)</span></span>
+<span>      <span class="kw">if</span> <span class="op">(</span><span class="va">beta_i</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"non-positive growth parameter draw"</span><span class="op">)</span></span>
+<span>      <span class="va">target_i</span> <span class="op">&lt;-</span> <span class="va">f0</span> <span class="op">*</span> <span class="fu">count_ratio</span><span class="op">(</span><span class="va">beta_i</span>, <span class="va">rho</span><span class="op">)</span></span>
+<span>      <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.finite</a></span><span class="op">(</span><span class="va">target_i</span><span class="op">)</span> <span class="op">||</span> <span class="va">target_i</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"non-positive count draw"</span><span class="op">)</span></span>
+<span></span>
 <span>      <span class="va">mc_results</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">sim_and_fit</span><span class="op">(</span></span>
-<span>        <span class="va">failures</span>, <span class="va">n_forecast</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="va">n_surviving</span><span class="op">)</span>, <span class="va">per_unit_time</span>, <span class="va">sim_beta</span></span>
+<span>        <span class="va">failures</span>, <span class="va">target_i</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="va">n_surviving</span><span class="op">)</span>, <span class="va">forecast_window</span>, <span class="va">sim_beta</span></span>
 <span>      <span class="op">)</span></span>
 <span>    <span class="op">}</span>,</span>
 <span>    error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="cn">NULL</span></span>
@@ -401,15 +529,16 @@ are freely estimated in every iteration.</p>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>β</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\beta}</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>η</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\eta}</annotation></semantics></math>
-across all valid iterations show the spread introduced by the stochastic
-simulation. The dashed line marks the Monte Carlo median, and the dotted
-grey line marks the no-growth baseline.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+across all valid iterations show the spread introduced by the combined
+growth-parameter and simulation variability. The dashed line marks the
+Monte Carlo median, and the dotted grey line marks the no-growth
+baseline.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">beta</span>,</span>
 <span>  breaks <span class="op">=</span> <span class="st">"Sturges"</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>, border <span class="op">=</span> <span class="st">"white"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"MC Distribution of \u03b2"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"MC Distribution of β"</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/influence.measures.html" class="external-link">hat</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"Count"</span>, freq <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">beta</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
@@ -417,38 +546,42 @@ grey line marks the no-growth baseline.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">eta</span>,</span>
 <span>  breaks <span class="op">=</span> <span class="st">"Sturges"</span>, col <span class="op">=</span> <span class="st">"tomato"</span>, border <span class="op">=</span> <span class="st">"white"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"MC Distribution of \u03b7"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"MC Distribution of η"</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/influence.measures.html" class="external-link">hat</a></span><span class="op">(</span><span class="va">eta</span><span class="op">)</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"Count"</span>, freq <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">eta</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="va">nogrowth_wb_eta</span>, lty <span class="op">=</span> <span class="fl">3</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey40"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="RGF_files/figure-html/mc-histograms-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="monte-carlo-summary">Monte Carlo Summary<a class="anchor" aria-label="anchor" href="#monte-carlo-summary"></a>
 </h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mc_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  Parameter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"\u03b2"</span>, <span class="st">"\u03b7"</span><span class="op">)</span>,</span>
-<span>  NoGrowth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">nogrowth_wb_beta</span>, <span class="va">nogrowth_wb_eta</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
-<span>  Median <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">eta</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
-<span>  Mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">eta</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mc_df</span><span class="op">$</span><span class="va">b10</span> <span class="op">&lt;-</span> <span class="fu">b10</span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">beta</span>, <span class="va">mc_df</span><span class="op">$</span><span class="va">eta</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">mc_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  Parameter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"β"</span>, <span class="st">"η"</span>, <span class="st">"B10"</span><span class="op">)</span>,</span>
+<span>  NoGrowth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">nogrowth_wb_beta</span>, <span class="va">nogrowth_wb_eta</span>, <span class="va">nogrowth_b10</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  Median <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">eta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">b10</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  Mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">eta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">b10</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  CI_lo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">beta</span>, <span class="fl">0.025</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">eta</span>, <span class="fl">0.025</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">eta</span>, <span class="fl">0.025</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">b10</span>, <span class="fl">0.025</span><span class="op">)</span></span>
 <span>  <span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  CI_hi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">beta</span>, <span class="fl">0.975</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">eta</span>, <span class="fl">0.975</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">eta</span>, <span class="fl">0.975</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">$</span><span class="va">b10</span>, <span class="fl">0.975</span><span class="op">)</span></span>
 <span>  <span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">mc_summary</span>,</span>
 <span>  caption <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Monte Carlo summary of Weibull parameters ("</span>,</span>
+<span>    <span class="st">"Monte Carlo summary of Weibull parameters and B10 life ("</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">mc_df</span><span class="op">)</span>, <span class="st">" valid iterations)"</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -457,8 +590,8 @@ grey line marks the no-growth baseline.</p>
 <span>  row.names <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <table class="table">
-<caption>Monte Carlo summary of Weibull parameters (500 valid
-iterations)</caption>
+<caption>Monte Carlo summary of Weibull parameters and B10 life (500
+valid iterations)</caption>
 <thead><tr class="header">
 <th align="left">Parameter</th>
 <th align="right">No Growth</th>
@@ -470,249 +603,194 @@ iterations)</caption>
 <tbody>
 <tr class="odd">
 <td align="left">β</td>
-<td align="right">5.135</td>
-<td align="right">2.898</td>
-<td align="right">2.901</td>
-<td align="right">2.819</td>
-<td align="right">3.009</td>
+<td align="right">3.816</td>
+<td align="right">3.550</td>
+<td align="right">3.552</td>
+<td align="right">3.463</td>
+<td align="right">3.647</td>
 </tr>
 <tr class="even">
 <td align="left">η</td>
-<td align="right">1321.367</td>
-<td align="right">2045.918</td>
-<td align="right">2047.058</td>
-<td align="right">1951.069</td>
-<td align="right">2132.474</td>
+<td align="right">1479.424</td>
+<td align="right">1550.057</td>
+<td align="right">1550.144</td>
+<td align="right">1543.172</td>
+<td align="right">1556.901</td>
+</tr>
+<tr class="odd">
+<td align="left">B10</td>
+<td align="right">820.290</td>
+<td align="right">822.244</td>
+<td align="right">822.541</td>
+<td align="right">812.750</td>
+<td align="right">832.969</td>
 </tr>
 </tbody>
 </table>
-<p>The Monte Carlo distributions quantify how much the Weibull parameter
-estimates vary due to the randomness in the simulated failure times. The
-no-growth baseline falls outside the Monte Carlo distribution when the
-growth trend produces a meaningfully different life distribution.</p>
+<p>The Monte Carlo distributions quantify how much the growth-adjusted
+Weibull estimates vary across repeated simulations, here almost entirely
+from the stochastic simulation rather than from growth-parameter
+estimation uncertainty. These bands represent the variability of the
+forecast conditional on the fitted growth model and the assumed growth
+continuation, not inferential confidence intervals. They quantify the
+repeatability of the method and the sensitivity of the forecast to
+simulation randomness, but they do not assess the accuracy of the growth
+assumption itself. They should be read as forecast variability bands
+conditional on the fitted model and the assumed growth scenario, not as
+inferential confidence intervals or a hypothesis test; in particular,
+model-form uncertainty (the choice of the Crow-AMSAA power law) is not
+represented. The separation between the no-growth baseline and the Monte
+Carlo distribution of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>η</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\eta}</annotation></semantics></math>
+reflects the genuine growth reduction in the failure count
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">c(\beta_{\text{growth}}) &lt; 1</annotation></semantics></math>);
+with no growth the target reduces to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mn>0</mn></msub><annotation encoding="application/x-tex">F_0</annotation></semantics></math>
+and the distribution centers on the baseline.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="sensitivity-analysis">Sensitivity Analysis<a class="anchor" aria-label="anchor" href="#sensitivity-analysis"></a>
 </h2>
-<p>The preceding Monte Carlo analysis held the RGA forecast and Weibull
-input shape parameter fixed while varying the simulated failure draws.
+<p>The preceding Monte Carlo analysis held the fleet assessment fixed
+while resampling the growth parameter and the simulated failure draws.
 This section examines how two key inputs affect the growth-adjusted
-Weibull: (a) the number of test failures observed during the campaign,
-and (b) the Crow-AMSAA growth parameter.</p>
+Weibull: (a) the fleet assessment point — how many failures have been
+observed when the forecast is made — and (b) the Crow-AMSAA growth
+parameter.</p>
 <div class="section level3">
-<h3 id="effect-of-number-of-test-failures">Effect of Number of Test Failures<a class="anchor" aria-label="anchor" href="#effect-of-number-of-test-failures"></a>
+<h3 id="effect-of-fleet-assessment-point">Effect of Fleet Assessment Point<a class="anchor" aria-label="anchor" href="#effect-of-fleet-assessment-point"></a>
 </h3>
-<p>The number of failures observed during the test affects both the
-Weibull fit to the test data and the RGA model. More test failures
-provide more information about the failure distribution but also change
-the number of remaining units to forecast. Four scenarios are examined:
-10, 20, 30, and 40 test failures out of 100 units.</p>
+<p>The point at which the fleet is assessed determines how many failures
+have been observed and how much operating time has accrued, which
+together set the re-anchored
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+and the length of the extrapolation. The same fleet is assessed at four
+service points, yielding progressively more observed failures.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">assessment_times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">850</span>, <span class="fl">950</span>, <span class="fl">1050</span>, <span class="fl">1150</span><span class="op">)</span></span>
+<span><span class="va">fleet_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">assessment_times</span>, <span class="kw">function</span><span class="op">(</span><span class="va">te</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">fleet_life</span> <span class="op">&lt;=</span> <span class="va">te</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fleet_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">fleet_obs</span>, <span class="st">" failures"</span><span class="op">)</span></span></code></pre></div>
+<p>For each assessment point the fleet is censored at that service time,
+the no-growth Weibull is fitted,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+is re-anchored (importing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>
+from the developmental test), the horizon is forecast for a fixed 13
+additional failures, and the combined Weibull is fitted. A Monte Carlo
+loop of 200 iterations per scenario captures the simulation
+variability.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Build failure scenarios by subsampling or extending the base failures</span></span>
-<span><span class="va">fail_10</span> <span class="op">&lt;-</span> <span class="va">failures</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">20</span>, by <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">fail_20</span> <span class="op">&lt;-</span> <span class="va">failures</span></span>
-<span><span class="va">fail_30</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">failures</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">505</span>, <span class="fl">995</span>, length.out <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">fail_40</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">failures</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">510</span>, <span class="fl">998</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">test_fail_scenarios</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="st">"10 failures"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>f <span class="op">=</span> <span class="va">fail_10</span>, s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">90</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="st">"20 failures"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>f <span class="op">=</span> <span class="va">fail_20</span>, s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">80</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="st">"30 failures"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>f <span class="op">=</span> <span class="va">fail_30</span>, s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">70</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="st">"40 failures"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>f <span class="op">=</span> <span class="va">fail_40</span>, s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">60</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>For each scenario, the full pipeline is executed: fit the Weibull,
-fit the RGA, forecast remaining failures, simulate with
-<code><a href="../reference/sim_failures.html">sim_failures()</a></code>, and fit the combined Weibull. A Monte Carlo
-loop of 200 iterations per scenario captures variability. In each
-scenario, 75% of the surviving units are targeted for simulated failure
-(matching the base analysis), with the remainder treated as
-suspensions.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">n_mc_sens</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
 <span></span>
-<span><span class="va">sens_fail_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">test_fail_scenarios</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">sc_name</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">sc</span> <span class="op">&lt;-</span> <span class="va">test_fail_scenarios</span><span class="op">[[</span><span class="va">sc_name</span><span class="op">]</span><span class="op">]</span></span>
-<span>  <span class="va">n_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sc</span><span class="op">$</span><span class="va">f</span><span class="op">)</span></span>
-<span>  <span class="va">n_s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sc</span><span class="op">$</span><span class="va">s</span><span class="op">)</span></span>
-<span>  <span class="va">n_fc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">n_s</span> <span class="op">*</span> <span class="fl">0.75</span><span class="op">)</span> <span class="co"># forecast 75% of survivors</span></span>
+<span><span class="va">sens_fleet_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">assessment_times</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">te</span> <span class="op">&lt;-</span> <span class="va">assessment_times</span><span class="op">[</span><span class="va">k</span><span class="op">]</span></span>
+<span>  <span class="va">fail_te</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fleet_life</span><span class="op">[</span><span class="va">fleet_life</span> <span class="op">&lt;=</span> <span class="va">te</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">susp_te</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">te</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">fleet_life</span> <span class="op">&gt;</span> <span class="va">te</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">n_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fail_te</span><span class="op">)</span></span>
+<span>  <span class="va">n_surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">susp_te</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span></span>
-<span>    <span class="op">{</span></span>
-<span>      <span class="co"># Fit Weibull</span></span>
-<span>      <span class="va">obj_sc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.html" class="external-link">wblr</a></span><span class="op">(</span><span class="va">sc</span><span class="op">$</span><span class="va">f</span>, <span class="va">sc</span><span class="op">$</span><span class="va">s</span>, is.plot.cb <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span>      <span class="va">obj_sc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.fit.html" class="external-link">wblr.fit</a></span><span class="op">(</span><span class="va">obj_sc</span><span class="op">)</span></span>
-<span>      <span class="va">beta_sc</span> <span class="op">&lt;-</span> <span class="va">obj_sc</span><span class="op">$</span><span class="va">fit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">beta</span></span>
+<span>  <span class="va">obj_te</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.fit.html" class="external-link">wblr.fit</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/WeibullR/man/wblr.html" class="external-link">wblr</a></span><span class="op">(</span><span class="va">fail_te</span>, <span class="va">susp_te</span>, is.plot.cb <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>, method.fit <span class="op">=</span> <span class="st">"mle"</span><span class="op">)</span></span>
+<span>  <span class="va">beta_te</span> <span class="op">&lt;-</span> <span class="va">obj_te</span><span class="op">$</span><span class="va">fit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">beta</span></span>
+<span>  <span class="va">eta_te</span> <span class="op">&lt;-</span> <span class="va">obj_te</span><span class="op">$</span><span class="va">fit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">eta</span></span>
 <span></span>
-<span>      <span class="co"># Fit RGA</span></span>
-<span>      <span class="va">rga_sc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weibull_to_rga.html">weibull_to_rga</a></span><span class="op">(</span><span class="va">sc</span><span class="op">$</span><span class="va">f</span>, <span class="va">sc</span><span class="op">$</span><span class="va">s</span><span class="op">)</span></span>
-<span>      <span class="va">rga_in</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>        times <span class="op">=</span> <span class="va">rga_sc</span><span class="op">$</span><span class="va">CumulativeTime</span>,</span>
-<span>        failures <span class="op">=</span> <span class="va">rga_sc</span><span class="op">$</span><span class="va">Failures</span></span>
-<span>      <span class="op">)</span></span>
-<span>      <span class="va">fit_sc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rga.html">rga</a></span><span class="op">(</span><span class="va">rga_in</span>, times_type <span class="op">=</span> <span class="st">"cumulative_failure_times"</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">n_surv</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="co"># No-growth count over the fixed window from this assessment's own fitted baseline,</span></span>
+<span>  <span class="co"># lowered by the growth count-ratio at this assessment's cumulative exposure.</span></span>
+<span>  <span class="va">f0_te</span> <span class="op">&lt;-</span> <span class="fu">expected_failures</span><span class="op">(</span><span class="va">forecast_window</span>, <span class="va">eta_te</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">te</span>, <span class="va">n_surv</span><span class="op">)</span>, <span class="va">beta_te</span><span class="op">)</span></span>
+<span>  <span class="va">rho_te</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n_surv</span> <span class="op">*</span> <span class="va">forecast_window</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">fail_te</span>, <span class="va">susp_te</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">target_te</span> <span class="op">&lt;-</span> <span class="va">f0_te</span> <span class="op">*</span> <span class="fu">count_ratio</span><span class="op">(</span><span class="va">growth_beta</span>, <span class="va">rho_te</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.finite</a></span><span class="op">(</span><span class="va">target_te</span><span class="op">)</span> <span class="op">||</span> <span class="va">target_te</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
 <span></span>
-<span>      <span class="co"># Forecast</span></span>
-<span>      <span class="va">t_end_sc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">rga_in</span><span class="op">$</span><span class="va">times</span><span class="op">)</span></span>
-<span>      <span class="va">n_tgt</span> <span class="op">&lt;-</span> <span class="va">n_f</span> <span class="op">+</span> <span class="va">n_fc</span></span>
-<span>      <span class="va">t_fc</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n_tgt</span> <span class="op">/</span> <span class="va">fit_sc</span><span class="op">$</span><span class="va">lambdas</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">fit_sc</span><span class="op">$</span><span class="va">betas</span><span class="op">)</span></span>
-<span>      <span class="va">delta_sc</span> <span class="op">&lt;-</span> <span class="va">t_fc</span> <span class="op">-</span> <span class="va">t_end_sc</span></span>
-<span>      <span class="va">effective_sc</span> <span class="op">&lt;-</span> <span class="va">n_s</span> <span class="op">-</span> <span class="va">n_fc</span> <span class="op">/</span> <span class="fl">2</span></span>
-<span>      <span class="va">put_sc</span> <span class="op">&lt;-</span> <span class="va">delta_sc</span> <span class="op">/</span> <span class="va">effective_sc</span></span>
-<span></span>
-<span>      <span class="kw">if</span> <span class="op">(</span><span class="va">put_sc</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span>        <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span></span>
-<span>      <span class="op">}</span></span>
-<span></span>
-<span>      <span class="co"># MC loop</span></span>
-<span>      <span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_mc_sens</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
-<span>        <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span></span>
-<span>          <span class="op">{</span></span>
-<span>            <span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">sim_and_fit</span><span class="op">(</span><span class="va">sc</span><span class="op">$</span><span class="va">f</span>, <span class="va">n_fc</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="va">n_s</span><span class="op">)</span>, <span class="va">put_sc</span>, <span class="va">beta_sc</span><span class="op">)</span></span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="va">sc_name</span>, <span class="va">r</span><span class="op">)</span></span>
-<span>          <span class="op">}</span>,</span>
-<span>          error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="cn">NULL</span></span>
-<span>        <span class="op">)</span></span>
-<span>      <span class="op">}</span><span class="op">)</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Negate</a></span><span class="op">(</span><span class="va">is.null</span><span class="op">)</span>, <span class="va">rows</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="op">}</span>,</span>
-<span>    error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="cn">NULL</span></span>
-<span>  <span class="op">)</span></span>
+<span>  <span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_mc_sens</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span></span>
+<span>      <span class="op">{</span></span>
+<span>        <span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">sim_and_fit</span><span class="op">(</span><span class="va">fail_te</span>, <span class="va">target_te</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">te</span>, <span class="va">n_surv</span><span class="op">)</span>, <span class="va">forecast_window</span>, <span class="va">beta_te</span><span class="op">)</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="va">fleet_labels</span><span class="op">[</span><span class="va">k</span><span class="op">]</span>, <span class="va">r</span><span class="op">)</span></span>
+<span>      <span class="op">}</span>,</span>
+<span>      error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="cn">NULL</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Negate</a></span><span class="op">(</span><span class="va">is.null</span><span class="op">)</span>, <span class="va">rows</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">sens_fail_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Negate</a></span><span class="op">(</span><span class="va">is.null</span><span class="op">)</span>, <span class="va">sens_fail_list</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">sens_fail_df</span><span class="op">$</span><span class="va">scenario</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
-<span>  <span class="va">sens_fail_df</span><span class="op">$</span><span class="va">scenario</span>,</span>
-<span>  levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">test_fail_scenarios</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<span><span class="va">sens_fleet_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Negate</a></span><span class="op">(</span><span class="va">is.null</span><span class="op">)</span>, <span class="va">sens_fleet_list</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sens_fleet_df</span><span class="op">$</span><span class="va">scenario</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">sens_fleet_df</span><span class="op">$</span><span class="va">scenario</span>, levels <span class="op">=</span> <span class="va">fleet_labels</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fail_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#2E86C1"</span>, <span class="st">"#27AE60"</span>, <span class="st">"#F39C12"</span>, <span class="st">"#C0392B"</span><span class="op">)</span></span>
+<span><span class="va">fleet_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#2E86C1"</span>, <span class="st">"#27AE60"</span>, <span class="st">"#F39C12"</span>, <span class="st">"#C0392B"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">beta</span> <span class="op">~</span> <span class="va">scenario</span>,</span>
-<span>  data <span class="op">=</span> <span class="va">sens_fail_df</span>,</span>
-<span>  col <span class="op">=</span> <span class="va">fail_cols</span>, outline <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Fitted \u03b2 by Test Failures"</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="st">"Scenario"</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/influence.measures.html" class="external-link">hat</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">sens_fleet_df</span>,</span>
+<span>  col <span class="op">=</span> <span class="va">fleet_cols</span>, outline <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Fitted β by Failures Observed"</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Failures observed at assessment"</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/influence.measures.html" class="external-link">hat</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  las <span class="op">=</span> <span class="fl">2</span>, cex.axis <span class="op">=</span> <span class="fl">0.8</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">eta</span> <span class="op">~</span> <span class="va">scenario</span>,</span>
-<span>  data <span class="op">=</span> <span class="va">sens_fail_df</span>,</span>
-<span>  col <span class="op">=</span> <span class="va">fail_cols</span>, outline <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Fitted \u03b7 by Test Failures"</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="st">"Scenario"</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/influence.measures.html" class="external-link">hat</a></span><span class="op">(</span><span class="va">eta</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">sens_fleet_df</span>,</span>
+<span>  col <span class="op">=</span> <span class="va">fleet_cols</span>, outline <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Fitted η by Failures Observed"</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Failures observed at assessment"</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/influence.measures.html" class="external-link">hat</a></span><span class="op">(</span><span class="va">eta</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  las <span class="op">=</span> <span class="fl">2</span>, cex.axis <span class="op">=</span> <span class="fl">0.8</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="RGF_files/figure-html/sens-fail-boxplot-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<p><img src="RGF_files/figure-html/sens-fleet-boxplot-1.png" class="r-plt" alt="" width="700"></p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sens_fail_tbl</span> <span class="op">&lt;-</span> <span class="fu">summarize_mc</span><span class="op">(</span><span class="va">sens_fail_df</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">sens_fail_tbl</span>,</span>
-<span>  caption <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Growth-adjusted Weibull by test-failure scenario ("</span>,</span>
-<span>    <span class="va">n_mc_sens</span>, <span class="st">" iterations each)"</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Scenario"</span>, <span class="st">"Valid"</span>, <span class="st">"Med. \u03b2"</span>,</span>
-<span>    <span class="st">"Med. \u03b7"</span>, <span class="st">"2.5% \u03b7"</span>, <span class="st">"97.5% \u03b7"</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  row.names <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<caption>Growth-adjusted Weibull by test-failure scenario (200
-iterations each)</caption>
-<thead><tr class="header">
-<th align="left">Scenario</th>
-<th align="right">Valid</th>
-<th align="right">Med. β</th>
-<th align="right">Med. η</th>
-<th align="right">2.5% η</th>
-<th align="right">97.5% η</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">10 failures</td>
-<td align="right">200</td>
-<td align="right">3.045</td>
-<td align="right">2348.6</td>
-<td align="right">2252.8</td>
-<td align="right">2467.7</td>
-</tr>
-<tr class="even">
-<td align="left">20 failures</td>
-<td align="right">200</td>
-<td align="right">2.890</td>
-<td align="right">2055.3</td>
-<td align="right">1962.3</td>
-<td align="right">2141.4</td>
-</tr>
-<tr class="odd">
-<td align="left">30 failures</td>
-<td align="right">200</td>
-<td align="right">2.816</td>
-<td align="right">1755.2</td>
-<td align="right">1686.1</td>
-<td align="right">1820.6</td>
-</tr>
-<tr class="even">
-<td align="left">40 failures</td>
-<td align="right">200</td>
-<td align="right">2.882</td>
-<td align="right">1544.2</td>
-<td align="right">1470.5</td>
-<td align="right">1604.6</td>
-</tr>
-</tbody>
-</table>
-<p>More test failures leave fewer units to forecast and provide a more
-constrained Weibull fit from the test data, while fewer test failures
-leave a larger fleet for simulation and greater forecast
-uncertainty.</p>
+<p>Across the four assessment points the growth count-ratio is
+essentially constant
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>≈</mo><mn>0.8</mn></mrow><annotation encoding="application/x-tex">c \approx 0.8</annotation></semantics></math>),
+so the growth adjustment itself is robust to when the fleet is assessed;
+the visible variation is inherited from the <em>baseline</em> Weibull
+fit, which is depressed by the heavy censoring of an early assessment
+(few observed failures) and stabilizes once enough failures have
+accrued. A dependable growth forecast therefore depends less on the
+assessment timing than on having enough observed failures to pin down
+the fleet’s baseline life distribution.</p>
 </div>
 <div class="section level3">
 <h3 id="effect-of-growth-parameter">Effect of Growth Parameter<a class="anchor" aria-label="anchor" href="#effect-of-growth-parameter"></a>
 </h3>
 <p>The Crow-AMSAA growth parameter
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>
-controls the forecast horizon: stronger growth (smaller
+controls the growth count-ratio
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">c(\beta_{\text{growth}})</annotation></semantics></math>:
+stronger growth (smaller
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>)
-implies that more cumulative operating time is needed before the target
-number of additional failures accumulates, producing longer simulated
-lifetimes and a larger
+lowers the expected failure count over the fixed window, producing fewer
+simulated failures and a larger
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>.
 Four growth scenarios are examined while holding all other inputs at
-their base values. For each scenario,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
-is re-anchored so that the model matches the observed failure count at
-the test end
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mi>k</mi></msub><mo>=</mo><msub><mi>N</mi><mtext mathvariant="normal">current</mtext></msub><mi>/</mi><msubsup><mi>t</mi><mtext mathvariant="normal">end</mtext><mrow><mspace width="0.167em"></mspace><msub><mi>β</mi><mrow><mi>g</mi><mo>,</mo><mi>k</mi></mrow></msub></mrow></msubsup></mrow><annotation encoding="application/x-tex">\lambda_k = N_{\text{current}} / t_{\text{end}}^{\,\beta_{g,k}}</annotation></semantics></math>),
-isolating the effect of the extrapolation rate from the model fit.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+their base values; each scales the same no-growth count
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mn>0</mn></msub><annotation encoding="application/x-tex">F_0</annotation></semantics></math>
+by its ratio
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">c(\beta_{\text{growth}})</annotation></semantics></math>,
+so the scenarios differ only in the growth strength.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">growth_scenarios</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">0.6</span>, <span class="fl">0.8</span>, <span class="fl">1.0</span><span class="op">)</span></span>
 <span><span class="va">growth_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"\u03b2g = 0.4 (strong)"</span>,</span>
-<span>  <span class="st">"\u03b2g = 0.6 (moderate)"</span>,</span>
-<span>  <span class="st">"\u03b2g = 0.8 (mild)"</span>,</span>
-<span>  <span class="st">"\u03b2g = 1.0 (none)"</span></span>
+<span>  <span class="st">"βg = 0.4 (strong)"</span>,</span>
+<span>  <span class="st">"βg = 0.6 (moderate)"</span>,</span>
+<span>  <span class="st">"βg = 0.8 (mild)"</span>,</span>
+<span>  <span class="st">"βg = 1.0 (none)"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">77</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sens_growth_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">growth_scenarios</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">gb</span> <span class="op">&lt;-</span> <span class="va">growth_scenarios</span><span class="op">[</span><span class="va">k</span><span class="op">]</span></span>
 <span></span>
-<span>  <span class="co"># Re-anchor lambda so model matches observed data, then forecast</span></span>
-<span>  <span class="va">lambda_k</span> <span class="op">&lt;-</span> <span class="va">n_test_failures</span> <span class="op">/</span> <span class="va">test_end_cum_time</span><span class="op">^</span><span class="va">gb</span></span>
-<span>  <span class="va">t_fc_k</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n_target</span> <span class="op">/</span> <span class="va">lambda_k</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">gb</span><span class="op">)</span></span>
-<span>  <span class="va">delta_k</span> <span class="op">&lt;-</span> <span class="va">t_fc_k</span> <span class="op">-</span> <span class="va">test_end_cum_time</span></span>
-<span>  <span class="va">put_k</span> <span class="op">&lt;-</span> <span class="va">delta_k</span> <span class="op">/</span> <span class="va">effective_fleet</span></span>
+<span>  <span class="co"># Lower the fixed-window no-growth count by the growth ratio for this scenario.</span></span>
+<span>  <span class="va">target_k</span> <span class="op">&lt;-</span> <span class="va">f0</span> <span class="op">*</span> <span class="fu">count_ratio</span><span class="op">(</span><span class="va">gb</span>, <span class="va">rho</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">put_k</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">target_k</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span></span>
@@ -720,7 +798,7 @@ isolating the effect of the extrapolation rate from the model fit.</p>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span></span>
 <span>      <span class="op">{</span></span>
 <span>        <span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">sim_and_fit</span><span class="op">(</span></span>
-<span>          <span class="va">failures</span>, <span class="va">n_forecast</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="va">n_surviving</span><span class="op">)</span>, <span class="va">put_k</span>, <span class="va">sim_beta</span></span>
+<span>          <span class="va">failures</span>, <span class="va">target_k</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="va">n_surviving</span><span class="op">)</span>, <span class="va">forecast_window</span>, <span class="va">sim_beta</span></span>
 <span>        <span class="op">)</span></span>
 <span>        <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="va">growth_labels</span><span class="op">[</span><span class="va">k</span><span class="op">]</span>, <span class="va">r</span><span class="op">)</span></span>
 <span>      <span class="op">}</span>,</span>
@@ -732,14 +810,14 @@ isolating the effect of the extrapolation rate from the model fit.</p>
 <span></span>
 <span><span class="va">sens_growth_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Negate</a></span><span class="op">(</span><span class="va">is.null</span><span class="op">)</span>, <span class="va">sens_growth_list</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">sens_growth_df</span><span class="op">$</span><span class="va">scenario</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">sens_growth_df</span><span class="op">$</span><span class="va">scenario</span>, levels <span class="op">=</span> <span class="va">growth_labels</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">growth_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#2E86C1"</span>, <span class="st">"#27AE60"</span>, <span class="st">"#F39C12"</span>, <span class="st">"#C0392B"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">beta</span> <span class="op">~</span> <span class="va">scenario</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">sens_growth_df</span>,</span>
 <span>  col <span class="op">=</span> <span class="va">growth_cols</span>, outline <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Fitted \u03b2 by Growth Strength"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Fitted β by Growth Strength"</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Growth scenario"</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/influence.measures.html" class="external-link">hat</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  las <span class="op">=</span> <span class="fl">2</span>, cex.axis <span class="op">=</span> <span class="fl">0.75</span></span>
 <span><span class="op">)</span></span>
@@ -747,83 +825,38 @@ isolating the effect of the extrapolation rate from the model fit.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">eta</span> <span class="op">~</span> <span class="va">scenario</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">sens_growth_df</span>,</span>
 <span>  col <span class="op">=</span> <span class="va">growth_cols</span>, outline <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Fitted \u03b7 by Growth Strength"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Fitted η by Growth Strength"</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Growth scenario"</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/influence.measures.html" class="external-link">hat</a></span><span class="op">(</span><span class="va">eta</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  las <span class="op">=</span> <span class="fl">2</span>, cex.axis <span class="op">=</span> <span class="fl">0.75</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="RGF_files/figure-html/growth-boxplot-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sens_growth_tbl</span> <span class="op">&lt;-</span> <span class="fu">summarize_mc</span><span class="op">(</span><span class="va">sens_growth_df</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">sens_growth_tbl</span>,</span>
-<span>  caption <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Growth-adjusted Weibull by growth parameter scenario ("</span>,</span>
-<span>    <span class="va">n_mc_sens</span>, <span class="st">" iterations each)"</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Scenario"</span>, <span class="st">"Valid"</span>, <span class="st">"Med. \u03b2"</span>,</span>
-<span>    <span class="st">"Med. \u03b7"</span>, <span class="st">"2.5% \u03b7"</span>, <span class="st">"97.5% \u03b7"</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  row.names <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<caption>Growth-adjusted Weibull by growth parameter scenario (200
-iterations each)</caption>
-<thead><tr class="header">
-<th align="left">Scenario</th>
-<th align="right">Valid</th>
-<th align="right">Med. β</th>
-<th align="right">Med. η</th>
-<th align="right">2.5% η</th>
-<th align="right">97.5% η</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">βg = 0.4 (strong)</td>
-<td align="right">200</td>
-<td align="right">1.182</td>
-<td align="right">10523.9</td>
-<td align="right">9925.2</td>
-<td align="right">10987.5</td>
-</tr>
-<tr class="even">
-<td align="left">βg = 0.6 (moderate)</td>
-<td align="right">200</td>
-<td align="right">1.929</td>
-<td align="right">3577.6</td>
-<td align="right">3395.8</td>
-<td align="right">3730.5</td>
-</tr>
-<tr class="odd">
-<td align="left">βg = 0.8 (mild)</td>
-<td align="right">200</td>
-<td align="right">2.679</td>
-<td align="right">2232.8</td>
-<td align="right">2140.8</td>
-<td align="right">2332.0</td>
-</tr>
-<tr class="even">
-<td align="left">βg = 1.0 (none)</td>
-<td align="right">200</td>
-<td align="right">3.398</td>
-<td align="right">1754.2</td>
-<td align="right">1674.4</td>
-<td align="right">1816.0</td>
-</tr>
-</tbody>
-</table>
 <p>Stronger reliability growth (smaller
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>)
-extends the forecast horizon, producing longer simulated lifetimes and a
-larger fitted
+lowers the expected failure count over the fixed window through the
+count-ratio
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">c(\beta_{\text{growth}})</annotation></semantics></math>,
+producing fewer simulated failures and a larger fitted
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
 in the combined Weibull. At
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\beta_{\text{growth}} = 1</annotation></semantics></math>
-(no growth), the forecast horizon is shortest and the growth-adjusted
-distribution is closest to the no-growth baseline.</p>
+(no growth),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">c(1) = 1</annotation></semantics></math>
+leaves the target at the forward-correct no-growth count
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mn>0</mn></msub><annotation encoding="application/x-tex">F_0</annotation></semantics></math>,
+and the growth-adjusted distribution recovers the no-growth baseline —
+its median
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+returns to the fitted fleet value up to Monte Carlo noise. Taking the
+no-growth count from the fleet’s <em>forward</em> hazard rather than the
+Crow-AMSAA since-inception average rate is what removes the offset that
+a purely cumulative-rate target would leave at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\beta_{\text{growth}} = 1</annotation></semantics></math>,
+so the reported shift at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\beta_{\text{growth}} &lt; 1</annotation></semantics></math>
+is attributable entirely to the estimated growth trend.</p>
 </div>
 </div>
 <div class="section level2">
@@ -831,16 +864,18 @@ distribution is closest to the no-growth baseline.</p>
 </h2>
 <ol style="list-style-type: decimal">
 <li><p><strong>Extrapolation uncertainty.</strong> The reliability
-growth forecast extrapolates the observed improvement trend beyond the
-test horizon. Confidence in the forecast degrades with distance from the
-observed data, suggesting that forecasts further beyond the test horizon
-should be interpreted with increasing caution, potentially visualized
-with widening uncertainty bands. The simulation results should be
-interpreted as conditional on the growth trend continuing
-unchanged.</p></li>
+growth forecast extrapolates the developmental improvement trend beyond
+the test horizon and into service, so confidence in the forecast
+degrades with the length of the extrapolation. Assessing the fleet
+earlier, when fewer failures have been observed, produces a longer
+extrapolation and a correspondingly larger, more uncertain forecast, so
+practitioners should limit the extrapolation to a multiple of the
+observed cumulative operating time to avoid unreliable forecasts. The
+simulation results should be interpreted as conditional on the growth
+trend continuing unchanged.</p></li>
 <li><p><strong>Model risk.</strong> The Crow-AMSAA power-law model is
 one of several possible reliability growth models. Alternative models
-(e.g., piecewise, AMSAA-Bingham) may yield different forecast horizons
+(e.g., piecewise, AMSAA-Bingham) may yield different growth count-ratios
 and therefore different simulated life distributions. Future work could
 involve comparing the robustness of forecasts across different growth
 models or incorporating model uncertainty into the overall
@@ -850,51 +885,71 @@ surviving units follow a single conditional Weibull distribution. If the
 fleet contains distinct subpopulations (e.g., different duty cycles or
 hardware revisions), separate analyses should be performed for each
 group.</p></li>
-<li><p><strong>Simulation horizon sensitivity.</strong> The per-unit
-remaining time derived from the RGA forecast directly controls the
-simulated failure distribution. Errors in the growth parameters
-propagate through to the Weibull comparison, as demonstrated in the
-sensitivity analysis.</p></li>
+<li><p><strong>Continued-growth assumption.</strong> The forecast
+assumes the developmental growth trend continues to be reflected in
+field reliability. If the design is frozen at fielding and no further
+improvement occurs, the projection overstates the gain; the no-growth
+baseline then applies. The forecast is best read as the optimistic bound
+under continued improvement.</p></li>
 <li><p><strong>Repair policy.</strong> The simulation assumes failed
 units are not replaced. The combined dataset treats all simulated
 failures as first-failure events for each unit.</p></li>
-<li><p><strong>Input shape parameter.</strong> The
-<code><a href="../reference/sim_failures.html">sim_failures()</a></code> call uses the Weibull shape parameter from
-the initial life data fit as input to the conditional failure model. The
-Monte Carlo analysis captures variability in the fitted parameters on
-the combined data, but the input shape to the simulation is held
-constant across iterations. This simplification may lead to an
-underestimation of total forecast uncertainty; future enhancements could
-involve sampling this input shape from a distribution to more fully
-capture its variability.</p></li>
+<li><p><strong>Remaining uncertainty sources.</strong> The Monte Carlo
+analysis propagates estimation uncertainty in the growth parameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{growth}}</annotation></semantics></math>,
+but because the developmental trend is estimated precisely that
+contribution is small here and the spread is dominated by the
+conditional simulation. Two further sources remain unrepresented. First,
+model-form uncertainty (the choice of the Crow-AMSAA power law) is not
+captured. Second, the input Weibull shape parameter passed to
+<code><a href="../reference/sim_failures.html">sim_failures()</a></code> is held fixed at its fielded-fleet estimate
+across iterations rather than resampled; future enhancements could
+sample this input shape from a distribution to more fully capture its
+variability. Holding the shape fixed is also a structural modeling
+choice, distinct from that sampling question: reliability growth is
+treated as a scale effect that lengthens the characteristic life while
+leaving the failure-mode shape unchanged. A design change that
+<em>reshapes</em> the failure mode — rather than delaying it — would
+move the shape in a mode-specific direction that the growth parameter
+does not determine, and is out of scope.</p></li>
 <li><p><strong>Mixture distribution.</strong> The combined dataset is a
-mixture of pre-growth and post-growth failure populations. A single
-Weibull fitted to this mixture is an approximation; the reduction in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-relative to the no-growth fit reflects the mixture shape rather than a
-change in the wear-out mechanism.</p></li>
+mixture of fielded and post-growth failure populations, which produces
+downward curvature on the Weibull plot. The headline comparison uses a
+two-parameter fit for both scenarios, so they differ only in their data,
+but the two-parameter model is mis-specified for the growth-augmented
+data. The two-parameter B10 (828) is retained because it is stable
+across estimation methods, though it may underestimate the true B10 of
+the growth-augmented distribution. This trade-off is inherent to the
+mixture structure and cannot be avoided without separating the
+pre-growth and post-growth subpopulations, which would require a
+different analysis framework.</p></li>
 </ol>
 </div>
 <div class="section level2">
 <h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
 </h2>
 <p>This analysis demonstrated an end-to-end reliability growth
-forecasting pipeline. The Crow-AMSAA growth model determined the
-cumulative time over which a target number of additional failures is
-expected, and <code><a href="../reference/sim_failures.html">sim_failures()</a></code> generated conditional Weibull
-failure times for the surviving units over that horizon. Combining the
-simulated failures with the observed test data produced a
-growth-adjusted Weibull distribution that was compared against a
-no-growth baseline fitted to the test data alone. Monte Carlo simulation
-quantified the variability in both
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-arising from the stochastic simulation, and sensitivity analyses showed
-how the results depend on the number of test failures and the strength
-of the growth trend. Together, these components provide a repeatable
-methodology for translating observed reliability growth into fleet-level
-life distribution estimates.</p>
+forecasting pipeline. A developmental growth test of sequential
+prototypes established a genuine reliability growth trend
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mtext mathvariant="normal">growth</mtext></msub><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\beta_{\text{growth}} &lt; 1</annotation></semantics></math>),
+which was then projected onto a fielded fleet of the matured design.
+Over a fixed forecast window the Crow-AMSAA growth model lowered the
+number of additional failures expected from the fleet’s own life
+distribution, and <code><a href="../reference/sim_failures.html">sim_failures()</a></code> generated conditional
+Weibull failure times for the surviving units over that window.
+Combining the simulated failures with the observed fleet data produced a
+growth-adjusted Weibull distribution, summarized by the B10 life from a
+like-for-like two-parameter fit, that was compared against a no-growth
+baseline fitted to the fleet data alone. The upward shift relative to
+the baseline is a mechanistic consequence of the growth-reduced failure
+count over the window; the Monte Carlo analysis quantified its
+variability (dominated by the stochastic simulation, since the growth
+trend is tightly estimated), and sensitivity analyses showed how the
+results depend on the fleet assessment point and the strength of the
+growth trend. Together, these components provide a repeatable
+methodology for translating an observed reliability growth trend into
+fleet-level life distribution estimates, with the forecast understood as
+conditional on that trend continuing into service.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -907,7 +962,7 @@ life distribution estimates.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

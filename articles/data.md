@@ -149,11 +149,11 @@ library(ReliaGrowR)
 result <- weibull_to_rga(failures, right_censored, interval_starts, interval_ends)
 head(result)
 #>   CumulativeTime Failures
-#> 1            100        1
-#> 2            265        1
-#> 3            465        2
-#> 6           1225        1
-#> 8           1975        1
+#> 1            900        1
+#> 2           1420        1
+#> 3           1665        2
+#> 6           2155        1
+#> 8           2375        1
 ```
 
 The resulting data frame contains cumulative times and failure counts,
