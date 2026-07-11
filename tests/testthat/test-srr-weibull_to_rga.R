@@ -171,3 +171,18 @@ test_that("weibull_to_rga() handles duplicate failures correctly", {
   # At time 10 there should be 2 failures aggregated
   expect_true(any(res$Failures == 2))
 })
+
+test_that("weibull_to_rga() cumulative time is total time on test", {
+  # TTT(k) = sum(t_(1..k)) + (n - k) * t_(k): units still running at each event
+  # contribute their current age.
+  # Failures only: events 10, 20, 30 (n = 3)
+  #   k=1: 10 + 2*10 = 30; k=2: 30 + 1*20 = 50; k=3: 60 + 0 = 60
+  res <- weibull_to_rga(c(10, 20, 30))
+  expect_equal(res$CumulativeTime, c(30, 50, 60))
+
+  # With a suspension: events 10 (F), 20 (S), 30 (F) (n = 3)
+  #   failure at 10 -> 10 + 2*10 = 30; failure at 30 -> 10 + 20 + 30 = 60
+  res2 <- weibull_to_rga(c(10, 30), suspensions = c(20))
+  expect_equal(res2$Failures, c(1, 1))
+  expect_equal(res2$CumulativeTime, c(30, 60))
+})

@@ -1,0 +1,842 @@
+---
+title: "A Simulation-based Framework for Growth-Adjusted Life Distribution Forecasting"
+author: "Paul Govan, GE Aerospace"
+date: "Key Words: Reliability Growth Analysis, Life Forecasting, Monte Carlo
+  Simulation, Weibull Analysis"
+output:
+  word_document:
+    reference_docx: "rams-reference.docx"
+    fig_caption: true
+    fig_width: 3.2
+    fig_height: 2.6
+  html_document:
+    df_print: paged
+bibliography: references.bib
+csl: ieee.csl
+link-citations: true
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+library(ReliaGrowR)
+library(WeibullR)
+```
+
+
+## Summary & Conclusions
+
+Reliability growth analysis (RGA) quantifies how system reliability improves as design
+changes are introduced during development, but translating the observed growth trend into
+a fleet-level life distribution normally requires several disconnected analyses. This article presents an integrated workflow that connects RGA to life estimation through stochastic simulation, implemented as a reproducible, open-source workflow.
+The example is structured in two phases. A
+developmental growth test of sequential prototypes, in which design improvements
+lead to an improvement trend.
+This trend is then projected onto a fielded fleet of the matured design: over a fixed
+forecast window the growth model lowers the number of additional failures expected from
+the fleet's own life distribution; a conditional Weibull simulation generates failure
+times for the surviving units over that window; and the simulated failures are combined
+with the observed fleet data to fit a growth-adjusted Weibull life distribution. A parallel Weibull fitted to the
+fleet data alone provides a no-growth baseline for comparison. Monte Carlo analysis
+quantifies the variability introduced by growth-parameter uncertainty and the simulation,
+and sensitivity analyses examine the dependence on the fleet assessment point and
+the strength of the growth trend. By construction, incorporating the growth trend shifts
+the characteristic life upward relative to the no-growth baseline. The contribution of the
+workflow is to formalize and quantify the growth-induced shift in characteristic life by
+propagating both growth-parameter uncertainty and simulation variability into the forecast;
+establishing whether this adjustment improves predictive accuracy over no-growth baselines
+requires validation against a fleet exhibiting true continued growth, which is left to future
+work. This enables decision-makers to assess whether the observed developmental trend
+justifies an upward revision of fleet-level reliability estimates and to quantify the
+forecast's sensitivity to the assumed growth continuation. The method provides a repeatable
+means of propagating observed reliability growth into fleet-level life distribution estimates.
+Because the projection assumes the developmental growth trend continues to be reflected in
+field reliability, it is designed to address the potential underestimation of future
+reliability that may result when growth trends are not propagated into fleet-level forecasts.
+The forecast should be read as conditional on the developmental growth trend continuing in
+service. When this assumption is justified, such as when design improvements are expected to
+persist into fielding, the method provides a quantitative, reproducible means of propagating
+that growth into fleet-level life estimates, with explicit variability bounds that fragmented
+analyses do not deliver.
+
+## Introduction
+
+Reliability growth analysis quantifies how system reliability improves during
+development, yet translating the observed growth trend into a fleet-level life
+distribution is rarely formalized. The challenge is compounded by limited life data,
+particularly for high-reliability, long-life products for which
+collecting sufficient failure information is costly and time-consuming. As product
+quality improves, the likelihood of
+observing failures within a practical test window decreases, creating a data-scarcity
+problem that undermines traditional reliability estimation. The difficulty is
+compounded by censoring: units are routinely removed from test before failing, or
+their failure times are known only to fall within an interval, so the effective
+information content of a campaign is smaller than the sample size suggests
+[@zhang2013censored; @alqasem2025phn].
+
+The consequences of analyzing limited, heavily censored data without appropriate
+methods are well documented. Maximum likelihood estimation becomes unreliable with
+small samples, producing biased and highly variable parameter estimates, and the
+shape parameter of the Weibull distribution is especially sensitive
+[@makalic2023mml]. Most critically, reliability
+predictions that extrapolate beyond the observed data become unreliable, with
+serious safety and economic implications [@lou2023acceleration]. A range of
+remedies has been proposed, from integrating historical degradation data
+[@kang2023wiener] to generalized inference for remaining useful life
+[@yan2025rul] and to case-specific Weibull fits for sparse field data
+[@grile2024satellite].
+
+A distinct but under-addressed problem arises when the system is actively being improved
+during test: the life distribution itself is not fixed. Existing remedies for data scarcity
+improve the estimation of a static distribution but do not propagate the observed reliability
+growth trend into fleet-level life predictions. RGA characterizes the system-level failure
+intensity and is conventionally used to project a future failure count or MTBF. However,
+this system-level trend is typically analyzed in isolation from unit-level life estimation.
+As a result, the projected improvement is not reflected in the fleet-level life distribution,
+and reliability forecasts may systematically underestimate future performance.
+
+This article closes this gap by integrating RGA with conditional Weibull simulation. In
+contrast to applying
+a fixed reliability-growth multiplier to a baseline distribution, the growth model here
+adjusts the failure count expected over a fixed forecast window, a conditional simulation
+propagates the growth-adjusted failure behavior onto the surviving fleet, and a
+growth-adjusted Weibull distribution is
+fitted to the combined data and compared against a no-growth baseline, with the
+variability of the projection quantified by Monte Carlo. This integrated approach is intended
+to propagate both growth-parameter uncertainty and simulation variability more transparently
+than ad hoc multipliers, though empirical comparison of predictive accuracy is left to future
+work. The forecast is explicitly
+conditional on the observed growth continuing, where fragmented analyses risk
+underestimating future reliability, an over-extrapolated growth trend can equally
+overestimate it, and the framework is intended to make that dependence visible rather
+than to assert a single point forecast. The complete workflow is implemented in
+open-source [@govan2026reliagrowr; @govan2024reliagrowrpkg], with Weibull fitting
+performed by maximum likelihood estimation (MLE) [@silkworth2025weibullr].
+
+## Simulation Framework
+
+The framework integrates three sequential stages: growth-trend estimation,
+conditional stochastic simulation, and growth-adjusted life estimation, into a
+unified pipeline that propagates an observed reliability growth trend into a
+fleet-level Weibull life distribution. The inputs come from two phases of a program, both involving non-repairable
+units. A *developmental growth test* records the cumulative test times of sequential
+prototypes built under a test-analyze-fix process, and a
+Crow-AMSAA model (Eqs. 8--11) quantifies the system-level improvement
+trend. A *fielded fleet* of the resulting matured design then provides failure and
+suspension times over a finite campaign of duration $T_{\text{end}}$, to which a
+two-parameter Weibull distribution (Eq. 7) is fitted to characterize the unit-level
+failure behavior and to serve as the no-growth baseline. Together, the fitted growth
+model and the fitted Weibull supply the inputs needed for the two subsequent stages.
+
+**Stage 1 --- Forecast window and growth-adjusted failure count.** The forecast is run
+over a fixed *forecast window* $w$, a forward increment applied to each
+surviving unit. Over this window the
+fitted fleet Weibull (shape $\beta$, scale $\eta$) is expected, with no growth, to
+produce
+
+$$F_{0} = \sum_{i=1}^{n_{s}} \left[1 - \exp\!\left\{-\left[
+\left(\tfrac{r_{i}+w}{\eta}\right)^{\beta} -
+\left(\tfrac{r_{i}}{\eta}\right)^{\beta}\right]\right\}\right] \tag{1}$$
+
+failures among the surviving units, where $r_{i}$ is each unit's current age.
+
+Reliability growth lowers this count: an improving fleet accumulates failures more slowly.
+Re-anchoring the Crow-AMSAA scale to the fleet ($\lambda = N_{\text{current}}/T_{\text{end}}^{\,\beta_{g}}$),
+the expected additional failures over the cumulative window $\Delta t = n_{s}\,w$ are
+$N_{\text{current}}[(1+\rho)^{\beta_{g}} - 1]$ with $\rho = \Delta t / T_{\text{end}}$. The
+same since-inception anchoring enters the no-growth ($\beta_{g}=1$) case, so its bias
+cancels when the growth effect is expressed as the *ratio* of the two,
+
+$$c(\beta_{g}) = \frac{(1+\rho)^{\beta_{g}} - 1}{(1+\rho) - 1}
+= \frac{(1+\rho)^{\beta_{g}} - 1}{\rho}, \tag{2}$$
+
+which satisfies $c(1)=1$ and decreases as the growth strengthens
+($\beta_{g}\!\downarrow$). The growth-adjusted target failure count over the window is then
+
+$$n = F_{0}\,c(\beta_{g}). \tag{3}$$
+
+Because $c(1)=1$, with no growth the target reduces to the forward-correct benchmark
+$F_{0}$ and the calibrated scale (Stage 2) returns the fitted fleet value; the growth
+effect enters only through $c(\beta_{g}) < 1$, which forces a larger scale to reproduce
+the reduced count. The projection thus assumes only that the *relative* growth reduction
+estimated in development carries over to the fleet. Because the power law is scale-free, only
+the fractional increment $\rho$ and the dimensionless $\beta_{g}$ enter $c$, so no
+developmental time unit is imported into the fleet forecast.
+
+**Stage 2 --- Conditional Weibull simulation.** Each surviving unit enters the
+simulation window with a known current runtime $r_{i}$. The probability of failing
+within the window $[r_i, r_i + w]$, conditional on having survived to $r_i$, is
+
+$$p_{i} = 1 - \exp\!\left\{-\left[\left(\tfrac{r_{i}+w}{\eta}\right)^{\beta} -
+\left(\tfrac{r_{i}}{\eta}\right)^{\beta}\right]\right\}. \tag{4}$$
+
+The scale parameter $\eta$ is calibrated so that the expected number of conditional
+failures over the window matches the target count $n$:
+
+$$\sum_{i=1}^{n_{s}} p_{i}(\eta) = n, \tag{5}$$
+
+which is solved numerically for $\eta$. The calibrated $\eta$ reflects reliability
+growth: because growth lowers the target count $n$ below the no-growth benchmark $F_{0}$,
+a larger characteristic life is required to reproduce the reduced count over the same
+window. This upward shift in $\eta$ is therefore a *mechanistic* consequence of the
+growth-reduced failure count rather than an independently discovered effect; the
+framework's role is to quantify its magnitude and variability, not to establish its
+existence. Units are then sampled with
+probability proportional to $p_{i}$, and a
+failure time for each selected unit is drawn by inverse-transform sampling of the
+truncated conditional Weibull,
+
+$$t_{i} = \eta\left[\left(\tfrac{r_{i}}{\eta}\right)^{\beta} -
+\ln\!\Big(1 - U_{i}\big(1 - e^{-\Delta h_{i}}\big)\Big)\right]^{1/\beta}, \tag{6}$$
+
+where $U_{i}\sim\text{Uniform}(0,1)$ and
+$\Delta h_{i} = \big((r_{i}+w)/\eta\big)^{\beta} - (r_{i}/\eta)^{\beta}$. The
+non-selected units are right-censored at $r_{i}+w$. The procedure is summarized in
+Algorithm 1.
+
+> **Algorithm 1 --- Conditional Weibull failure simulation**
+> 1. Calibrate the scale $\eta$ by solving Eq. (5) for the target count $n$.
+> 2. Compute the per-unit window failure probability $p_{i}$, Eq. (4).
+> 3. Sample $n$ units with probability proportional to $p_{i}$.
+> 4. Draw a failure time for each selected unit by inverse transform, Eq. (6).
+> 5. Label the remaining units as suspensions at $r_{i}+w$.
+
+**Stage 3 --- Growth-adjusted Weibull fit and Monte Carlo variability assessment.**
+The simulated failure and suspension times are combined with the observed fleet failures
+to form an augmented dataset. A Weibull is fitted to obtain the growth-adjusted life
+distribution, and a parallel Weibull fitted to the fleet data alone serves as the
+no-growth baseline. The growth effect manifests primarily as an increase in the estimated
+characteristic life $\eta$: the simulated failures occur later than they would under the
+no-growth failure rate, shifting the distribution rightward. The headline comparison fits a two-parameter Weibull by maximum likelihood
+to both the baseline and the growth-augmented data, so the two differ only in their data, and
+reports the B10 life as the summary indicator. To characterize the variability in the
+forecast, Stages 1 and 2 are repeated $M$ times: each iteration resamples the estimated
+growth parameter
+$\beta_{g}$ from its sampling distribution and recomputes the growth-adjusted count $n$
+(Eqs. 2--3), redraws the conditional failures over the window, and refits the Weibull, so that
+both growth-parameter estimation uncertainty and simulation randomness are reflected in
+the resulting empirical distributions of $\hat{\beta}$ and $\hat{\eta}$, which are
+summarized by medians and 95% percentile intervals.
+
+## Case Study
+
+The case study proceeds in two steps. First, a reliability growth analysis fits the
+Crow-AMSAA model to a *developmental growth test* in which prototypes are built and tested
+to failure in sequence. Second, a Weibull life analysis characterizes a *fielded fleet* of
+100 units of the matured design, each observed over a 1000 time-unit campaign. The growth
+trend estimated in the first step is then projected onto the fleet to forecast its life
+distribution. Both phases involve non-repairable units.
+
+The failure mechanism is wear-out, so the hazard rate
+increases with age. To provide a reproducible example, the failure and right-censored
+suspension times are simulated from the matured Weibull population (shape 4, scale 1456,
+random seed 8): each unit is assigned a lifetime, units that fail before the end of the
+campaign are recorded as exact failures, and the remainder are right-censored at the end
+of the campaign.
+
+In this illustrative example, the no-growth baseline fitted
+below coincides with the ground-truth life distribution, and the growth-adjusted forecast
+developed in the later sections is the *optimistic bound* that would apply only if the
+developmental improvement trend continued into service. The example is intended to
+demonstrate the mechanics and magnitude of that growth adjustment, not its predictive
+accuracy against a fleet that truly keeps improving (see the Limitations section).
+
+```{r data}
+set.seed(8)
+n_units <- 100
+test_end <- 1000
+beta_mech <- 4 # wear-out shape of the matured design
+eta_matured <- 1456 # characteristic life of the matured design
+fleet_life <- eta_matured * (-log(runif(n_units)))^(1 / beta_mech)
+
+failures <- sort(fleet_life[fleet_life <= test_end])
+suspensions <- rep(test_end, sum(fleet_life > test_end))
+
+n_test_failures <- length(failures)
+n_surviving <- length(suspensions)
+```
+
+This draw yields `r n_test_failures` exact failures, leaving `r n_surviving` surviving
+units at risk during the forecast period.
+
+A two-parameter Weibull distribution is fitted to the failure and suspension data
+using MLE, providing the no-growth baseline life
+distribution. The Weibull cumulative distribution function is
+
+$$F(t) = 1 - \exp\!\left[-\left(\tfrac{t}{\eta}\right)^{\beta}\right], \qquad t > 0, \tag{7}$$
+
+where $\beta$ is the shape parameter and $\eta$ is the scale (characteristic life).
+
+```{r weibull-fit, fig.cap = "Weibull fit to the fielded fleet (no-growth baseline)."}
+obj <- wblr(failures, suspensions,
+  col = "black", label = "Fielded Fleet", is.plot.cb = FALSE
+)
+obj <- wblr.fit(obj, method.fit = "mle")
+sim_beta <- obj$fit[[1]]$beta
+eta_orig <- obj$fit[[1]]$eta
+plot(obj,
+  main = "Weibull Fit to Fielded Fleet (No-Growth Baseline)",
+  xlab = "Operating Time", ylab = "Unreliability"
+)
+```
+
+Figure 1 shows the Weibull fit to the fielded fleet with no growth. The estimated shape
+parameter is $\beta$ = `r round(sim_beta, 3)` and the scale
+parameter is $\eta$ = `r round(eta_orig, 1)`. A shape parameter greater than one
+confirms the wear-out failure mode. This Weibull $\beta$ describes the unit-level hazard
+in *individual age* and is distinct from the Crow-AMSAA growth parameter $\beta_g$
+introduced next, which describes the system-level failure-intensity trend.
+
+## Reliability Growth Analysis
+
+```{r rga-convert}
+set.seed(3)
+N_dev <- 30 # prototypes built and tested in sequence
+g_exp <- 0.8 # strength of design-life improvement with build index
+
+eta_build <- eta_matured * (seq_len(N_dev) / N_dev)^g_exp
+dev_life <- eta_build * (-log(runif(N_dev)))^(1 / beta_mech)
+dev_cum <- cumsum(dev_life)
+```
+
+A Crow-AMSAA non-homogeneous Poisson process (NHPP) model [@crow1975reliability]
+is fitted to the developmental record. The expected
+cumulative number of failures by cumulative operating time $t$ is
+
+$$N(t) = \lambda\, t^{\beta_{g}}, \tag{8}$$
+
+with corresponding failure intensity
+
+$$u(t) = \frac{dN(t)}{dt} = \lambda\,\beta_{g}\,t^{\beta_{g}-1}. \tag{9}$$
+
+By default the parameters are estimated by ordinary least squares on the linearized
+form of (8),
+
+$$\ln N(t) = \ln \lambda + \beta_{g}\ln t. \tag{10}$$
+
+Alternatively, the parameters may be estimated by MLE. The reliability
+growth rate is
+
+$$g = 1 - \beta_{g}. \tag{11}$$
+
+A value $\beta_{g} < 1$ (equivalently $g > 0$) indicates reliability improvement.
+
+```{r rga-fit}
+dev_fit <- rga(
+  data.frame(times = dev_cum, failures = rep(1, N_dev)),
+  times_type = "cumulative_failure_times"
+)
+growth_beta <- as.numeric(dev_fit$betas)
+dev_r2 <- summary(dev_fit$model)$r.squared
+```
+
+```{r rga-plot, results = "asis", fig.cap = "Crow-AMSAA reliability growth model fitted to the developmental test."}
+plot(dev_fit,
+  main = "Developmental Reliability Growth Test",
+  xlab = "Cumulative Test Time", ylab = "Cumulative Failures"
+)
+```
+
+Figure 2 shows the reliability growth model for the developmental phase. The fitted
+growth parameter is $\beta_{g}$ = `r round(growth_beta, 3)`
+($R^2$ = `r round(dev_r2, 3)`), indicating a decreasing failure intensity as the
+design matured, and the reliability growth
+rate (11) is $g = 1 - \beta_{g}$ = `r round(1 - growth_beta, 3)`.
+
+## Reliability Growth Forecast
+
+The growth trend is projected onto the fielded fleet following the Stage 1 procedure of
+the Simulation Framework section. The forecast is run over a fixed *forecast window*. Over that window the fitted fleet Weibull sets the no-growth failure
+count, and the growth *rate* $\beta_{g}$ imported from the developmental test lowers it
+through the Crow-AMSAA count-ratio. Re-anchoring the Crow-AMSAA scale to the fleet
+($\lambda = N_{\text{current}}/T_{\text{end}}^{\,\beta_{g}}$, with $T_{\text{end}}$ the
+fleet's cumulative operating time and $N_{\text{current}}$ the failures observed so far)
+makes that ratio pass through the fleet's observed state. The forecast is therefore
+conditional on the developmental growth trend continuing to be reflected in field
+reliability.
+
+```{r forecast-calc}
+# Forecast window: a modest forward increment (~40% of the observation period) applied to
+# each surviving unit, chosen rather than solved for.
+forecast_window <- 400
+test_end_cum_time <- sum(c(failures, suspensions))
+
+# No-growth count the fitted fleet Weibull expects over the window (forward hazard).
+expected_failures <- function(w, eta, r, beta) {
+  sum(1 - exp(-(((r + w) / eta)^beta - (r / eta)^beta)))
+}
+# Scale that reproduces a target expected count over the window (inverts Eq. 5).
+solve_eta <- function(target, r, beta, window) {
+  uniroot(function(eta) expected_failures(window, eta, r, beta) - target,
+    interval = c(1e-3, 1e9)
+  )$root
+}
+# Crow-AMSAA growth count-ratio: growth lowers the expected count; equals 1 at beta_g = 1.
+count_ratio <- function(bg, rho) ((1 + rho)^bg - 1) / rho
+
+f0 <- expected_failures(forecast_window, eta_orig, rep(test_end, n_surviving), sim_beta)
+rho <- (n_surviving * forecast_window) / test_end_cum_time
+n_expected <- f0 * count_ratio(growth_beta, rho)
+n_forecast <- round(n_expected)
+n_target <- n_test_failures + n_forecast
+```
+
+Figure 3 shows the reliability growth forecast beyond the developmental phase. Over the
+forecast window of $w$ = `r forecast_window` operating time units, the fitted fleet Weibull
+expects $F_{0}$ = `r round(f0, 1)` failures with no growth (Eq. 1). The Crow-AMSAA growth
+count-ratio (Eq. 2) is $c$ = `r round(count_ratio(growth_beta, rho), 2)`, lowering the
+growth-adjusted target to $n$ = `r n_forecast` additional failures (Eq. 3), for a total of
+`r n_target` cumulative failures.
+
+```{r forecast-plot, warning = FALSE, fig.cap = "Developmental Crow-AMSAA growth model fitted to the sequential prototype builds and forecast forward along the same trend, with confidence bounds."}
+dev_target <- N_dev + n_forecast
+t_f_dev <- (dev_target / as.numeric(dev_fit$lambdas))^(1 / growth_beta)
+dev_forecast_times <- seq(max(dev_cum) * 1.001, t_f_dev, length.out = 50)
+
+fc <- predict_rga(dev_fit, times = dev_forecast_times)
+plot(fc,
+  main = "Reliability Growth Forecast",
+  xlab = "Cumulative Test Time", ylab = "Cumulative Failures"
+)
+```
+
+## Simulating Failures
+
+Conditional Weibull failure times for the `r n_surviving` surviving units are
+generated using Algorithm 1. Each unit
+has already accumulated 1000 operating time units; failure times are therefore drawn
+from the Weibull distribution conditional on the current age over the forecast window
+$w$.
+
+```{r simulate}
+set.seed(123)
+# Calibrate the scale to the growth-adjusted expected count over the window, then draw the
+# integer number of failures; at beta_g = 1 this returns the fitted fleet scale exactly.
+sim_eta <- solve_eta(n_expected, rep(test_end, n_surviving), sim_beta, forecast_window)
+sim_result <- sim_failures(
+  n = n_forecast,
+  runtimes = rep(1000, n_surviving),
+  window = forecast_window,
+  beta = sim_beta,
+  eta = sim_eta
+)
+```
+
+The calibrated scale parameter is $\eta$ = `r round(sim_eta, 1)`, compared with the
+no-growth fleet estimate of $\eta$ = `r round(eta_orig, 1)`. The increase is the
+mechanical consequence of the assumed growth: growth lowers the expected failure count
+over the fixed window, so a larger characteristic life is required to reproduce the
+reduced count. Of the
+`r n_surviving` surviving units, `r n_forecast` receive simulated failure times and
+`r n_surviving - n_forecast` are right-censored at the end of the window. The
+simulated failures are combined with the `r n_test_failures` observed fleet failures.
+
+```{r combine}
+sim_fail_times <- sim_result$runtime[sim_result$type == "Failure"]
+sim_susp_times <- sim_result$runtime[sim_result$type == "Suspension"]
+combined_failures <- c(failures, sim_fail_times)
+combined_suspensions <- sim_susp_times
+```
+
+### Weibull Comparison
+
+Two Weibull models are fitted to contrast the effect of reliability growth. The
+*without-growth* model is fitted to the fielded fleet data alone
+(`r n_test_failures` failures, `r n_surviving` suspensions at $t = 1000$),
+representing the life distribution implied by the fleet without projecting the growth
+trend forward. The *with-growth* model is fitted to the combined dataset
+(`r n_test_failures` fleet failures, `r n_forecast` simulated failures, and
+`r n_surviving - n_forecast` suspensions), representing the life distribution when
+growth-adjusted failure times are included. Table 1 shows the parameters and B10 life for
+the two Weibull models, and Figure 4 shows the Weibull plot comparison.
+
+```{r comparison-plot, fig.cap = "Weibull comparison with and without reliability growth."}
+# Headline comparison is like-for-like: a 2-parameter Weibull fitted by MLE to both the
+# fielded fleet (no-growth baseline) and the growth-augmented data, so the two fits differ
+# only in their data, not in parameterization or estimation method.
+obj_nogrowth <- wblr(failures, suspensions,
+  col = "grey50", pch = 1, lty = 2,
+  label = "Without Growth", is.plot.cb = FALSE
+)
+obj_nogrowth <- wblr.fit(obj_nogrowth, method.fit = "mle")
+
+obj_growth <- wblr(combined_failures, combined_suspensions,
+  col = "black", pch = 16, lty = 1,
+  label = "With Growth (2P)", is.plot.cb = FALSE
+)
+obj_growth <- wblr.fit(obj_growth, method.fit = "mle")
+
+plot.wblr(list(obj_nogrowth, obj_growth),
+  main = "Weibull Comparison: With vs. Without Reliability Growth",
+  is.plot.legend = TRUE
+)
+```
+
+```{r comparison-table}
+growth_wb_beta <- obj_growth$fit[[1]]$beta
+growth_wb_eta <- obj_growth$fit[[1]]$eta
+nogrowth_wb_beta <- obj_nogrowth$fit[[1]]$beta
+nogrowth_wb_eta <- obj_nogrowth$fit[[1]]$eta
+
+# B10 life (10th-percentile life): t such that F(t) = 0.10.
+b10 <- function(beta, eta, t0 = 0) t0 + eta * (-log(0.90))^(1 / beta)
+nogrowth_b10 <- b10(nogrowth_wb_beta, nogrowth_wb_eta)
+growth_b10 <- b10(growth_wb_beta, growth_wb_eta)
+
+params <- data.frame(
+  Scenario = c("Without Growth (2P)", "With Growth (2P)"),
+  Beta = round(c(nogrowth_wb_beta, growth_wb_beta), 3),
+  Eta = round(c(nogrowth_wb_eta, growth_wb_eta), 1),
+  B10 = round(c(nogrowth_b10, growth_b10), 1)
+)
+
+knitr::kable(params,
+  caption = "Weibull parameters and B10 life without and with reliability growth (two-parameter MLE)",
+  col.names = c("Scenario", "β", "η", "B10"),
+  row.names = FALSE
+)
+```
+
+## Monte Carlo Analysis
+
+A single simulation produces one realization of the `r n_forecast` forecast failure
+times; different random draws yield different combined datasets and therefore different
+Weibull estimates. To characterize this variability, the simulation is repeated
+`r 500` times following the Monte Carlo procedure of the Simulation Framework section.
+Two sources of variability are propagated. Each iteration draws $\beta_g$ from its
+sampling distribution and recomputes the growth-adjusted failure count over the fixed
+window from Eqs. (2)--(3); it then redraws the forecast failures, combines them with the
+fleet failures, and refits a Weibull distribution with both parameters freely estimated. In
+this example the developmental trend is estimated precisely, the cumulative-data fit
+pins $\beta_g$ down with a small standard error, so the resulting spread is dominated
+by the conditional simulation, with growth-parameter uncertainty included for
+completeness but contributing little. The Monte Carlo and
+sensitivity loops fit two-parameter Weibulls by maximum likelihood, matching the headline
+comparison, so the B10 life is directly comparable throughout.
+
+```{r mc-helpers}
+# Given a target expected count over the window, calibrate the scale, draw round(target)
+# failures, combine with the observed failures, and refit a two-parameter Weibull.
+sim_and_fit <- function(test_failures, target_exp, runtimes, window, beta) {
+  eta_c <- solve_eta(target_exp, runtimes, beta, window)
+  sim_i <- sim_failures(
+    n = round(target_exp), runtimes = runtimes, window = window,
+    beta = beta, eta = eta_c
+  )
+  sim_f <- sim_i$runtime[sim_i$type == "Failure"]
+  sim_s <- sim_i$runtime[sim_i$type == "Suspension"]
+  obj_i <- wblr(c(test_failures, sim_f), sim_s, is.plot.cb = FALSE)
+  obj_i <- wblr.fit(obj_i, method.fit = "mle")
+  data.frame(beta = obj_i$fit[[1]]$beta, eta = obj_i$fit[[1]]$eta)
+}
+```
+
+```{r mc-loop, results = "hide"}
+set.seed(99)
+n_mc <- 500
+mc_results <- vector("list", n_mc)
+
+# Sampling distribution of the developmental growth parameter.
+betag_hat <- as.numeric(dev_fit$betas)
+betag_se <- as.numeric(dev_fit$betas_se)
+
+for (i in seq_len(n_mc)) {
+  tryCatch(
+    {
+      # Draw a growth parameter and recompute the growth-adjusted count over the window.
+      beta_i <- rnorm(1, betag_hat, betag_se)
+      if (beta_i <= 0) stop("non-positive growth parameter draw")
+      target_i <- f0 * count_ratio(beta_i, rho)
+      if (!is.finite(target_i) || target_i <= 0) stop("non-positive count draw")
+
+      mc_results[[i]] <- sim_and_fit(
+        failures, target_i, rep(1000, n_surviving), forecast_window, sim_beta
+      )
+    },
+    error = function(e) NULL
+  )
+}
+
+mc_df <- do.call(rbind, Filter(Negate(is.null), mc_results))
+```
+
+The fitted $\hat{\beta}$, $\hat{\eta}$, and B10 life across all valid iterations are
+summarized in Table 2; the median, mean, and 95% percentile interval describe
+the spread introduced by the propagated growth-parameter uncertainty and the stochastic
+simulation, with the no-growth baseline shown for reference.
+
+```{r mc-table}
+mc_df$b10 <- b10(mc_df$beta, mc_df$eta)
+
+mc_summary <- data.frame(
+  Parameter = c("β", "η", "B10"),
+  NoGrowth = round(c(nogrowth_wb_beta, nogrowth_wb_eta, nogrowth_b10), 3),
+  Median = round(c(median(mc_df$beta), median(mc_df$eta), median(mc_df$b10)), 3),
+  Mean = round(c(mean(mc_df$beta), mean(mc_df$eta), mean(mc_df$b10)), 3),
+  CI_lo = round(c(
+    quantile(mc_df$beta, 0.025),
+    quantile(mc_df$eta, 0.025),
+    quantile(mc_df$b10, 0.025)
+  ), 3),
+  CI_hi = round(c(
+    quantile(mc_df$beta, 0.975),
+    quantile(mc_df$eta, 0.975),
+    quantile(mc_df$b10, 0.975)
+  ), 3)
+)
+
+knitr::kable(mc_summary,
+  caption = paste0(
+    "Monte Carlo summary of Weibull parameters and B10 life (",
+    nrow(mc_df), " valid iterations)"
+  ),
+  col.names = c(
+    "Parameter", "No Growth", "Median", "Mean", "2.5%", "97.5%"
+  ),
+  row.names = FALSE
+)
+```
+
+The Monte Carlo distributions quantify how much the growth-adjusted Weibull estimates
+vary across repeated simulations, here almost entirely from the stochastic simulation
+rather than from growth-parameter estimation uncertainty. These bands represent the
+variability of the forecast conditional on the fitted growth model and the assumed growth
+continuation, not inferential confidence intervals. They quantify the repeatability of the
+method and the sensitivity of the forecast to simulation randomness, but they do not assess
+the accuracy of the growth assumption itself.
+They should be read as forecast variability bands conditional on the fitted model and
+the assumed growth scenario, not as inferential confidence intervals or a hypothesis
+test: in particular, model-form uncertainty (the choice of the Crow-AMSAA power law) is
+not represented. The separation between the no-growth baseline and the Monte Carlo
+distribution of $\hat{\eta}$ reflects the genuine growth reduction in the failure count
+($c(\beta_{g}) < 1$); with no growth the target reduces to $F_{0}$ and the distribution
+centers on the baseline.
+
+## Sensitivity Analysis
+
+The Monte Carlo analysis held the fleet assessment and the input shape parameter
+fixed while varying the simulated draws. This section examines how two key inputs
+affect the growth-adjusted Weibull: the fleet assessment point, and the
+strength of the growth trend. Each scenario runs `r 200` iterations.
+
+### Effect of Fleet Assessment Point
+
+The point at which the fleet is assessed sets how many failures have been observed and how
+the baseline fleet Weibull is fitted, which feed the no-growth count $F_{0}$ over the
+window. The same fleet is assessed at four service points, yielding progressively more
+observed failures.
+
+```{r sens-fail-setup}
+assessment_times <- c(850, 950, 1050, 1150)
+fleet_obs <- vapply(assessment_times, function(te) sum(fleet_life <= te), integer(1))
+fleet_labels <- paste0(fleet_obs, " failures")
+```
+
+```{r sens-fail-mc, results = "hide"}
+set.seed(42)
+n_mc_sens <- 200
+
+sens_fail_list <- lapply(seq_along(assessment_times), function(k) {
+  te <- assessment_times[k]
+  fail_te <- sort(fleet_life[fleet_life <= te])
+  susp_te <- rep(te, sum(fleet_life > te))
+  n_obs <- length(fail_te)
+  n_surv <- length(susp_te)
+
+  obj_te <- wblr.fit(wblr(fail_te, susp_te, is.plot.cb = FALSE), method.fit = "mle")
+  beta_te <- obj_te$fit[[1]]$beta
+  eta_te <- obj_te$fit[[1]]$eta
+
+  if (n_surv <= 0) {
+    return(NULL)
+  }
+  # No-growth count over the fixed window from this assessment's own fitted baseline,
+  # lowered by the growth count-ratio at this assessment's cumulative exposure.
+  f0_te <- expected_failures(forecast_window, eta_te, rep(te, n_surv), beta_te)
+  rho_te <- (n_surv * forecast_window) / sum(c(fail_te, susp_te))
+  target_te <- f0_te * count_ratio(growth_beta, rho_te)
+  if (!is.finite(target_te) || target_te <= 0) {
+    return(NULL)
+  }
+
+  rows <- lapply(seq_len(n_mc_sens), function(i) {
+    tryCatch(
+      {
+        r <- sim_and_fit(fail_te, target_te, rep(te, n_surv), forecast_window, beta_te)
+        cbind(scenario = fleet_labels[k], r)
+      },
+      error = function(e) NULL
+    )
+  })
+  do.call(rbind, Filter(Negate(is.null), rows))
+})
+
+sens_fail_df <- do.call(rbind, Filter(Negate(is.null), sens_fail_list))
+sens_fail_df$scenario <- factor(sens_fail_df$scenario, levels = fleet_labels)
+```
+
+```{r sens-fail-boxplot, fig.height = 3.6, fig.width = 5.0, fig.cap = "Growth-adjusted Weibull parameters by fleet assessment point."}
+par(mfrow = c(1, 2), mar = c(7, 4, 3, 1))
+
+fail_cols <- c("white", "grey80", "grey55", "grey30")
+boxplot(beta ~ scenario,
+  data = sens_fail_df,
+  col = fail_cols, outline = FALSE,
+  main = "Fitted β by Failures Observed",
+  xlab = "", ylab = expression(hat(beta)),
+  las = 2, cex.axis = 0.8
+)
+
+boxplot(eta ~ scenario,
+  data = sens_fail_df,
+  col = fail_cols, outline = FALSE,
+  main = "Fitted η by Failures Observed",
+  xlab = "", ylab = expression(hat(eta)),
+  las = 2, cex.axis = 0.8
+)
+
+par(mfrow = c(1, 1))
+```
+
+Figure 5 shows the Weibull parameters by increasing failures observed. Across the four
+assessment points the growth count-ratio is essentially constant ($c \approx 0.8$), so the
+growth adjustment itself is robust to when the fleet is assessed; the visible variation is
+inherited from the *baseline* Weibull fit, which is depressed by the heavy censoring of an
+early assessment (`r fleet_obs[1]` observed failures) and stabilizes once enough failures have accrued.
+The practical implication is that a dependable growth forecast depends less on the
+assessment timing than on having enough observed failures to pin down the fleet's baseline
+life distribution.
+
+### Effect of Growth Parameter
+
+The growth parameter $\beta_{g}$ controls the growth count-ratio $c(\beta_{g})$:
+stronger growth (smaller $\beta_{g}$) lowers the expected failure count over the fixed
+window, producing fewer simulated failures and a larger fitted $\eta$. Four growth
+scenarios are examined while holding all other inputs fixed; each scales the same
+no-growth count $F_{0}$ by its ratio $c(\beta_{g})$, so the scenarios differ only in the
+growth strength.
+
+```{r growth-setup}
+growth_scenarios <- c(0.4, 0.6, 0.8, 1.0)
+growth_labels <- c(
+  "βg = 0.4 (strong)",
+  "βg = 0.6 (moderate)",
+  "βg = 0.8 (mild)",
+  "βg = 1.0 (none)"
+)
+```
+
+```{r growth-mc, results = "hide"}
+set.seed(77)
+
+sens_growth_list <- lapply(seq_along(growth_scenarios), function(k) {
+  gb <- growth_scenarios[k]
+
+  # Lower the fixed-window no-growth count by the growth ratio for this scenario.
+  target_k <- f0 * count_ratio(gb, rho)
+
+  if (target_k <= 0) {
+    return(NULL)
+  }
+
+  rows <- lapply(seq_len(n_mc_sens), function(i) {
+    tryCatch(
+      {
+        r <- sim_and_fit(
+          failures, target_k, rep(1000, n_surviving), forecast_window, sim_beta
+        )
+        cbind(scenario = growth_labels[k], r)
+      },
+      error = function(e) NULL
+    )
+  })
+  do.call(rbind, Filter(Negate(is.null), rows))
+})
+
+sens_growth_df <- do.call(rbind, Filter(Negate(is.null), sens_growth_list))
+sens_growth_df$scenario <- factor(sens_growth_df$scenario, levels = growth_labels)
+```
+
+```{r growth-boxplot, fig.height = 3.6, fig.width = 5.0, fig.cap = "Growth-adjusted Weibull parameters by growth strength."}
+par(mfrow = c(1, 2), mar = c(8, 4, 3, 1))
+
+growth_cols <- c("white", "grey80", "grey55", "grey30")
+boxplot(beta ~ scenario,
+  data = sens_growth_df,
+  col = growth_cols, outline = FALSE,
+  main = "Fitted β by Growth Strength",
+  xlab = "", ylab = expression(hat(beta)),
+  las = 2, cex.axis = 0.65
+)
+
+boxplot(eta ~ scenario,
+  data = sens_growth_df,
+  col = growth_cols, outline = FALSE,
+  main = "Fitted η by Growth Strength",
+  xlab = "", ylab = expression(hat(eta)),
+  las = 2, cex.axis = 0.65
+)
+
+par(mfrow = c(1, 1))
+```
+
+Figure 6 shows the Weibull parameters by increasing growth parameter. Stronger reliability
+growth (smaller $\beta_{g}$) lowers the expected failure count over the fixed window
+through the count-ratio $c(\beta_{g})$, producing fewer simulated failures and a larger
+fitted $\eta$. At $\beta_{g} = 1$ (no growth) the ratio $c(1) = 1$ leaves the target at
+the forward-correct no-growth count $F_{0}$, and the growth-adjusted distribution recovers
+the no-growth baseline --- its median $\eta$ returns to the fitted fleet value up to Monte
+Carlo noise. The growth-adjusted $\eta$ therefore rises monotonically from the baseline as
+the growth strengthens, so the reported shift is attributable entirely to the estimated
+growth trend. Taking the no-growth count from the fleet's *forward* hazard (rather than
+from the Crow-AMSAA since-inception average rate) is what removes the offset that a
+purely cumulative-rate target would leave at $\beta_{g} = 1$.
+
+## Limitations
+
+The forecast projects the developmental improvement trend into service, and it inherits the
+sampling behavior of the fleet's baseline Weibull fit. The Sensitivity Analysis (effect of
+fleet assessment point) shows that when few failures have been observed the heavily censored
+baseline fit is unstable, which propagates into the growth-adjusted forecast; a dependable
+forecast therefore requires enough observed failures to pin down the fleet's baseline life
+distribution. Results are
+conditional on the growth trend continuing to be reflected in field reliability. If the
+design is frozen at fielding and no further improvement occurs, the projection overstates
+the gain and the no-growth baseline applies, so the forecast is best read as the optimistic
+bound under continued improvement.
+
+The present study demonstrates the mechanics and magnitude of the growth adjustment and
+provides a reproducible framework for propagating developmental growth trends into
+fleet-level forecasts. Establishing whether the method improves on the no-growth baseline in
+predictive accuracy requires a validation study in which the fleet's true future life
+genuinely continues along the estimated growth trend, so that the forecast can be compared
+against a held-out ground truth. Such validation is left to future work.
+
+Finally, the Monte Carlo analysis propagates estimation uncertainty in
+the growth parameter $\beta_{g}$, though because the cumulative-data fit estimates are precise, that contribution is small and the spread is dominated by the conditional
+simulation. Two uncertainty sources remain unrepresented: model-form uncertainty in the
+choice of the Crow-AMSAA power law, and the input Weibull shape $\beta$, which is held
+fixed at its fielded-fleet estimate across iterations rather than resampled. Holding
+$\beta$ fixed is also a structural modeling choice, distinct from that sampling question:
+reliability growth is treated as a scale effect that lengthens the characteristic life
+$\eta$ while leaving the unit-level failure-mode shape $\beta$ unchanged. A design change
+that *reshapes* the failure mode --- rather than delaying it --- would move $\beta$ in a
+mode-specific direction that the growth parameter $\beta_{g}$ does not determine, and is
+therefore outside the model's scope. Alternative growth models such as the piecewise NHPP
+with change-point detection [@guo2010piecewise], available through segmented regression
+[@muggeo2008segmented], may yield different growth counts and life distributions. The
+simulation assumes a homogeneous fleet drawn from a single conditional Weibull
+distribution and that failed units are not replaced; distinct subpopulations would
+require separate analyses.
+
+## Acknowledgements
+
+The author thanks Anthropic's Claude Code for assistance with software development,
+documentation, and manuscript preparation.
+
+# References

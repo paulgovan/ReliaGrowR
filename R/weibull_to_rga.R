@@ -4,7 +4,10 @@
 #' into a format suitable for reliability growth analysis (RGA). The function
 #' handles exact failure times, right-censored suspensions, and interval-censored data.
 #' It approximates interval-censored failures by placing them at the midpoint of the interval.
-#' The output is a data frame with cumulative time and failure counts. This format
+#' The output is a data frame with cumulative time and failure counts, where the
+#' cumulative time is the total time on test of the population: at each event, units
+#' that have already failed or been suspended contribute their own time, while units
+#' still operating contribute the current event time (their current age). This format
 #' can be used with RGA models such as Crow-AMSAA.
 #'
 #' @srrstats {G1.2} The Life Cycle Statement is in the CONTRIBUTING.md file.
@@ -47,7 +50,9 @@
 #' This parameter is optional and can be NULL if there are no interval-censored data.
 #' If provided, it must be the same length as `interval_starts`.
 #' @return The data frame contains two columns:
-#' \item{CumulativeTime}{Cumulative time at each failure event.}
+#' \item{CumulativeTime}{Total time on test of the population at each failure event.
+#' Failed and suspended units contribute their own time, while units still running
+#' contribute the current event time (their current age).}
 #' \item{Failures}{Number of failures at each cumulative time point.}
 #' The function approximates interval-censored failures by placing them at the midpoint
 #' of the interval.
@@ -122,8 +127,14 @@ weibull_to_rga <- function(failures,
   data <- data.frame(Time = all_times, Type = all_types)
   data <- data[order(data$Time), ]
 
-  # Cumulative time is just running sum of times in order
-  data$CumulativeTime <- cumsum(data$Time)
+  # Cumulative time is the total time on test of the population at each event:
+  # units that have already failed or been suspended contribute their own time,
+  # while the units still running each contribute the current event time (their
+  # current age). With ordered event times t_(1) <= ... <= t_(n),
+  #   TTT(k) = sum(t_(1..k)) + (n - k) * t_(k).
+  n_events <- nrow(data)
+  data$CumulativeTime <- cumsum(data$Time) +
+    (n_events - seq_len(n_events)) * data$Time
 
   # Failure counts by time (Failures + IntervalFailures)
   failure_counts <- stats::aggregate(Type ~ Time,

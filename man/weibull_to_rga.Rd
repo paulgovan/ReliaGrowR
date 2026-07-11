@@ -29,7 +29,9 @@ If provided, it must be the same length as \code{interval_starts}.}
 }
 \value{
 The data frame contains two columns:
-\item{CumulativeTime}{Cumulative time at each failure event.}
+\item{CumulativeTime}{Total time on test of the population at each failure event.
+Failed and suspended units contribute their own time, while units still running
+contribute the current event time (their current age).}
 \item{Failures}{Number of failures at each cumulative time point.}
 The function approximates interval-censored failures by placing them at the midpoint
 of the interval.
@@ -39,7 +41,10 @@ Converts Weibull data (failure, suspension, and interval-censored times)
 into a format suitable for reliability growth analysis (RGA). The function
 handles exact failure times, right-censored suspensions, and interval-censored data.
 It approximates interval-censored failures by placing them at the midpoint of the interval.
-The output is a data frame with cumulative time and failure counts. This format
+The output is a data frame with cumulative time and failure counts, where the
+cumulative time is the total time on test of the population: at each event, units
+that have already failed or been suspended contribute their own time, while units
+still operating contribute the current event time (their current age). This format
 can be used with RGA models such as Crow-AMSAA.
 }
 \examples{
