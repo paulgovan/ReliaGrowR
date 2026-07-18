@@ -75,3 +75,15 @@ Requires the mcptools and ellmer packages to be installed.
         }
       }
     }
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Start the server with the default stdio transport
+rga_mcp_server()
+
+# Start the server with an HTTP transport
+rga_mcp_server(type = "http")
+} # }
+```
