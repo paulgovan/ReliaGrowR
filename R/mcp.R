@@ -405,6 +405,15 @@ NULL
 #' @param ... Additional arguments passed to \code{mcptools::mcp_server()},
 #'   e.g., \code{type = "stdio"} (default) or \code{type = "http"}.
 #'
+#' @examples
+#' \dontrun{
+#' # Start the server with the default stdio transport
+#' rga_mcp_server()
+#'
+#' # Start the server with an HTTP transport
+#' rga_mcp_server(type = "http")
+#' }
+#'
 #' @return Called for its side effect of starting the MCP server.
 #' @importFrom stats coef
 #' @export

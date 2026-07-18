@@ -55,3 +55,13 @@ claude mcp add -s user reliagrowR -- Rscript -e "ReliaGrowR::rga_mcp_server()"
 }
 }
 
+\examples{
+\dontrun{
+# Start the server with the default stdio transport
+rga_mcp_server()
+
+# Start the server with an HTTP transport
+rga_mcp_server(type = "http")
+}
+
+}
