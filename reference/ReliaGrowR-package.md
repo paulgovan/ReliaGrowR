@@ -1,8 +1,7 @@
 # ReliaGrowR: Reliability Growth Analysis
 
 Modeling and plotting functions for Reliability Growth Analysis (RGA).
-The package implements three families of models and provides a REST API
-interface via plumber.
+The package implements three families of models.
 
 ## Reliability Growth Models
 
@@ -38,7 +37,6 @@ a graphical and analytical representation of reliability growth.
 | [`sim_failures()`](https://paulgovan.github.io/ReliaGrowR/reference/sim_failures.md) | Simulate failures from a conditional Weibull model |
 | [`qqplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/qqplot.rga.md) | Q-Q goodness-of-fit plot for an `rga` object |
 | [`ppplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/ppplot.rga.md) | P-P goodness-of-fit plot for an `rga` object |
-| [`grwr_api()`](https://paulgovan.github.io/ReliaGrowR/reference/grwr_api.md) | Launch the plumber REST API |
 
 ## S3 Classes and Methods
 

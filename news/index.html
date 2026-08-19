@@ -35,6 +35,10 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.8" id="reliagrowr-08">ReliaGrowR 0.8<a class="anchor" aria-label="anchor" href="#reliagrowr-08"></a></h2>
 <div class="section level3">
+<h3 id="breaking-changes-0-8">Breaking Changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-8"></a></h3>
+<ul><li>Removed <code>grwr_api()</code> and the accompanying <code>inst/plumber/</code> Plumber REST API.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="new-features-0-8">New Features<a class="anchor" aria-label="anchor" href="#new-features-0-8"></a></h3>
 <ul><li>New <code><a href="../reference/gof.html">gof()</a></code> function for computing numerical goodness-of-fit statistics (Cramér-von Mises and Kolmogorov-Smirnov) for fitted RGA models.</li>
 <li>New <code><a href="../reference/predict_duane.html">predict_duane()</a></code> function for making predictions from Duane models, with confidence bounds and <code>print</code>/<code>plot</code> S3 methods.</li>
@@ -45,6 +49,9 @@
 <ul><li>New vignette on Reliability Demonstration Test Planning.</li>
 <li>New vignette on MCP server usage.</li>
 <li>Updated and expanded test suite for Duane, GOF, and MCP functions.</li>
+<li>Fixed <code><a href="../reference/weibull_to_rga.html">weibull_to_rga()</a></code> so <code>CumulativeTime</code> reflects the total time on test of the population (units already failed or suspended contribute their own time, while units still running contribute their current age), rather than a simple running sum of event times.</li>
+<li>Added a runnable example to <code><a href="../reference/rga_mcp_server.html">rga_mcp_server()</a></code> documentation.</li>
+<li>Updated and expanded the RGF vignette.</li>
 <li>Other minor improvements and bug fixes.</li>
 </ul></div>
 </div>

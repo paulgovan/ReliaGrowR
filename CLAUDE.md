@@ -48,10 +48,7 @@ conditional Weibull models. - `R/weibull_to_rga.R` — Converts
 Weibull-format data to RGA input format. - `R/gof.R` — Goodness-of-fit:
 [`ppplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/ppplot.rga.md)
 and
-[`qqplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/qqplot.rga.md). -
-`R/grwr_api.R` + `inst/plumber/` — Plumber REST API exposing `/rga`,
-`/duane`, `/gof` endpoints via
-[`grwr_api()`](https://paulgovan.github.io/ReliaGrowR/reference/grwr_api.md).
+[`qqplot.rga()`](https://paulgovan.github.io/ReliaGrowR/reference/qqplot.rga.md).
 
 ## Testing Conventions
 

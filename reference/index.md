@@ -8,8 +8,6 @@
   : Exposure Analysis for Repairable Systems.
 - [`gof()`](https://paulgovan.github.io/ReliaGrowR/reference/gof.md) :
   Goodness-of-Fit Statistics for RGA Objects
-- [`grwr_api()`](https://paulgovan.github.io/ReliaGrowR/reference/grwr_api.md)
-  : ReliaGrowR API
 - [`mcf()`](https://paulgovan.github.io/ReliaGrowR/reference/mcf.md) :
   Mean Cumulative Function for Repairable Systems.
 - [`nhpp()`](https://paulgovan.github.io/ReliaGrowR/reference/nhpp.md) :

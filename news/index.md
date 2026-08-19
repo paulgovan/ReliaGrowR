@@ -2,6 +2,11 @@
 
 ## ReliaGrowR 0.8
 
+### Breaking Changes
+
+- Removed `grwr_api()` and the accompanying `inst/plumber/` Plumber REST
+  API.
+
 ### New Features
 
 - New [`gof()`](https://paulgovan.github.io/ReliaGrowR/reference/gof.md)
@@ -21,6 +26,16 @@
 - New vignette on Reliability Demonstration Test Planning.
 - New vignette on MCP server usage.
 - Updated and expanded test suite for Duane, GOF, and MCP functions.
+- Fixed
+  [`weibull_to_rga()`](https://paulgovan.github.io/ReliaGrowR/reference/weibull_to_rga.md)
+  so `CumulativeTime` reflects the total time on test of the population
+  (units already failed or suspended contribute their own time, while
+  units still running contribute their current age), rather than a
+  simple running sum of event times.
+- Added a runnable example to
+  [`rga_mcp_server()`](https://paulgovan.github.io/ReliaGrowR/reference/rga_mcp_server.md)
+  documentation.
+- Updated and expanded the RGF vignette.
 - Other minor improvements and bug fixes.
 
 ## ReliaGrowR 0.6
