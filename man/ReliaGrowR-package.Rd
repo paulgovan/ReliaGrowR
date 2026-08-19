@@ -7,8 +7,7 @@
 \title{ReliaGrowR: Reliability Growth Analysis}
 \description{
 Modeling and plotting functions for Reliability Growth Analysis (RGA).
-The package implements three families of models and provides a REST API
-interface via \link[plumber:deprecated_r6]{plumber}.
+The package implements three families of models.
 }
 \section{Reliability Growth Models}{
 
@@ -43,7 +42,6 @@ a graphical and analytical representation of reliability growth.
    \code{\link[=sim_failures]{sim_failures()}} \tab Simulate failures from a conditional Weibull model \cr
    \code{\link[=qqplot.rga]{qqplot.rga()}} \tab Q-Q goodness-of-fit plot for an \code{rga} object \cr
    \code{\link[=ppplot.rga]{ppplot.rga()}} \tab P-P goodness-of-fit plot for an \code{rga} object \cr
-   \code{\link[=grwr_api]{grwr_api()}} \tab Launch the plumber REST API \cr
 }
 }
 

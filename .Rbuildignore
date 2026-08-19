@@ -14,3 +14,4 @@
 ^CLAUDE\.md$
 ^\.positai$
 ^\.claude$
+^inst/paper$

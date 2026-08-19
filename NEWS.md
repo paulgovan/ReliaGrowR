@@ -1,5 +1,8 @@
 # ReliaGrowR 0.8
 
+## Breaking Changes
+* Removed `grwr_api()` and the accompanying `inst/plumber/` Plumber REST API.
+
 ## New Features
 * New `gof()` function for computing numerical goodness-of-fit statistics
   (Cramér-von Mises and Kolmogorov-Smirnov) for fitted RGA models.
@@ -12,6 +15,12 @@
 * New vignette on Reliability Demonstration Test Planning.
 * New vignette on MCP server usage.
 * Updated and expanded test suite for Duane, GOF, and MCP functions.
+* Fixed `weibull_to_rga()` so `CumulativeTime` reflects the total time on
+  test of the population (units already failed or suspended contribute
+  their own time, while units still running contribute their current age),
+  rather than a simple running sum of event times.
+* Added a runnable example to `rga_mcp_server()` documentation.
+* Updated and expanded the RGF vignette.
 * Other minor improvements and bug fixes.
 
 # ReliaGrowR 0.6

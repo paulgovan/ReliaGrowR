@@ -37,7 +37,6 @@ ReliaGrowR implements statistical models for Reliability Growth Analysis (RGA). 
 - `R/sim_failures.R` — Simulates failure data from conditional Weibull models.
 - `R/weibull_to_rga.R` — Converts Weibull-format data to RGA input format.
 - `R/gof.R` — Goodness-of-fit: `ppplot.rga()` and `qqplot.rga()`.
-- `R/grwr_api.R` + `inst/plumber/` — Plumber REST API exposing `/rga`, `/duane`, `/gof` endpoints via `grwr_api()`.
 
 ## Testing Conventions
 

@@ -2,8 +2,7 @@
 #'
 #' @description
 #' Modeling and plotting functions for Reliability Growth Analysis (RGA).
-#' The package implements three families of models and provides a REST API
-#' interface via [plumber][plumber::plumber].
+#' The package implements three families of models.
 #'
 #' @section Reliability Growth Models:
 #'
@@ -37,7 +36,6 @@
 #' | [sim_failures()] | Simulate failures from a conditional Weibull model |
 #' | [qqplot.rga()] | Q-Q goodness-of-fit plot for an `rga` object |
 #' | [ppplot.rga()] | P-P goodness-of-fit plot for an `rga` object |
-#' | [grwr_api()] | Launch the plumber REST API |
 #'
 #' @section S3 Classes and Methods:
 #'

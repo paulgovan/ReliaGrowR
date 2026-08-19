@@ -7,7 +7,6 @@ Description: Modeling and plotting functions for Reliability Growth Analysis (RG
 Imports:
   graphics,
   grDevices,
-  plumber,
   segmented,
   stats
 License: CC BY 4.0
