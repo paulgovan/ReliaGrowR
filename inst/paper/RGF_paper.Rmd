@@ -33,10 +33,14 @@ library(WeibullR)
 
 Reliability growth analysis (RGA) quantifies how system reliability improves as design
 changes are introduced during development, but translating the observed growth trend into
-a fleet-level life distribution normally requires several disconnected analyses. This article presents an integrated workflow that connects RGA to life estimation through stochastic simulation, implemented as a reproducible, open-source workflow.
+a fleet-level life distribution normally requires several disconnected analyses. Although
+reliability growth modeling is conventionally associated with repairable systems, the
+analysis presented here is applied to non-repairable units: growth is tracked across a
+sequence of prototype builds during development, and unit-level life is characterized by a
+Weibull distribution in which failed units are not restored to service. This article presents an integrated workflow that connects RGA to life estimation through stochastic simulation, implemented as a reproducible, open-source workflow.
 The example is structured in two phases. A
-developmental growth test of sequential prototypes, in which design improvements
-lead to an improvement trend.
+developmental growth test of sequential non-repairable prototypes, in which design
+improvements lead to an improvement trend.
 This trend is then projected onto a fielded fleet of the matured design: over a fixed
 forecast window the growth model lowers the number of additional failures expected from
 the fleet's own life distribution; a conditional Weibull simulation generates failure
@@ -99,6 +103,13 @@ intensity and is conventionally used to project a future failure count or MTBF. 
 this system-level trend is typically analyzed in isolation from unit-level life estimation.
 As a result, the projected improvement is not reflected in the fleet-level life distribution,
 and reliability forecasts may systematically underestimate future performance.
+
+Reliability growth modeling is most commonly associated with repairable systems, where the
+growth model describes the failure intensity of a system that is repaired and returned to
+service. The analysis in this article is instead applied to non-repairable units: the
+Crow-AMSAA model characterizes the improvement trend across sequentially built prototypes,
+so the entity that improves is the design rather than an individual repaired unit, and each
+unit's life is described by a Weibull distribution with no restoration after failure.
 
 This article closes this gap by integrating RGA with conditional Weibull simulation. In
 contrast to applying
@@ -836,7 +847,6 @@ require separate analyses.
 
 ## Acknowledgements
 
-The author thanks Anthropic's Claude Code for assistance with software development,
-documentation, and manuscript preparation.
+The authors acknowledge Anthropic's Claude Code for assistance with reviewing the manuscript for grammar and consistency.
 
 # References
