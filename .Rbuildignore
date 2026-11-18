@@ -15,3 +15,7 @@
 ^\.positai$
 ^\.claude$
 ^inst/paper$
+^vignettes/.*\.docx$
+^vignettes/.*\.html$
+^vignettes/.*\.R$
+^tests/testthat/Rplots\.pdf$

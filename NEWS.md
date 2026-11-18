@@ -1,7 +1,23 @@
 # ReliaGrowR 0.8
 
-## Breaking Changes
+## Breaking changes
 * Removed `grwr_api()` and the accompanying `inst/plumber/` Plumber REST API.
+  The `plumber` package is no longer imported. AI-assistant and programmatic
+  access is provided by `rga_mcp_server()` instead.
+
+## Bug fixes
+* Fixed `weibull_to_rga()` so `CumulativeTime` reflects the total time on
+  test of the population (units already failed or suspended contribute
+  their own time, while units still running contribute their current age),
+  rather than a simple running sum of event times. Results from
+  `weibull_to_rga()` will differ from previous versions.
+
+## Minor improvements
+* Added a runnable example to `rga_mcp_server()` documentation.
+* Updated and expanded the RGF vignette.
+* Added tests for the corrected `weibull_to_rga()` cumulative time.
+
+# ReliaGrowR 0.7
 
 ## New Features
 * New `gof()` function for computing numerical goodness-of-fit statistics
@@ -15,12 +31,6 @@
 * New vignette on Reliability Demonstration Test Planning.
 * New vignette on MCP server usage.
 * Updated and expanded test suite for Duane, GOF, and MCP functions.
-* Fixed `weibull_to_rga()` so `CumulativeTime` reflects the total time on
-  test of the population (units already failed or suspended contribute
-  their own time, while units still running contribute their current age),
-  rather than a simple running sum of event times.
-* Added a runnable example to `rga_mcp_server()` documentation.
-* Updated and expanded the RGF vignette.
 * Other minor improvements and bug fixes.
 
 # ReliaGrowR 0.6
