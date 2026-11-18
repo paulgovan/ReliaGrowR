@@ -1,13 +1,5 @@
 ## Submission summary
 
-This is a minor release (0.7 -> 0.8). Changes:
-
-* Removed `grwr_api()` and the bundled Plumber REST API; `plumber` is no
-  longer in Imports.
-* Fixed `weibull_to_rga()` so its cumulative time is the population total
-  time on test.
-* Added an example for `rga_mcp_server()` and updated the RGF vignette.
-
 ## R CMD check results
 
 0 errors | 0 warnings | 0 notes
